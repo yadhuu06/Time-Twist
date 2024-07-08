@@ -84,16 +84,18 @@
               
               <div class="row">
                 <div class="col-md-12 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    
-                    <label class="form-label" for="form3Example1">NAME</label>
-                    <input type="text" id="form3Example1" class="form-control" name="username" required/>
-
-
-
-                   
+                  <div data-mdb-input-init class="form-outline">                    
+                    <label class="form-label" for="form3Example1">firstname</label>
+                    <input type="text" id="form3Example1" class="form-control" name="firstname" required/>
                   </div>
                 </div>
+                <div class="row">
+                  <div class="col-md-12 mb-4">
+                    <div data-mdb-input-init class="form-outline">                    
+                      <label class="form-label" for="form3Example1">Lastname</label>
+                      <input type="text" id="form3Example1" class="form-control" name="lastname" required/>
+                    </div>
+                  </div>
                
 
               <div data-mdb-input-init class="form-outline mb-4">
@@ -118,7 +120,7 @@
                 CREATE ACOUNT
               </button>
 
-              <a href="{% url 'Otp' %}"  style="margin-top: px;">Already have an Acount ?</a>
+              {% comment %} <a href="{% url 'Otp' %}"  style="margin-top: px;">Already have an Acount ?</a> {% endcomment %}
 
               <div class="text-center">
                 

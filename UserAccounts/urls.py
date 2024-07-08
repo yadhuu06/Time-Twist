@@ -5,5 +5,5 @@ urlpatterns = [
     
     path('',views.signup,name='signup'),
     path('Register',views.Register,name='Register'),
-    path('Otp',views.Otp,name='Otp'),
+    # path('Otp',views.Otp,name='Otp'),
 ]
