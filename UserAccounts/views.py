@@ -10,6 +10,7 @@ def Register(request):
         Fname = request.POST.get('firstname')
         Lname = request.POST.get('lastname')
         email = request.POST.get('email')
+        phone = request.POST.get('phone')
         pass1 = request.POST.get('password1')
         # pass2=request.POST.get('password2')
         otp = random.randint(1000, 9999)
@@ -29,6 +30,7 @@ def Register(request):
         request.session['Lname'] = Lname
         request.session['email'] = email
         request.session['pass1'] = pass1
+        request.session['phone']= phone
         
         return render(request, 'Otp.html')
 def verify_otp(request):
@@ -42,10 +44,10 @@ def verify_otp(request):
             Lname = request.session.get('Lname')
             email = request.session.get('email')
             pass1 = request.session.get('pass1')
-            
+            phone = request.session.get('phone')
             # Create user with UserManager
             User = get_user_model()
-            user = User.objects.create_user(email=email, first_name=Fname, last_name=Lname, phone_number='', password=pass1)
+            user = User.objects.create_user(email=email, first_name=Fname, last_name=Lname, phone_number=phone, password=pass1)
             user.is_active = True  # Activate user upon successful OTP verification
             user.save()
             
