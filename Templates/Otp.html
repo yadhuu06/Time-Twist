@@ -36,7 +36,7 @@
             font-family: 'Montserrat', sans-serif; 
             font-weight: bold; 
             font-size: 2em; 
-            text-shado
+        }
         
         .otp-form input {
             width: calc(100% - 22px);
@@ -47,8 +47,18 @@
             font-size: 16px;
             text-align: center;
         }
-        #otp{
-            text color:#fff;
+        .resend-otp {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #f00; 
+            color: #fff; 
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        
+        .resend-otp:hover {
+            background: #c00; 
         }
         
         .otp-form button {
@@ -96,26 +106,33 @@
         </form>
         <p id="otp-timer">Time remaining: <span id="timer">60</span> seconds</p>
         <p id="time-exceeded-message">Time limit exceeded. Please request a new OTP.</p>
-        <a href="">Resend OTP</a>
+        <button btn-btn class primary><a href="">Resend OTP</a></button>
     </div>
 
     <script>
-        let timeLeft = 60;
+        let timeLeft = localStorage.getItem('timeLeft') ? parseInt(localStorage.getItem('timeLeft')) : 60;
         const timerElement = document.getElementById('timer');
         const timeExceededMessage = document.getElementById('time-exceeded-message');
 
         function countdown() {
-            if (timeLeft == 0) {
+            if (timeLeft <= 0) {
                 clearInterval(timer);
-                timeExceededMessage.style.display = 'block'; // Show the time exceeded message
+                timeExceededMessage.style.display = 'block';
+                localStorage.removeItem('timeLeft');
             } else {
                 timerElement.textContent = timeLeft + ' seconds';
                 timeLeft--;
+                localStorage.setItem('timeLeft', timeLeft);
             }
         }
 
         const timer = setInterval(countdown, 1000);
+
+        window.onload = function() {
+            if (timeLeft <= 0) {
+                timeExceededMessage.style.display = 'block';
+            }
+        }
     </script>
-   
 </body>
 </html>

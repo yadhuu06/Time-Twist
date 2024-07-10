@@ -6,5 +6,6 @@ urlpatterns = [
     path('',views.signup,name='signup'),
     path('Register',views.Register,name='Register'),
     path('verify_otp',views.verify_otp,name='verify_otp'),
-    path('login',views.login,name='login') 
+    path('login',views.login,name='login') ,
+    path('google_login',views.google_login,name='google_login') 
 ]

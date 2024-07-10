@@ -1,12 +1,20 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-import random
+from django.db import IntegrityError 
 from django.core.mail import send_mail
-from .models import User  # Import your User model here
-import json
+from .models import User  
 from datetime import datetime
 from django.contrib import messages
+from .forms import RegisterForm
+from datetime import datetime, timedelta
+import random
+
+
+
+
+
+
 def Register(request):
     if request.method == 'POST':
         Fname = request.POST.get('firstname')
@@ -14,7 +22,13 @@ def Register(request):
         email = request.POST.get('email')
         phone = request.POST.get('phone')
         pass1 = request.POST.get('password1')
-        # pass2=request.POST.get('password2')
+        pass2=request.POST.get('password2')
+        if pass1!=pass2:
+        
+        User = get_user_model()
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'This email is already registered.')
+            return render(request, 'Register.html')
         otp = random.randint(100000, 999999)
         
         
@@ -37,41 +51,60 @@ def Register(request):
         
         return render(request, 'Otp.html')
     else :
-        return render(request,'signup.html')
+        return render(request,'Register.html')
     
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<     USER       OTP     VERIFICATION           >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
 def verify_otp(request):
     if request.method == 'POST':
         enteredOTP = request.POST.get('otp')
         print(enteredOTP)
+        otp_generation_time_str = request.session.get('time')
         
-        now= datetime.strptime(session_time_str, '%Y-%m-%d %H:%M:%S')
-        if now <=request.session.get('time'):
-            validationOnTime=True
+        if otp_generation_time_str is None:
+            messages.error(request, "Session expired. Please try again.")
+            return render(request, 'Otp.html')
         
-        if enteredOTP == request.session.get('otp') and validationOnTime==True:
-         
+        otp_generation_time = datetime.strptime(otp_generation_time_str, '%Y-%m-%d %H:%M:%S')
+        otp_generation_time = timezone.make_aware(otp_generation_time, timezone.get_current_timezone())
+        current_time = timezone.now()
+        time_difference = current_time - otp_generation_time
+        
+        if time_difference <= timedelta(seconds=60):
+            validationOnTime = True
+        else:
+            validationOnTime = False
+
+        if enteredOTP == request.session.get('otp') and validationOnTime:
             Fname = request.session.get('Fname')
             Lname = request.session.get('Lname')
             email = request.session.get('email')
             pass1 = request.session.get('pass1')
             phone = request.session.get('phone')
-            # Create user with UserManager
             User = get_user_model()
-            user = User.objects.create_user(email=email, first_name=Fname, last_name=Lname, phone_number=phone, password=pass1)
-            user.is_active = True  
-            user.save()
-            
-            request.session.clear() 
-            
-            return render(request,'Home.html')
+            try:
+                user = User.objects.create_user(email=email, first_name=Fname, last_name=Lname, phone_number=phone, password=pass1)
+                user.is_active = True  
+                user.save()
+
+                request.session.clear()
+
+                return render(request, 'Home.html')
+            except IntegrityError:  #error handled to work on existing email
+                messages.error(request, "This email is already registered. Please use a different email.")
+                return render(request, 'Register.html')  
         else:
-            return HttpResponse("Failed to verify OTP. Please try again.")
+            if not validationOnTime:
+                messages.error(request, "OTP has expired. Please request a new one.")
+            else:
+                messages.error(request, "Failed to verify OTP. Please try again.")
+                
+            return render(request, 'Otp.html')
 
+        
+def google_login(request):
+    return HttpResponse("hai")
 
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<              USER LOGIN              >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<            USER LOGIN              >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 def signup(request):
     
@@ -86,7 +119,7 @@ def login(request):
         
         if user is not None:
             auth_login(request, user)
-            return redirect('home')  # Replace 'home' with your desired redirect page
+            return redirect('home') 
         else:
             messages.error(request, 'Invalid email or password')
     
