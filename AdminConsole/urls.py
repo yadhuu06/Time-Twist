@@ -1,11 +1,9 @@
-from django.urls import path,include
+
+from django.urls import path
 from . import views
 
 urlpatterns = [
-    
-    path('admin_page/',views.admin_login,name='admin_login'),
-    # path('Register',views.Register,name='Register'),
-    # path('verify_otp',views.verify_otp,name='verify_otp'),
-    # path('login',views.login,name='login') ,
-    # path('google_login',views.google_login,name='google_login') 
+    path('', views.admin_page, name='admin_page'),
+    path('admin_login/', views.admin_login, name='admin_login'),
 ]
+

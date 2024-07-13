@@ -3,6 +3,12 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
 from .models import User
+from django import forms
+from django.contrib.auth import authenticate
+from django import forms
+from django.contrib.auth import authenticate
+from django.contrib.auth.forms import AuthenticationForm
+
 
 
 
@@ -28,7 +34,10 @@ class RegisterForm(forms.Form):
         if password != confirm_password:
             raise ValidationError("Password and Confirm Password do not match.")
         
-        
+
+
+
+
 class EmailAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
     password = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))

@@ -126,8 +126,8 @@
 					<div class="login_box_img">
 						<img class="img-fluid" src="{% static 'UserSide/img/w1.jpg' %}" alt="">
 						<div class="hover">
-							<h4>New to GlowGear ?</h4>
-							<p>To Enter To The World Of Watches Please </p>
+							<h4>New to GlowGear?</h4>
+							<p>To Enter the World of Watches Please</p>
 							<a class="primary-btn" href="{% url 'Register' %}">Create A New Account</a>
 						</div>
 					</div>
@@ -135,27 +135,40 @@
 				<div class="col-lg-6">
 					<div class="login_form_inner">
 						<h3>Log in to enter</h3>
+						{% if messages %}
+							<ul class="messages">
+								{% for message in messages %}
+									<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+								{% endfor %}
+							</ul>
+						{% endif %}
 						<form class="row login_form" action="{% url 'login_view' %}" method="post">
 							{% csrf_token %}
 							<div class="col-md-12 form-group">
-								{{ form.username.label_tag }}
+								<label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
 								{{ form.username }}
+								{% if form.username.errors %}
+									<div class="error">{{ form.username.errors }}</div>
+								{% endif %}
 							</div>
 							<div class="col-md-12 form-group">
-								{{ form.password.label_tag }}
+								<label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
 								{{ form.password }}
+								{% if form.password.errors %}
+									<div class="error">{{ form.password.errors }}</div>
+								{% endif %}
 								<div class="d" style="margin-top: 20px;"></div>
 								<button type="submit" class="primary-btn">Log In</button>
 								<a href="#">Forgot Password?</a>
 							</div>
 						</form>
-						
 					</div>
 				</div>
 			</div>
 		</div>
-	</section>
-	
+	</section> 
+
+
 	<!--================End Login Box Area =================-->
 
 	{% comment %} <!-- start footer Area -->
