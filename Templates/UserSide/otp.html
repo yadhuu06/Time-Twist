@@ -20,7 +20,7 @@
             background-attachment: fixed;
             position: relative;
         }
-        
+
         .otp-form {
             background: rgba(255, 255, 255, 0.2);
             padding: 20px;
@@ -28,16 +28,16 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-        
+
         .otp-form h2 {
             margin-bottom: 20px;
             text-align: center;
-            color: #ffeb3b; 
-            font-family: 'Montserrat', sans-serif; 
-            font-weight: bold; 
-            font-size: 2em; 
+            color: #ffeb3b;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+            font-size: 2em;
         }
-        
+
         .otp-form input {
             width: calc(100% - 22px);
             padding: 10px;
@@ -47,22 +47,9 @@
             font-size: 16px;
             text-align: center;
         }
-        .resend-otp {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background: #f00; 
-            color: #fff; 
-            text-decoration: none;
-            border-radius: 4px;
-        }
-        
-        .resend-otp:hover {
-            background: #c00; 
-        }
-        
+
         .otp-form button {
-            width: calc(100% - 22px); 
+            width: calc(100% - 22px);
             background: #007bff;
             border: none;
             border-radius: 4px;
@@ -70,28 +57,43 @@
             font-size: 16px;
             cursor: pointer;
         }
-        
+
         .otp-form button:hover {
             background: #0056b3;
         }
-        
+
         .logo {
             position: absolute;
             top: 20px;
             left: 20px;
-            height: 80px; /* Adjust as needed */
+            height: 80px;
         }
-        
+
         #otp-timer {
             text-align: center;
             margin-top: 10px;
         }
-        
+
         #time-exceeded-message {
             display: none;
             color: red;
             text-align: center;
             margin-top: 10px;
+        }
+
+        .resend-otp {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #f00;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            display: none; /* Initially hide the button */
+        }
+
+        .resend-otp:hover {
+            background: #c00;
         }
     </style>
 </head>
@@ -106,18 +108,20 @@
         </form>
         <p id="otp-timer">Time remaining: <span id="timer">60</span> seconds</p>
         <p id="time-exceeded-message">Time limit exceeded. Please request a new OTP.</p>
-        {% comment %} <button btn-btn class primary><a href="{% url'resend_otp' %}">Resend OTP</a></button> {% endcomment %}
+        <a href="{% url 'resend_otp' %}" class="resend-otp" id="resend-otp-btn">Resend OTP</a>
     </div>
 
     <script>
         let timeLeft = localStorage.getItem('timeLeft') ? parseInt(localStorage.getItem('timeLeft')) : 60;
         const timerElement = document.getElementById('timer');
         const timeExceededMessage = document.getElementById('time-exceeded-message');
+        const resendOtpBtn = document.getElementById('resend-otp-btn');
 
         function countdown() {
             if (timeLeft <= 0) {
                 clearInterval(timer);
                 timeExceededMessage.style.display = 'block';
+                resendOtpBtn.style.display = 'inline-block'; // Show the resend button
                 localStorage.removeItem('timeLeft');
             } else {
                 timerElement.textContent = timeLeft + ' seconds';
@@ -131,6 +135,7 @@
         window.onload = function() {
             if (timeLeft <= 0) {
                 timeExceededMessage.style.display = 'block';
+                resendOtpBtn.style.display = 'inline-block'; // Show the resend button if time exceeded
             }
         }
     </script>

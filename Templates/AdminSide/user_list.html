@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User List</title>
+    <link rel="icon" href="{% static 'AdminSide/assets/images/i-con.jpeg' %}" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; /* Light background color for the whole page */
+            margin: 0;
+            padding: 0;
+        }
+        .user-list {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #333; /* Dark background color for the user list container */
+            color: white; /* Text color for the user list */
+            border-radius: 10px;
+        }
+        .user-list {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #333; /* Dark background color for the user list container */
+            color: white; /* Text color for the user list */
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-list">
+        <h1>List of Users</h1>
+        <ul>
+            {% for i in user %}
+                <li class="user-item">{{ i }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
