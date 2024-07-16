@@ -31,6 +31,7 @@ def admin_login(request):
 
 def users_list(request):
      user = User.objects.all() 
+     
      for i in user:
          print(i) 
      return render(request, 'AdminSide/user_list.html', {'user': user})

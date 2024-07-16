@@ -1,0 +1,15 @@
+<!-- brand.html -->
+{% extends "AdminSide/base.html" %}
+{% block title %}Brands Page{% endblock %}
+
+{% block content %}
+
+<div style="display: flex; flex-direction: row; align-items: center;  font-family:  Montserrat';">
+    <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="{% url 'add_brand' %}">+ Add New Brand</a>
+    <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">Existing Brands Are</h3>
+</div>
+
+
+
+{% endblock %}
+
