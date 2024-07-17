@@ -1,0 +1,51 @@
+{% extends "AdminSide/base.html" %}
+{% block title %}Edit Brand{% endblock %}
+
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="col-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Edit the Brand</h4>
+            <form class="forms-sample" method="post" action="{% url 'edit_brand' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="brand_id" value="{{ brand.id }}">
+                <div class="form-group">
+                    <label for="brandName">Brand Name</label>
+                    <input type="text" class="form-control" id="brandName" name="brand_name" value="{{ brand.brand_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="brandDescription">Description</label>
+                    <input type="text" class="form-control" id="brandDescription" name="description" value="{{ brand.description }}">
+                </div>
+                <div class="form-group">
+                    <label for="brandImage">Brand Image</label>
+                    <input type="file" class="form-control-file" id="brandImage" name="brand_image">
+                    {% if brand.image %}
+                        <small class="form-text text-muted">Current Image: <img src="{{ brand.image.url }}" alt="{{ brand.brand_name }}" class="img-thumbnail" style="max-width: 150px;"></small>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="brandStatus">Status</label>
+                    <select class="form-control" id="brandStatus" name="status">
+                        <option value="true" {% if brand.status %}selected{% endif %}>Active</option>
+                        <option value="false" {% if not brand.status %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mr-2">Save Changes</button>
+                <a href="{% url 'admin_page ' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

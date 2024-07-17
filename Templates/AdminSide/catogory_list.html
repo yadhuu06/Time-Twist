@@ -2,7 +2,7 @@
 {% extends "AdminSide/base.html" %}
 
 
-{% block title %}Brands Page{% endblock %}
+{% block title %}Category.html{% endblock %}
 
 
 {% block content %}
@@ -20,7 +20,7 @@
 {% endif %}
 
 <div style="display: flex; flex-direction: row; align-items: center; font-family: Montserrat;">
-    <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="{% url 'add_brand' %}">+ Add New Brand</a>
+    <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="{% url 'catogory:add_catogory' %}">+ Add New Catogory</a>
     <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">BRANDS</h3>
     
 </div>
@@ -36,10 +36,10 @@
                         <table class="table table-striped">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col">Brand Name</th>
-                                    <th scope="col">Brand Description</th>
-                                    <th scope="col">Brand Image</th>
-                                    <th scope="col">Action</th>
+                                    <th scope="col">Catogory Name</th>
+                                    <th scope="col">Catogory Description</th>
+                                   
+                                    <th scope="col">Status</th>
                                 </tr>
                             </thead>
                             <tbody>

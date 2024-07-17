@@ -1,44 +1,50 @@
+{% extends "AdminSide/base.html" %}
+{% block title %}User List{% endblock %}
 
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User List</title>
-    <link rel="icon" href="{% static 'AdminSide/assets/images/i-con.jpeg' %}" type="image/x-icon">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0; /* Light background color for the whole page */
-            margin: 0;
-            padding: 0;
-        }
-        .user-list {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #333; /* Dark background color for the user list container */
-            color: white; /* Text color for the user list */
-            border-radius: 10px;
-        }
-        .user-list {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #333; /* Dark background color for the user list container */
-            color: white; /* Text color for the user list */
-            border-radius: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="user-list">
-        <h1>List of Users</h1>
-        <ul>
-            {% for i in user %}
-                <li class="user-item">{{ i }}</li>
-            {% endfor %}
-        </ul>
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Users</h3>
+                    <div class="table">
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">First Name</th>
+                                    <th scope="col">Last Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Phone Number</th>
+                                    <th scope="col">Active</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.first_name }}</td>
+                                    <td>{{ user.last_name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.phone_number }}</td>
+                                    <td>{% if user.is_active %}Yes{% else %}No{% endif %}</td>
+                                    <td>
+                                        <form method="post" action="{% url 'Block_user'  %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="email" value="{{ user.email }}">
+                                            <button type="submit" class="btn btn-sm {% if user.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                                                {% if user.is_active %}Block{% else %}Unblock{% endif %}
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

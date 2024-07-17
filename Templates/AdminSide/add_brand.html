@@ -7,14 +7,14 @@
       <div class="card-body">
         <h4 class="card-title">Create New Brand</h4>
         <p class="card-description">Enter The Details</p>
-        <form class="forms-sample" method="post" action="{% url 'add_brand' %}">
+        <form class="forms-sample" method="post" action="{% url 'add_brand' %}">{% csrf_token %}
           <div class="form-group">
             <label for="exampleInputName1">Brand Name</label>
             <input type="text" class="form-control" id="exampleInputName1" placeholder="Brand Name" name="brand_name" style="color: #c89616;">
           </div>
           <div class="form-group">
             <label for="exampleInputEmail3">Description</label>
-            <input type="text" class="form-control" id="exampleInputEmail3" placeholder="Description" name="description" style="color: #c89616;">
+            <input type="text" class="form-control" id="exampleInputEmail3" placeholder="Description" name="description" style="color: #c89616;"required>
           </div>
                 
           <div class="form-group">
@@ -25,13 +25,12 @@
           <div class="form-group">
             <label for="exampleSelectGender">Status</label>
             <select class="form-control" id="exampleSelectGender" name="status" style="color: #c89616;">
-              <option>Active</option>
-              <option>Inactive</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
             </select>
           </div>
-        
+          
           <button type="submit" class="btn btn-primary mr-2">Submit</button>
-          <button class="btn btn-dark">Cancel</button>
         </form>
       </div>
     </div>
