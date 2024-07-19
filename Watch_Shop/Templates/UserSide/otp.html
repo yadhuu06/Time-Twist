@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter OTP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('{% static 'UserSide/img/otp.jpg' %}');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        .otp-form {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .otp-form h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ffeb3b;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+            font-size: 2em;
+        }
+
+        .otp-form input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .otp-form button {
+            width: calc(100% - 22px);
+            background: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .otp-form button:hover {
+            background: #0056b3;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            height: 80px;
+        }
+
+        #otp-timer {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        #time-exceeded-message {
+            display: none;
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .resend-otp {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #f00;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            display: none; /* Initially hide the button */
+        }
+
+        .resend-otp:hover {
+            background: #c00;
+        }
+    </style>
+</head>
+<body>
+    <img src="{% static 'UserSide/img/Glow Gears11.png' %}" alt="Glow Gears Logo" class="logo">
+    {% if messages%}
+    <div class="otp-form">
+        <h2>Enter OTP</h2>
+        {% for message in messages %}
+            <p>{{message}}<p>
+        {% endfor %}
+    {% endif %}
+        <form action="{% url 'verify_otp' %}" method="post" id="otp-form">
+            {% csrf_token %}
+            <input type="text" name="otp" maxlength="6" pattern="\d{6}" placeholder="Enter 6-digit OTP" required>
+            <button type="submit">Verify OTP</button>
+        </form>
+        <p id="otp-timer">Time remaining: <span id="timer">60</span> seconds</p>
+        <p id="time-exceeded-message">Time limit exceeded. Please request a new OTP.</p>
+        <a href="{% url 'resend_otp' %}" class="resend-otp" id="resend-otp-btn">Resend OTP</a>
+    </div>
+
+    <script>
+        let timeLeft = localStorage.getItem('timeLeft') ? parseInt(localStorage.getItem('timeLeft')) : 60;
+        const timerElement = document.getElementById('timer');
+        const timeExceededMessage = document.getElementById('time-exceeded-message');
+        const resendOtpBtn = document.getElementById('resend-otp-btn');
+
+        function countdown() {
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                timeExceededMessage.style.display = 'block';
+                resendOtpBtn.style.display = 'inline-block'; 
+                localStorage.removeItem('timeLeft');
+            } else {
+                timerElement.textContent = timeLeft + ' seconds';
+                timeLeft--;
+                localStorage.setItem('timeLeft', timeLeft);
+            }
+        }
+
+        const timer = setInterval(countdown, 1000);
+
+        window.onload = function() {
+            if (timeLeft <= 0) {
+                timeExceededMessage.style.display = 'block';
+                resendOtpBtn.style.display = 'inline-block'; // Show the resend button if time exceeded
+            }
+        }
+    </script>
+</body>
+</html>
