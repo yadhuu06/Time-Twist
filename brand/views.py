@@ -6,9 +6,9 @@ from django.contrib import messages
 from .models import Brand
 
 
-# Create your views here.
+
 def Brands_list(request):
-    brands=Brand.objects.all()
+    brands=Brand.objects.all().order_by('id')
     return render(request,'AdminSide/brands_.html',{'brands':brands})
 
 def add_brand(request):
@@ -36,12 +36,13 @@ def add_brand(request):
             )
             new_brand.save()
             messages.success(request, 'Brand created successfully')  
-            return redirect('Brands_list')  
+            return redirect('brand:Brands_list')  
     
     return render(request, 'AdminSide/add_brand.html')
 
 
 def  edit_brand(request, brand_id):
+    brand_id = request.POST.get('brand_id')
     if request.method == "POST":
         brand_id = request.POST.get('brand_id')
         brand = get_object_or_404(Brand, pk=brand_id)
@@ -60,7 +61,7 @@ def  edit_brand(request, brand_id):
         
         brand.save()
         messages.success(request, 'Changes saved successfully')
-        return redirect('Brands') 
+        return redirect('brand:Brands') 
     
 
     return render(request, 'AdminSide/edit_brand.html')

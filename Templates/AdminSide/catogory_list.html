@@ -18,14 +18,12 @@
         </div>
     {% endfor %}
 {% endif %}
+ <div style="display: flex; flex-direction: row; align-items: center; font-family: Montserrat;">
 
-<div style="display: flex; flex-direction: row; align-items: center; font-family: Montserrat;">
-    <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="{% url 'catogory:add_catogory' %}">+ Add New Catogory</a>
-    <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">BRANDS</h3>
-    
-</div>
-
-
+     <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown"  aria-expanded="false" href="{% url 'catogory:add_catogory' %}">+ Add New Category</a> 
+    <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">Category</h3>
+</div> 
+ 
 <div class="container">
     <div class="row">
         <div class="col-md-10 offset-md-1">
@@ -37,19 +35,19 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">Catogory Name</th>
-                                    <th scope="col">Catogory Description</th>
-                                   
+                                    <th scope="col">Catogory Description</th>                                  
                                     <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for brand in brands %}
+                                {% for c in catogory %}
                                 <tr>
-                                    <td>{{ brand.brand_name }}</td>
-                                    <td>{{ brand.description }}</td>
-                                    <td>NOT AVAILABLE</td>
+                                    <td>{{ c.category_name }}</td>
+                                    <td>{{ c.category_description }}</td>
+                                    <td>{{ c.is_available}}</td>
                                     <td>
-                                        <form method="post" action="{% url 'edit_brand' brand.id  %}">
+                                                 <form method="" action="{% url 'catogory:edit_category' c.id  %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="brand_name" value="{{ brand.brand_name }}">
                                             <button type="submit" class="btn btn-sm btn-primary">Edit</button>

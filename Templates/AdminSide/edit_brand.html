@@ -17,7 +17,7 @@
     <div class="card">
         <div class="card-body">
             <h4 class="card-title">Edit the Brand</h4>
-            <form class="forms-sample" method="post" action="{% url 'edit_brand' %}" enctype="multipart/form-data">
+            <form class="forms-sample" method="post" action="{% url 'brand:edit_brand' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="brand_id" value="{{ brand.id }}">
                 <div class="form-group">

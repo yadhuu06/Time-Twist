@@ -15,7 +15,6 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 
 
-
 User = get_user_model()
 
 
@@ -109,11 +108,10 @@ def resend_otp(request):
         msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
         msg.attach_alternative(html_content, "text/html")
         msg.send()
-        messages.success(request, 'A new OTP has been sent to your email.')
+        messages.success(request, ' OTP sent to your email.')
     except Exception as e:
-        messages.error(request, 'Error sending email. Please try again.')
+        messages.error(request, 'ERROR occured sending email. Please try again.')
         return render(request, 'UserSide/otp.html')
-
     request.session['otp'] = str(otp)
     request.session['time'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -127,7 +125,7 @@ def verify_otp(request):
         if otp_generation_time_str is None:
             messages.error(request, "Session expired. Please try again.")
             return render(request, 'UserSide/otp.html')
-
+        
         otp_generation_time = datetime.strptime(otp_generation_time_str, '%Y-%m-%d %H:%M:%S')
         otp_generation_time = timezone.make_aware(otp_generation_time, timezone.get_current_timezone())
         current_time = timezone.now()
@@ -155,10 +153,10 @@ def verify_otp(request):
                 request.session.clear()
 
                 messages.success(request, "Your account has been successfully created. You can now log in.")
-                return redirect('login_view')  # Redirect to the login page after successful registration
+                return redirect('login_view')  
             except IntegrityError:
                 messages.error(request, "This email is already registered. Please use a different email.")
-                return redirect('register')  # Redirect to the register page
+                return redirect('register') 
         else:
             if not validation_on_time:
                 messages.error(request, "OTP has expired. Please request a new one.")
@@ -167,7 +165,7 @@ def verify_otp(request):
 
             return render(request, 'UserSide/otp.html')
     else:
-        return redirect('home_view')  # Redirect to home if accessed via GET
+        return redirect('home_view') 
 
 
 

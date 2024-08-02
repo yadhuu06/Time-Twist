@@ -99,8 +99,13 @@
 </head>
 <body>
     <img src="{% static 'UserSide/img/Glow Gears11.png' %}" alt="Glow Gears Logo" class="logo">
+    {% if messages%}
     <div class="otp-form">
         <h2>Enter OTP</h2>
+        {% for message in messages %}
+            <p>{{message}}<p>
+        {% endfor %}
+    {% endif %}
         <form action="{% url 'verify_otp' %}" method="post" id="otp-form">
             {% csrf_token %}
             <input type="text" name="otp" maxlength="6" pattern="\d{6}" placeholder="Enter 6-digit OTP" required>
@@ -121,7 +126,7 @@
             if (timeLeft <= 0) {
                 clearInterval(timer);
                 timeExceededMessage.style.display = 'block';
-                resendOtpBtn.style.display = 'inline-block'; // Show the resend button
+                resendOtpBtn.style.display = 'inline-block'; 
                 localStorage.removeItem('timeLeft');
             } else {
                 timerElement.textContent = timeLeft + ' seconds';

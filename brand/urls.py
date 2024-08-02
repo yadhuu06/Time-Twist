@@ -1,11 +1,10 @@
 
 from django.urls import path
 from . import views
-# urls.py
 from django.urls import path
 from . import views
 
-
+app_name= 'brand'
 
 urlpatterns = [
     path('', views.Brands_list, name='Brands'),

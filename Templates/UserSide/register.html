@@ -4,81 +4,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CREATE ACCOUNT</title>
+    <title>Create Account</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/outlook.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap">
+    <link rel="stylesheet" href="{% static 'UserSide/css/linearicons.css' %}">
+	<link rel="stylesheet" href="{% static 'UserSide/css/owl.carousel.css' %}">
+	<link rel="stylesheet" href="{% static 'UserSide/css/themify-icons.css' %}">
+	<link rel="stylesheet" href="{% static 'UserSide/css/font-awesome.min.css' %}">
+	<link rel="stylesheet" href="{% static 'UserSide/css/nice-select.css' %}">
+	<link rel="stylesheet" href="{% static 'UserSide/css/nouislider.min.css' %}">
+	<link rel="stylesheet" href="{% static 'UserSide/css/bootstrap.css' %}">
+	<link rel="stylesheet" href="{% static 'UserSide/css/main.css' %}">
+</head>
+
+  
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('{% static 'UserSide/img/back1.jpg' %}') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .card {
+            margin-top: 40px;
+            background-color: rgba(255, 255, 224, 0.3) !important;
+            width: 60%; 
+            max-width: 100%; 
+            backdrop-filter: saturate(200%) blur(25px);
+            border: 5px solid #3498db;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .form-control {
+            height: 30px;
+            font-size: 14px;
+        }
+        .btn-primary {
+            font-size: 14px;
+            padding: 5px;
+        }
+   
+        .ggl{margin-top: 20px;}
+        .bg-custom {
+            margin-left: -229px; /* Adjusted margin */
+            padding: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-family: 'Arial', 'Helvetica', sans-serif; /* You can replace with any stylish font you prefer */
+            color: #ffffff; /* White text color for black background */
+            text-align: center; /* Center align text if necessary */
+            border: 2px solid yellow; /* Yellow border */
+            text-shadow: 0 0 15px yellow; /* Yellow text shadow for border effect */
+        }
+        .google-login-btn {
+            display: inline-flex;
+            align-items: center;
+            background-color: #db4437; /* Google red */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            font-family: 'Roboto', sans-serif;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .google-login-btn:hover {
+            background-color: #e74c3c; /* Darker shade of red on hover */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .google-login-btn img {
+            margin-right: 10px;
+            width: 24px;
+            height: 24px;
+        }
+        .google-login-btn {
+            display: inline-flex;
+            align-items: center;
+            background-color:  #f4c20d; /* Google red */
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            font-family: 'Roboto', sans-serif;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .google-login-btn:hover {
+            background-color: #e74c3c; /* Darker shade of red on hover */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .google-login-btn img {
+            margin-right: 10px;
+            width: 24px;
+            height: 24px;
+        }
+        
+        .left-content {
+            color: hsl(218, 81%, 95%);
+        }
+        .left-content span {
+            color: hsl(218, 81%, 75%);
+        }
+    </style>
 </head>
 <body>
-    <div style="background-image: url('{% static 'UserSide/img/pexels-alexazabache-3766111 (1).jpg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 100vh; display: flex; justify-content: center; align-items: center;">
-        <div class="container" style="max-width: 400px;">
-            <div class="row justify-content-center">
-                <div class="col-lg-12">
-                    <div class="card" style="background-color: hsla(0, 0%, 100%, 0.9) !important; backdrop-filter: saturate(200%) blur(25px); padding: 20px;">
-                        <div class="card-body" style="padding: 15px;">
-                            <form action="{% url 'Register' %}" method="post">
-                                {% csrf_token %}
-                                <div class="align-items-center">
-                                    {% if messages %}
-                                        {% for message in messages %}
-                                            <p class="m-2" style="color: {% if message.tags == 'success' %}green{% else %}red{% endif %}; font-size: 14px;">{{ message }}</p>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
+ <!-- Start Header Area -->
+	<header class="header_area sticky-header">
+		<div class="main_menu">
+			<nav class="navbar navbar-expand-lg navbar-light main_box">
+				<div class="container">
+					<!-- Brand and toggle get grouped for better mobile display -->
+					<a class="navbar-brand logo_h" href="index.html"><img src="{% static 'UserSide/img/Glow Gears11.png' %}" alt=""></a>
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+					 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					
+					</div>
+				</div>
+			</nav>
+		</div>
+		<div class="search_input" id="search_input_box">
+			<div class="container">
+				<form class="d-flex justify-content-between">
+					<input type="text" class="form-control" id="search_input" placeholder="Search Here">
+					<button type="submit" class="btn"></button>
+					<span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
+				</form>
+			</div>
+		</div>
+	</header>
+	<!-- End Header Area -->
 
-                                <div class="row">
-                                    <div class="col-md-12 mb-2">
-                                        <div data-mdb-input-init class="form-outline" style="margin-bottom: 10px;">
-                                            <label class="form-label" for="id_firstname" style="font-size: 14px;">Firstname</label>
-                                            <input type="text" id="id_firstname" class="form-control" name="firstname" required minlength="6" style="height: 30px; font-size: 14px;"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 mb-2">
-                                        <div data-mdb-input-init class="form-outline" style="margin-bottom: 10px;">
-                                            <label class="form-label" for="id_lastname" style="font-size: 14px;">Lastname</label>
-                                            <input type="text" id="id_lastname" class="form-control" name="lastname" required minlength="6" style="height: 30px; font-size: 14px;"/>
-                                        </div>
-                                    </div>
-                                </div>
+	 <!-- Start Banner Area -->
+	<section class="banner-area organic-breadcrumb">
+		<div class="container">
+			<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+				<div class="col-first">
+					<h1>Register As A New User</h1>
+					<nav class="d-flex align-items-center">
+						
+					</nav>
+				</div>
+			</div>
+		</div>
+	</section>
 
-                                <div data-mdb-input-init class="form-outline mb-2" style="margin-bottom: 10px;">
-                                    <label class="form-label" for="id_email" style="font-size: 14px;">E-MAIL ID</label>
-                                    <input type="email" id="id_email" class="form-control" name="email" required style="height: 30px; font-size: 14px;"/>
-                                </div>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <!-- Left side with image -->
+            <div class="col-md-6 p-0 d-flex justify-content-center align-items-center">
+                <div class="container px- py- px-md-3 text-center text-lg-start my-4 left-content">
+                    <div class="row gx-lg-6 align-items-center mb-6">
+                      <div class="col-lg-6 mb-6 mb-lg-0" style="z-index: 10">
+                        <h1 class="my-5 display-5 fw-bold ls-tight">
+                          CREATE NEW <br />
+                          <span>ACCOUNT </span>
+                        </h1>
 
-                                <div data-mdb-input-init class="form-outline mb-2" style="margin-bottom: 10px;">
-                                    <label class="form-label" for="id_phone" style="font-size: 14px;">PHONE NUMBER</label>
-                                    <input type="text" id="id_phone" class="form-control" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits" style="height: 30px; font-size: 14px;"/>
-                                </div>
-
-                                <div data-mdb-input-init class="form-outline mb-2" style="margin-bottom: 10px;">
-                                    <label class="form-label" for="id_password" style="font-size: 14px;">PASSWORD</label>
-                                    <input type="password" id="id_password" class="form-control" name="password" required minlength="6" style="height: 30px; font-size: 14px;"/>
-                                </div>
-
-                                <div data-mdb-input-init class="form-outline mb-2" style="margin-bottom: 10px;">
-                                    <label class="form-label" for="id_confirm_password" style="font-size: 14px;">CONFIRM PASSWORD</label>
-                                    <input type="password" id="id_confirm_password" class="form-control" name="confirm_password" required minlength="6" style="height: 30px; font-size: 14px;"/>
-                                </div>
-
-                                <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block mb-2" style="font-size: 14px; padding: 5px;">
-                                    CREATE ACCOUNT
-                                </button>
-{% comment %} 
-                                <div class="col-12 col-lg-5 d-flex align-items-center">
-                                  <div class="d-flex gap-3 flex-column w-100">
-                                      <a href="{% url 'google_login' %}" class="btn btn-outline-dark rounded-0 d-flex align-items-center">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-google text-danger" viewBox="0 0 16 16">
-                                              <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z" />
-                                          </svg>
-                                          <span class="ms-2 fs-6 flex-grow-1">Continue with Google</span>
-                                      </a>
-                                  </div>
-                              </div> {% endcomment %}
-                              
-                            </form>
-                        </div>
+                      </div>
                     </div>
                 </div>
+            </div>
+            <!-- Right side with form -->
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <div class="card">
+                    <form action="{% url 'Register' %}" method="post">
+                        {% csrf_token %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <p class="m-2 text-{{ message.tags }}">{{ message }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="id_firstname" class="form-label">First Name</label>
+                            <input type="text" id="id_firstname" class="form-control" name="firstname" required minlength="3">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_lastname" class="form-label">Last Name</label>
+                            <input type="text" id="id_lastname" class="form-control" name="lastname" required minlength="2">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Email Address</label>
+                            <input type="email" id="id_email" class="form-control" name="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_phone" class="form-label">Phone Number</label>
+                            <input type="text" id="id_phone" class="form-control" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">Password</label>
+                            <input type="password" id="id_password" class="form-control" name="password" required minlength="6">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_confirm_password" class="form-label">Confirm Password</label>
+                            <input type="password" id="id_confirm_password" class="form-control" name="confirm_password" required minlength="6">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                        <div id="g_id_onload"
+                        data-client_id="405338712266-kkhi8e673dht6tevk2doacm85k13f332.apps.googleusercontent.com"
+                        data-context="signin"
+                        data-ux_mode="popup"
+                        data-login_uri="http://localhost:8000/auth-receiver"
+                        data-auto_prompt="false">
+                   </div>
+                   
+                   <div class="g_id_signin"
+                        data-type="standard"
+                        data-shape="pill"
+                        data-theme="filled_black"
+                        data-text="signin_with"
+                        data-size="large"
+                        data-logo_alignment="left">
+                   </div>                                 
+
+                    </form>
+                                          
+                </div>
+                
             </div>
         </div>
     </div>
