@@ -121,12 +121,79 @@
 </head>
 <body>
  <!-- Start Header Area -->
+ {% comment %} <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
+    
+    .logo {
+       font-family: 'Montserrat', sans-serif; 
+     
+
+
+
+
+
+      font-size: 32px;
+      display: inline-block;
+      padding: 10px 15px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .logo:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .logo .time {
+      font-weight: 800;
+      color: #ffffff;
+    }
+    
+    .logo .twist {
+      font-weight: 600;
+      color: #00ffff;
+      position: relative;
+    }
+    
+    .logo .twist::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background: #00ffff;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .logo:hover .twist::after {
+      transform: scaleX(1);
+    }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <!-- Layout styles -->
+  <link rel="stylesheet" href="{% static 'AdminSide/assets/css/style.css' %}">
+  <!-- End layout styles -->
+  <link rel="shortcut icon" href="AdminSide/images/favicon.png" />
+</head>
+<body>
+  <div class="container-scroller">
+    <!-- partial:partials/_sidebar.html -->
+   
+        <div class="logo">
+          <span class="time">Time</span><span class="twist">Twist</span>
+        </div>
 	<header class="header_area sticky-header">
 		<div class="main_menu">
 			<nav class="navbar navbar-expand-lg navbar-light main_box">
-				<div class="container">
+
+				<div class="container"> {% endcomment %}
+
 					<!-- Brand and toggle get grouped for better mobile display -->
-					<a class="navbar-brand logo_h" href="index.html"><img src="{% static 'UserSide/img/Glow Gears11.png' %}" alt=""></a>
+					{% comment %} <a class="navbar-brand logo_h" href="index.html"><img src="{% static 'UserSide/img/Glow Gears11.png' %}" alt=""></a> {% endcomment %}
 					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
 					 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 						<span class="icon-bar"></span>
@@ -171,7 +238,7 @@
                     <div class="row gx-lg-6 align-items-center mb-6">
                       <div class="col-lg-6 mb-6 mb-lg-0" style="z-index: 10">
                         <h1 class="my-5 display-5 fw-bold ls-tight">
-                          CREATE NEW <br />
+                          CREATE NEW <br/>
                           <span>ACCOUNT </span>
                         </h1>
 
@@ -186,7 +253,7 @@
                         {% csrf_token %}
                         {% if messages %}
                             {% for message in messages %}
-                                <p class="m-2 text-{{ message.tags }}">{{ message }}</p>
+                                <h3 class="m-2 text-danger{{ message.tags }}">{{ message }}</h3>
                             {% endfor %}
                         {% endif %}
 
@@ -207,7 +274,7 @@
 
                         <div class="mb-3">
                             <label for="id_phone" class="form-label">Phone Number</label>
-                            <input type="text" id="id_phone" class="form-control" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits">
+                            <input type="number" id="id_phone" class="form-control" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits">
                         </div>
 
                         <div class="mb-3">

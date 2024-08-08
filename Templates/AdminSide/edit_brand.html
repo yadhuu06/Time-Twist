@@ -17,7 +17,7 @@
     <div class="card">
         <div class="card-body">
             <h4 class="card-title">Edit the Brand</h4>
-            <form class="forms-sample" method="post" action="{% url 'brand:edit_brand' %}" enctype="multipart/form-data">
+            <form class="forms-sample" method="post" action="{% url 'brand:edit_brand' brand.id %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="brand_id" value="{{ brand.id }}">
                 <div class="form-group">
@@ -38,12 +38,12 @@
                 <div class="form-group">
                     <label for="brandStatus">Status</label>
                     <select class="form-control" id="brandStatus" name="status">
-                        <option value="true" {% if brand.status %}selected{% endif %}>Active</option>
-                        <option value="false" {% if not brand.status %}selected{% endif %}>Inactive</option>
+                        <option value="True" {% if brand.status %}selected{% endif %}>Active</option>
+                        <option value="False" {% if not brand.status %}selected{% endif %}>Inactive</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary mr-2">Save Changes</button>
-                <a href="{% url 'admin_page ' %}" class="btn btn-secondary">Cancel</a>
+                {% comment %} <a href="{% url 'brand:Brands ' %}" class="btn btn-secondary">Cancel</a> {% endcomment %}
             </form>
         </div>
     </div>

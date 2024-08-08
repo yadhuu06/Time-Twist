@@ -13,4 +13,33 @@ class Products(models.Model):
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+    
+    def offer_price_percentage(self):
+        return ((self.price-self.offer_price)/self.price)*100
+    
+    def __str__(self):
+        return f"{self.product_brand.brand_name}-{self.product_name}"
+    
+    
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='variants')
+    variant_name = models.CharField(max_length=100, null=False)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    is_active = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        
+        return f"{self.variant_name} - {self.product.product_name}"
+    
+class ProductVariantImages(models.Model):
+    product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(
+        upload_to="product_images", default="static/UserSide/img/No_Images_available.png"
+    )
+
+    def __str__(self):
+        return f"Image for {self.product_variant.product.product_name} - {self.product_variant.variant_name}"
+
 

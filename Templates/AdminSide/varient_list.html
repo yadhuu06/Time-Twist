@@ -37,21 +37,21 @@
                         <table class="table table-striped">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col">Brand Name</th>
-                                    <th scope="col">Brand Description</th>
-                                    <th scope="col">Active?</th>
+                                    <th scope="col">Varient Name</th>
+                                    {% comment %} <th scope="col">Varient  Description</th> {% endcomment %}
+                                    <th scope="col">status </th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for brand in brands %}
+                                {% for varient in varient %}
                                 <tr>
-                                    <td>{{ brand.brand_name }}</td>
-                                    <td>{{ brand.description }}</td>
-                                    <td>{{ brand.status }}</td>
-                                    <td>
+                                    <td>{{ varient.variant_name }}</td>
+                                    <td>{{ varient.Products__product_name }}</td>
+                                    <td>{{ varient.is_active }}</td>
+                                    {% comment %} <td>
                                         <a href="{% url 'brand:edit_brand' brand.id %}" class="btn btn-sm btn-primary">Edit</a>
-                                    </td>
+                                    </td> {% endcomment %}
                                 </tr>
                                 {% endfor %}
                             </tbody>

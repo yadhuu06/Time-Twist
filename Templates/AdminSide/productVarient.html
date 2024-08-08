@@ -1,0 +1,233 @@
+{% extends "AdminSide/base.html" %}
+
+{% block title %}Add Product Variant{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Add New Product Variant</h3>
+                </div>
+                <div class="card-body">
+                   <form method="post" action="{% url 'products:add_productVarient' Products_id %}" enctype="multipart/form-data" id="variant-image-form">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="product" class="form-label">Product</label>
+                                <select class="form-select" id="product" name="product" required>
+                                    {% for product in products %}
+                                        <option value="{{ product.id }}">{{ product.product_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="variant_name" class="form-label">Variant Name</label>
+                                <input type="text" class="form-control" id="variant_name" name="variant_name" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="price" class="form-label">Price</label>
+                                <input type="number" class="form-control" id="price" name="price" step="">
+                            </div>
+                        </div>
+                        
+                            <div class="col-md-6 mb-3 d-flex align-items-center">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="true">
+                                    <label class="form-check-label" for="is_active">Is Active</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="images">Select Images</label>
+                            <input type="file" class="form-control" id="images" name="images" accept="image/*"required>
+                            <small class="form-text text-muted">upload image files.</small>
+                        </div>
+                        
+
+                        <div id="image-preview" class="mb-3 d-flex flex-wrap"></div>
+
+                        <button type="submit" class="btn btn-primary">Add Variant</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Cropping Image -->
+    <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="width: 100%; height: 400px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img id="imageToCrop" style="max-width: 100%; max-height: 100%" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="cropAndSave" class="btn btn-primary">Crop and Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .error {
+        font-size: 0.8em;
+        color: red;
+    }
+    .small-text {
+        font-size: 0.8em;
+        line-height: 1.2;
+    }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("variant-image-form");
+    const imageInput = document.getElementById("images");
+    const imagePreview = document.getElementById("image-preview");
+    const cropperModal = new bootstrap.Modal(document.getElementById('cropperModal'));
+    const imageToCrop = document.getElementById("imageToCrop");
+    const cropAndSave = document.getElementById("cropAndSave");
+
+    let cropper;
+    let currentImage;
+    let originalImageBlobs = [];
+
+    const validateImage = (file) => {
+        const allowedExtensions = /\.(jpg|jpeg|png|gif)$/i;
+        if (!allowedExtensions.test(file.name)) {
+            alert("Please upload a valid image file (jpg, jpeg, png, gif)");
+            return false;
+        }
+        return true;
+    };
+
+    imageInput.addEventListener("change", (event) => {
+        const files = event.target.files;
+        imagePreview.innerHTML = ''; // Clear existing preview
+
+        Array.from(files).forEach((file) => {
+            if (!validateImage(file)) {
+                return;
+            }
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                const imageContainer = document.createElement("div");
+                imageContainer.className = "image-container";
+                imageContainer.style.display = "inline-block";
+                imageContainer.style.margin = "10px";
+
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.className = "preview-image";
+                img.style.width = "150px";
+                img.style.height = "150px";
+                img.style.objectFit = "cover";
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Remove";
+                deleteButton.className = "btn btn-danger btn-sm mt-2";
+                deleteButton.onclick = function() {
+                    imageContainer.remove();
+                    originalImageBlobs = originalImageBlobs.filter(item => item.id !== img.src);
+                    updateFileInput();
+                };
+
+                imageContainer.appendChild(img);
+                imageContainer.appendChild(deleteButton);
+                imagePreview.appendChild(imageContainer);
+
+                img.addEventListener("click", () => {
+                    imageToCrop.src = img.src;
+                    currentImage = img;
+                    cropperModal.show();
+                });
+
+                originalImageBlobs.push({
+                    id: e.target.result,
+                    blob: file
+                });
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        updateFileInput();
+    });
+
+    document.getElementById('cropperModal').addEventListener('shown.bs.modal', () => {
+        cropper = new Cropper(imageToCrop, {
+            aspectRatio: 1,
+            viewMode: 2,
+            autoCropArea: 1,
+        });
+    });
+
+    document.getElementById('cropperModal').addEventListener('hidden.bs.modal', () => {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+    });
+
+    cropAndSave.addEventListener("click", () => {
+        if (cropper) {
+            const canvas = cropper.getCroppedCanvas();
+
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+
+                currentImage.src = url;
+
+                const croppedFile = new File(
+                    [blob],
+                    `croppedImage_${Date.now()}.jpg`,
+                    { type: "image/jpeg" }
+                );
+
+                originalImageBlobs = originalImageBlobs.map((item) => {
+                    if (item.id === imageToCrop.src) {
+                        return { id: url, blob: croppedFile };
+                    }
+                    return item;
+                });
+
+                updateFileInput();
+
+                cropperModal.hide();
+            }, 'image/jpeg');
+        }
+    });
+
+    function updateFileInput() {
+        const dataTransfer = new DataTransfer();
+        originalImageBlobs.forEach((item) => {
+            dataTransfer.items.add(item.blob);
+        });
+        imageInput.files = dataTransfer.files;
+    }
+
+    form.addEventListener("submit", (event) => {
+        if (imageInput.files.length === 0) {
+            alert("Image is required");
+            event.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

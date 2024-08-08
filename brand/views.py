@@ -13,6 +13,8 @@ def Brands_list(request):
 
 def add_brand(request):
     if request.method == "POST":
+        print("its coming")
+
         brand_name = request.POST.get('brand_name')
         brand_description = request.POST.get('description')
         brand_image = request.FILES.get('brand_image')
@@ -36,33 +38,35 @@ def add_brand(request):
             )
             new_brand.save()
             messages.success(request, 'Brand created successfully')  
-            return redirect('brand:Brands_list')  
+            return redirect('brand:Brands')  
     
     return render(request, 'AdminSide/add_brand.html')
 
 
 def  edit_brand(request, brand_id):
-    brand_id = request.POST.get('brand_id')
+    brand = get_object_or_404(Brand, pk=brand_id)
+    print("coming")
+    
     if request.method == "POST":
+        print("post")
         brand_id = request.POST.get('brand_id')
-        brand = get_object_or_404(Brand, pk=brand_id)
         new_name = request.POST.get('brand_name')
         new_description = request.POST.get('description')
         new_image = request.FILES.get('brand_image')
         new_status = request.POST.get('status')
-        
         if new_name:
             brand.brand_name = new_name
         if new_description:
             brand.description = new_description
         if new_image:
             brand.brand_image = new_image  
+        if new_status:
             brand.status = new_status 
         
         brand.save()
         messages.success(request, 'Changes saved successfully')
         return redirect('brand:Brands') 
-    
+    context={"brand":brand}
 
-    return render(request, 'AdminSide/edit_brand.html')
+    return render(request, 'AdminSide/edit_brand.html',context)
     

@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from catogory.models import Category
+from products.models import ProductVariant
+from products.models import Products
 from django.contrib import messages
 
 
@@ -34,3 +36,8 @@ def edit_category(request, category_id):
         return redirect('catogory:catogory_list')  
     
     return render(request, 'AdminSide/edit_catogory.html', {'category': category})
+def varient_list(request):
+    varient=ProductVariant.objects.all()
+  
+    
+    return render(request,'AdminSide/varient_list.html',{'varient':varient})

@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect,get_object_or_404
 from django.contrib.auth import get_user_model, authenticate, login ,logout
 from django.utils import timezone
 from django.core.mail import EmailMultiAlternatives
@@ -13,10 +13,13 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from products.models import Category, Brand, Products, ProductVariant, ProductVariantImages
+from django.views.decorators.cache import cache_control
+
+
 
 
 User = get_user_model()
-
 
 def Register(request):
     if request.method == 'POST':
@@ -26,16 +29,14 @@ def Register(request):
         phone = request.POST.get('phone')
         pass1 = request.POST.get('password1')
         pass2 = request.POST.get('password2')
-
         if pass1 != pass2:
             messages.error(request, 'Passwords do not match.')
-            return render(request, 'UserSide/register.html')
-
+            return render(request, 'UserSide/user-login/register.html')
         User = get_user_model()
 
         if User.objects.filter(email=email).exists():
             messages.error(request, 'This email is already registered.')
-            return render(request, 'UserSide/register.html')
+            return render(request, 'UserSide/user-login/register.html')
 
         otp = random.randint(100000, 999999)
         print(otp)        
@@ -68,9 +69,9 @@ def Register(request):
         request.session['pass1'] = pass1
         request.session['phone'] = phone
 
-        return render(request, 'UserSide/otp.html')
+        return render(request, 'UserSide/user-login/otp.html')
     else:
-        return render(request, 'UserSide/register.html')
+        return render(request, 'UserSide/user-login/register.html')
 
 def resend_otp(request):
     otp_generation_time_str = request.session.get('time')
@@ -115,7 +116,7 @@ def resend_otp(request):
     request.session['otp'] = str(otp)
     request.session['time'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    return render(request, 'UserSide/otp.html')
+    return render(request, 'UserSide/parent/user-login/otp.html')
 
 def verify_otp(request):
     if request.method == 'POST':
@@ -124,7 +125,7 @@ def verify_otp(request):
 
         if otp_generation_time_str is None:
             messages.error(request, "Session expired. Please try again.")
-            return render(request, 'UserSide/otp.html')
+            return render(request, 'UserSide/parent/otp.html')
         
         otp_generation_time = datetime.strptime(otp_generation_time_str, '%Y-%m-%d %H:%M:%S')
         otp_generation_time = timezone.make_aware(otp_generation_time, timezone.get_current_timezone())
@@ -163,10 +164,9 @@ def verify_otp(request):
             else:
                 messages.error(request, "Failed to verify OTP. Please try again.")
 
-            return render(request, 'UserSide/otp.html')
+            return render(request, 'UserSide/user-loginotp.html')
     else:
-        return redirect('home_view') 
-
+        return redirect('home_view')
 
 
 def login_view(request):
@@ -184,8 +184,36 @@ def login_view(request):
             messages.error(request, "Invalid email or password. Please try again.")
     else:
         form = EmailAuthenticationForm()
-    return render(request, 'UserSide/login.html', {'form': form})
-
+    return render(request, 'UserSide/user-login/login.html', {'form': form})
 
 def home_view(request):
-    return render(request,'UserSide/home.html')
+    if request.user.is_authenticated:
+        products = Products.objects.filter(is_active=True).prefetch_related('variants__images')
+        response = render(request, 'UserSide/home.html', {'products': products})
+        response['Cache-Control'] = 'no-store'
+        return response
+    
+    else:
+        # Redirect to login page or handle unauthorized access
+        return redirect('Register')  # 
+def product_detail_user(request, id):
+    try:
+        product = Products.objects.get(id=id)
+    except Products.DoesNotExist:
+        product = None  # Handle this case appropriately
+    return render(request, 'UserSide/product_detailss.html', {'product': product})
+
+def forgot_password(request):
+    
+    if request.method=='post':
+        email=request.get('email')
+        print(email)
+    return render(request,'UserSide/password_reset.html')
+
+def demo(request):
+    products = Products.objects.filter(is_active=True).prefetch_related('variants__images')
+    response = render(request, 'UserSide/index.html', {'products': products})
+    response['Cache-Control'] = 'no-store'
+    return response
+
+    

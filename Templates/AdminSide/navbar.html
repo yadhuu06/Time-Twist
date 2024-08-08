@@ -7,10 +7,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="shortcut icon" href="{% static 'UserSide/img/mymail.jpeg' %}" type="image/x-icon">
     <title>G-G ADMIN</title>
-  
+  <!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="stylesheet" href="{% static 'AdminSide/assets/vendors/mdi/css/materialdesignicons.min.css' %}">
     <link rel="stylesheet" href="{% static 'AdminSide/assets/vendors/css/vendor.bundle.base.css' %}">
     <!-- endinject -->
+    <link rel="stylesheet" href="{% static 'AdminSide/assets/vendors/mdi/css/materialdesignicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'AdminSide/assets/vendors/css/vendor.bundle.base.css' %}">
+   
+    <link rel="stylesheet" href="{% static '../../assets/css/style.css' %}">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="../../assets/images/favicon.png" />
     <!-- Plugin css for this page -->
     <link rel="stylesheet" href="{% static 'AdminSide/assets/vendors/jvectormap/jquery-jvectormap.css' %}">
     <link rel="stylesheet" href="{% static 'AdminSide/assets/vendors/flag-icon-css/css/flag-icon.min.css' %}">
@@ -19,6 +30,59 @@
     <!-- End plugin css for this page -->
     <!-- inject:css -->
     <!-- endinject -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
+      
+      .logo {
+         font-family: 'Montserrat', sans-serif; 
+       
+
+
+
+
+
+        font-size: 32px;
+        display: inline-block;
+        padding: 10px 15px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+      
+      .logo:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+      }
+      
+      .logo .time {
+        font-weight: 800;
+        color: #ffffff;
+      }
+      
+      .logo .twist {
+        font-weight: 600;
+        color: #00ffff;
+        position: relative;
+      }
+      
+      .logo .twist::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 2px;
+        background: #00ffff;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+      
+      .logo:hover .twist::after {
+        transform: scaleX(1);
+      }
+      </style>
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
     <!-- Layout styles -->
     <link rel="stylesheet" href="{% static 'AdminSide/assets/css/style.css' %}">
     <!-- End layout styles -->
@@ -29,7 +93,10 @@
       <!-- partial:partials/_sidebar.html -->
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-          <a class="sidebar-brand brand-logo" href="#"><img src="{% static 'UserSide/img/Glow Gears11.png' %}" alt="logo" /></a>
+          <div class="logo">
+            <span class="time">Time</span><span class="twist">Twist</span>
+          </div>
+          {% comment %} <a class="sidebar-brand brand-logo" href="#"><img src="{% static 'UserSide/img/Glow Gears11.png' %}" alt="logo" /></a> {% endcomment %}
           <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="{% static 'AdminSide/images/logo-mini.svg' %}" alt="logo" /></a>
         </div>
         <ul class="nav">
@@ -42,7 +109,7 @@
                 </div>
                 <div class="profile-name">
                   <h5 class="mb-0 font-weight-normal">ADMIN</h5>
-                  <span>Glow Gear Wearables
+                  <span>Time Twist Wearables
                   </span>
                 </div>
               </div>
@@ -84,7 +151,7 @@
             </div>
           </li>
           <li class="nav-item nav-category">
-            <span class="nav-link">Navigation</span>
+            <span class="nav-link"></span>
           </li>
           <li class="nav-item menu-items">
             <a class="nav-link" href="{% url 'admin_page' %}">
@@ -105,27 +172,26 @@
             <div class="collapse" id="ui-basic">
            
           <li class="nav-item menu-items">
-            <a class="nav-link" href="pages/forms/basic_elements.html">
+            <a class="nav-link" href="#">
               <span class="menu-icon">
                 <i class="mdi mdi-playlist-play"></i>
               </span>
-              <span class="menu-title">Form Elements</span>
+              <span class="menu-title">Payments</span>
             </a>
           </li>
           <li class="nav-item menu-items">
             <!-- Ensure the link triggers authentication and admin checks -->
                 <a class="nav-link" href="{% url 'users_list' %}">
-
               <span class="menu-icon">
-                <i class="mdi mdi-table-large"></i>
+                <i class="mdi mdi-contacts"></i>
               </span>
               <span class="menu-title">Users</span>
             </a>
           </li>
           <li class="nav-item menu-items">
-            <a class="nav-link" href="pages/icons/mdi.html">
+            <a class="nav-link" href="{% url 'products:products_list' %}">
               <span class="menu-icon">
-                <i class="mdi mdi-contacts"></i>
+                <i class="mdi mdi-table-large"></i>
               </span>
               <span class="menu-title">Products</span>
             </a>
@@ -144,18 +210,17 @@
               <span class="menu-icon">
                 <i class="mdi mdi-security"></i>
               </span>
-              <span class="menu-title">category</span>
-              
+              <span class="menu-title">category</span> 
             </a>
-            <div class="collapse" id="auth">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item"> <a class="nav-link" href="pages/samples/blank-page.html"> Blank Page </a></li>
-                <li class="nav-item"> <a class="nav-link" href="pages/samples/error-404.html"> 404 </a></li>
-                <li class="nav-item"> <a class="nav-link" href="pages/samples/error-500.html"> 500 </a></li>
-                <li class="nav-item"> <a class="nav-link" href="pages/samples/login.html"> Login </a></li>
-                <li class="nav-item"> <a class="nav-link" href="pages/samples/register.html"> Register </a></li>
-              </ul>
-            </div>
+            <li class="nav-item menu-items">
+              <a class="nav-link" data-toggle="collapse" href="{% url 'catogory:varient_list' %}"aria-expanded="false" aria-controls="auth">
+                <span class="menu-icon">
+                  <i class="mdi mdi-security"></i>
+                </span>
+                <span class="menu-title">Varient</span> 
+              </a>
+             
+           
           </li>
           <li class="nav-item menu-items">
             <a class="nav-link" href="{% url 'documentaion' %}">
@@ -187,49 +252,46 @@
             </ul>
             <ul class="navbar-nav navbar-nav-right">
               <li class="nav-item dropdown d-none d-lg-block">
-              
-                <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="createbuttonDropdown">
-                  <h6 class="p-3 mb-0">Projects</h6>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item preview-item">
-                    <div class="preview-thumbnail">
-                      <div class="preview-icon bg-dark rounded-circle">
-                        <i class="mdi mdi-file-outline text-primary"></i>
-                      </div>
+              </form>
+            </li>
+          </ul>
+          <ul class="navbar-nav navbar-nav-right">
+            <li class="nav-item dropdown d-none d-lg-block">
+              <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="#">+ Create New Project</a>
+              <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="createbuttonDropdown">
+                <h6 class="p-3 mb-0">Projects</h6>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <div class="preview-icon bg-dark rounded-circle">
+                      <i class="mdi mdi-file-outline text-primary"></i>
                     </div>
-                    <div class="preview-item-content">
-                      <p class="preview-subject ellipsis mb-1">Software Development</p>
+                  </div>
+                  <div class="preview-item-content">
+                    <p class="preview-subject ellipsis mb-1">Software Development</p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <div class="preview-icon bg-dark rounded-circle">
+                      <i class="mdi mdi-web text-info"></i>
                     </div>
-                  </a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item preview-item">
-                    <div class="preview-thumbnail">
-                      <div class="preview-icon bg-dark rounded-circle">
-                        <i class="mdi mdi-web text-info"></i>
-                      </div>
+                  </div>
+                  <div class="preview-item-content">
+                    <p class="preview-subject ellipsis mb-1">UI Development</p>
+                  </div>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item preview-item">
+                  <div class="preview-thumbnail">
+                    <div class="preview-icon bg-dark rounded-circle">
+                      <i class="mdi mdi-layers text-danger"></i>
                     </div>
-                    <div class="preview-item-content">
-                      <p class="preview-subject ellipsis mb-1">UI Development</p>
-                    </div>
-                  </a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item preview-item">
-                    <div class="preview-thumbnail">
-                      <div class="preview-icon bg-dark rounded-circle">
-                        <i class="mdi mdi-layers text-danger"></i>
-                      </div>
-                    </div>
-                    <div class="preview-item-content">
-                      <p class="preview-subject ellipsis mb-1">Software Testing</p>
-                    </div>
-                  </a>
-                  <div class="dropdown-divider"></div>
-                  <p class="p-3 mb-0 text-center">See all projects</p>
-                </div>
-              </li>
-              <li class="nav-item nav-settings d-none d-lg-block">
-                <a class="nav-link" href="#">
-                  <i class="mdi mdi-view-grid"></i>
+                  </div>
+                  <div class="preview-item-content">
+                    <p class="preview-subject ellipsis mb-1">Software Testing</p>
+                  </div>
                 </a>
               </li>
               <li class="nav-item dropdown border-left">
