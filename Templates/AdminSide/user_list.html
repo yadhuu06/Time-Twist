@@ -2,50 +2,52 @@
 {% block title %}User List{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-10 offset-md-1">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title">Users</h3>
-                    <div class="table">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">First Name</th>
-                                    <th scope="col">Last Name</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">Phone Number</th>
-                                    <th scope="col">Active</th>
-                                    <th scope="col">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in users %}
-                                <tr>
-                                    <td>{{ user.first_name }}</td>
-                                    <td>{{ user.last_name }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>{{ user.phone_number }}</td>
-                                    <td>{% if user.is_active %}Yes{% else %}No{% endif %}</td>
-                                    <td>
-                                        <form method="post" action="{% url 'Block_user'  %}" id="block-form-{{ user.id }}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="email" value="{{ user.email }}">
-                                            <button type="button" class="btn btn-sm {% if user.is_active %}btn-danger{% else %}btn-success{% endif %}" onclick="confirmBlock('{{ user.id }}', '{{ user.is_active }}')">
-                                                {% if user.is_active %}Block{% else %}Unblock{% endif %}
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">User List</h4>
+            <p class="card-description"> available <code>Users are:</code></p>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                          
+                            <th>Email</th>
+                            <th>Phone Number</th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td class="high-visibility-cell">{{ user.first_name }} {{ user.last_name }}</td>
+                            <td class="high-visibility-cell">{{ user.email }}</td>
+                            <td class="high-visibility-cell">{{ user.phone_number }}</td>
+                            <td>{{ user.is_active|yesno:"Yes,No" }}</td>
+                            <td>
+                                <form method="post" action="{% url 'Block_user'  %}" id="block-form-{{ user.id }}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="email" value="{{ user.email }}">
+                                    <button type="button" class="btn btn-sm {% if user.is_active %}btn-danger{% else %}btn-success{% endif %}" onclick="confirmBlock('{{ user.id }}', '{{ user.is_active }}')">
+                                        {% if user.is_active %}Block{% else %}Unblock{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No users available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-        
+    </div>
+</div>
+
     </div>
 </div>
 
@@ -69,6 +71,7 @@ function confirmBlock(userId, isActive) {
             document.getElementById(`block-form-${userId}`).submit();
         }
     });
+    
 }
 </script>
 {% endblock %}

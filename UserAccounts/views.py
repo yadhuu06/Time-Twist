@@ -15,12 +15,19 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from products.models import Category, Brand, Products, ProductVariant, ProductVariantImages
 from django.views.decorators.cache import cache_control
+from UserAccounts.models import User
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
+from user_pannel.models import UserAddress
+
+
+
 
 
 
 
 User = get_user_model()
-
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< new acount creation view >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def Register(request):
     if request.method == 'POST':
         Fname = request.POST.get('firstname')
@@ -72,20 +79,19 @@ def Register(request):
         return render(request, 'UserSide/user-login/otp.html')
     else:
         return render(request, 'UserSide/user-login/register.html')
+    
+    
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> resend otp <<<<<<<<<<<<<<<<<<<<<<<,
 
 def resend_otp(request):
     otp_generation_time_str = request.session.get('time')
-
-    #
     otp_generation_time = datetime.strptime(otp_generation_time_str, '%Y-%m-%d %H:%M:%S')
     current_time = timezone.now()
-
     time_difference = current_time - timezone.make_aware(otp_generation_time)
-    if time_difference.total_seconds() < 60:
+    if time_difference.total_seconds() < 900:
         messages.error(request, 'You can request a new OTP after 1 minute.')
         return render(request, 'UserSide/otp.html')
 
-    # Generate a new OTP and update the session
     otp = random.randint(100000, 999999)
     print(otp)
     image_url = static('UserSide/img/mymail.jpeg')
@@ -117,6 +123,8 @@ def resend_otp(request):
     request.session['time'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
 
     return render(request, 'UserSide/parent/user-login/otp.html')
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< verify the otp >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
 
 def verify_otp(request):
     if request.method == 'POST':
@@ -168,7 +176,7 @@ def verify_otp(request):
     else:
         return redirect('home_view')
 
-
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Existing user loggin   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def login_view(request):
     if request.method == 'POST':
         form = EmailAuthenticationForm(request, data=request.POST)
@@ -176,7 +184,7 @@ def login_view(request):
             user = form.get_user()
             if user.is_active and not user.is_blocked:  
                 login(request, user)
-                messages.success(request, f"Welcome, {user.email}! You have successfully logged in.")
+                messages.success(request, f"Welcome, {user.first_name}! You have successfully logged in.")
                 return redirect('home_view')
             else:
                 messages.error(request, "This account is inactive. Please contact support.")
@@ -185,24 +193,55 @@ def login_view(request):
     else:
         form = EmailAuthenticationForm()
     return render(request, 'UserSide/user-login/login.html', {'form': form})
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  user loggin success>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
 
+
+@login_required
 def home_view(request):
     if request.user.is_authenticated:
-        products = Products.objects.filter(is_active=True).prefetch_related('variants__images')
-        response = render(request, 'UserSide/home.html', {'products': products})
-        response['Cache-Control'] = 'no-store'
-        return response
-    
+          products = Products.objects.filter(is_active=True).prefetch_related('variants__images')
+          user_details = {
+              'first_name': request.user.first_name,
+              'last_name': request.user.last_name,
+              'email': request.user.email,
+            'phone_number': request.user.phone_number
+          }  
+          response = render(request, 'UserSide/index.html', {'products': products,'user_details': user_details})
+          response['Cache-Control'] = 'no-store'
+          return response   
     else:
-        # Redirect to login page or handle unauthorized access
-        return redirect('Register')  # 
+        return redirect('Register')  
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. LOG OUT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, "Logout successful")  
+    return redirect('login_view')   
+
+@login_required
 def product_detail_user(request, id):
     try:
         product = Products.objects.get(id=id)
+        variants = product.variants.all().prefetch_related('images')
+        variant_data = []
+        for variant in variants:
+            variant_data.append({
+                'id': variant.id,
+                'name': variant.variant_name,
+                'price': str(variant.price),  # Convert to string for JSON serialization
+                'colour_code': variant.colour_code,
+                'images': [image.image.url for image in variant.images.all()]
+            })
     except Products.DoesNotExist:
-        product = None  # Handle this case appropriately
-    return render(request, 'UserSide/product_detailss.html', {'product': product})
+        product = None
+        variant_data = []
 
+    context = {
+        'product': product,
+        'variants': variant_data
+    }
+    return render(request, 'UserSide/product_detailss.html', context)
 def forgot_password(request):
     
     if request.method=='post':
@@ -210,10 +249,16 @@ def forgot_password(request):
         print(email)
     return render(request,'UserSide/password_reset.html')
 
-def demo(request):
-    products = Products.objects.filter(is_active=True).prefetch_related('variants__images')
-    response = render(request, 'UserSide/index.html', {'products': products})
-    response['Cache-Control'] = 'no-store'
-    return response
+@login_required
+def user_profile(request):
+    current_user = request.user
+    addresses = UserAddress.objects.filter(user_id=current_user.id)
+     
+    context = {
+        'user': current_user,
+        'addresses': addresses  
+    }
+
+    return render(request, 'UserSide/user-login/user_profile.html', context)
 
     

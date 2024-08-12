@@ -1,67 +1,85 @@
-<!-- brand.html -->
 {% extends "AdminSide/base.html" %}
-
-
-{% block title %}Brands Page{% endblock %}
-
+{% load static %}
+{% block title %}Variant Page{% endblock %}
 
 {% block content %}
 
-
-{% if messages %}
-<div id="messages">
-    {% for message in messages %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+<div class="container mt-5">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="text-center text-gold"> {{ product.product_name }}</h3>
+        <a class="btn btn-success" href="{% url 'products:add_productVarient' product.id %}">+ Add Variant</a>
     </div>
-    {% endfor %}
-</div>
-{% endif %}
 
-<div style="display: flex; flex-direction: row; align-items: center; font-family: Montserrat;">
-    <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="{% url 'brand:add_brand' %}">+ Add New Brand</a>
-    <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">BRANDS</h3>
-    
-</div>
-
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-10 offset-md-1">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">Varient Name</th>
-                                    {% comment %} <th scope="col">Varient  Description</th> {% endcomment %}
-                                    <th scope="col">status </th>
-                                    <th scope="col">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for varient in varient %}
-                                <tr>
-                                    <td>{{ varient.variant_name }}</td>
-                                    <td>{{ varient.Products__product_name }}</td>
-                                    <td>{{ varient.is_active }}</td>
-                                    {% comment %} <td>
-                                        <a href="{% url 'brand:edit_brand' brand.id %}" class="btn btn-sm btn-primary">Edit</a>
-                                    </td> {% endcomment %}
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    {% if messages %}
+    <div id="messages" class="mt-3">
+        {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
+        {% endfor %}
     </div>
-</div>
+    {% endif %}
+
+    
+   
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title"></h4>
+        <p class="card-description"> available  <code>Variants are:</code>
+        </p>
+        <div class="table-responsive">
+          <table class="table table-hover">
+       
+              </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Variant Name</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Color</th>
+                    <th>Status?</th>
+                    <th>Images</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for variant in variants %}
+                <tr>
+                    <td class="high-visibility-cell">{{ variant.variant_name }}</td>
+                    <td class="high-visibility-cell">${{ variant.price }}</td>
+                    <td class="high-visibility-cell">{{ variant.variant_stock }}</td>
+                    <td>
+                        <div style="width: 30px; height: 30px; background-color: {{ variant.colour_code }}; border-radius: 50%;"></div>
+                    </td>
+                    <td>{{ variant.is_active|yesno:"Yes,No" }}</td>
+                    <td>
+                        {% for image in variant.images.all %}
+                        <img src="{{ image.image.url }}" alt="Variant Image" style="width: 50px; height: 50px;">
+                        {% empty %}
+                        <img src="{% static 'UserSide/img/No_Images_available.png' %}" alt="No Image" style="width: 50px; height: 50px;">
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <a href="{% url 'products:edit_productVariant' variant.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No variants available for this product.</td>
+                </tr>
+                {% endfor %}
+  
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 
 <script>
@@ -71,8 +89,8 @@
         if (messages) {
             messages.style.display = 'none';
         }
-    }, 20000); /
+    }, 3000);
 </script>
 
-{% endblock %}
 
+{% endblock %}

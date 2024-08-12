@@ -11,6 +11,7 @@ urlpatterns = [
     path('resend_otp',views.resend_otp,name='resend_otp'),
     path('product_detail_user/<int:id>/',views.product_detail_user,name='product_detail_user'),
     path('forgot_password',views.forgot_password,name='forgot_password'),
-    path('demo/',views.demo, name='demo'),
+    path('user_profile',views.user_profile,name='user_profile'),
+    path('logout',views.logout_view,name='logout'),
     
 ]

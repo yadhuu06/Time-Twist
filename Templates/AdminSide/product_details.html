@@ -50,7 +50,7 @@
             <!-- Variants -->
             <h5>Available Variants</h5>
             <ul class="list-group">
-                {% for variant in variants %}
+                {% for variant in products.variants.all %}
                 <li class="list-group-item">
                     <strong>{{ variant.variant_name }}</strong> - ${{ variant.price }}
                 </li>

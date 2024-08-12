@@ -1282,7 +1282,7 @@ h1, h2, h3, h4, h5, h6 {
     color: #222222; }
 
 .organic-breadcrumb {
-  background: url(../img/banner/common-banner.jpg) center no-repeat;
+  /* background: url(../img/) center no-repeat; */
   background-size: cover;
   padding-top: 130px; }
   @media (max-width: 991px) {

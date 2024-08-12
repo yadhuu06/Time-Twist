@@ -9,7 +9,6 @@ class UserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, first_name=first_name, last_name=last_name, phone_number=phone_number)
         user.set_password(password)
-        print("hashed passsword",user.password)
         user.is_active = False  
         user.is_blocked = False
         user.date_joined = timezone.now()  
@@ -41,6 +40,5 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.email
-
 
 

@@ -2,126 +2,15 @@
 {% load static %}
 
 {%block content%}
-<body>
-  <style>
-      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
-	
 
-      
-	  .logo {
-		font-family: 'Oswald', sans-serif; 
-		font-size: 39px;
-		display: inline-block;
-	
-		background: transparent; /* Remove or set to transparent */
-		border-radius: 8px;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		transition: all 0.3s ease;
-	}
-      .logo:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-      }
-      
-      .logo .time {
-        font-weight: 800;
-        color: Black;
-      }
-      
-      .logo .twist {
-        font-weight: 600;
-        color: #ff8000;
-        position: relative;
-      }
-      
-      .logo .twist::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        bottom: -2px;
-        width: 100%;
-        height: 2px;
-        background: #00ffff;
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-      }
-      
-      .logo:hover .twist::after {
-        transform: scaleX(1);
-      }
-      </style>
-      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
-	<!-- Start Header Area -->
-	<header class="header_area sticky-header">
-		<div class="main_menu">
-			<nav class="navbar navbar-expand-lg navbar-light main_box">
-				<div class="container"><div class="logo">
-					<span class="time">Time</span><span class="twist">Twist</span>
-				  </div>
-					<!-- Brand and toggle get grouped for better mobile display -->
-					<a class="navbar-brand logo_h" href="index.html"><img src="{% static 'AdminSide/img/logo.png' %}" alt=""></a>
-					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-					 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<!-- Collect the nav links, forms, and other content for toggling -->
-					<div class="collapse navbar-collapse offset" id="navbarSupportedContent">
-						<ul class="nav navbar-nav menu_nav ml-auto">
-							<li class="nav-item active"><a class="nav-link" href="index.html">Home</a></li>
-							<li class="nav-item submenu dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false">Shop</a>
-								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="category.html">Shop Category</a></li>
-									<li class="nav-item"><a class="nav-link" href="single-product.html">Product Details</a></li>
-									<li class="nav-item"><a class="nav-link" href="checkout.html">Product Checkout</a></li>
-									<li class="nav-item"><a class="nav-link" href="cart.html">Shopping Cart</a></li>
-									<li class="nav-item"><a class="nav-link" href="confirmation.html">Confirmation</a></li>
-								</ul>
-							</li>
-							<li class="nav-item submenu dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false">Blog</a>
-								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
-									<li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a></li>
-								</ul>
-							</li>
-							<li class="nav-item submenu dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false"></a>
-								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
-									<li class="nav-item"><a class="nav-link" href="tracking.html">Tracking</a></li>
-									<li class="nav-item"><a class="nav-link" href="elements.html">Elements</a></li>
-								</ul>
-							</li>
-							<li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
-						</ul>
-						<ul class="nav navbar-nav navbar-right">
-							<li class="nav-item"><a href="#" class="cart"><span class="ti-bag"></span></a></li>
-							<li class="nav-item">
-								<button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</nav>
-		</div>
-		<div class="search_input" id="search_input_box">
-			<div class="container">
-				<form class="d-flex justify-content-between">
-					<input type="text" class="form-control" id="search_input" placeholder="Search Here">
-					<button type="submit" class="btn"></button>
-					<span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
-				</form>
-			</div>
-		</div>
-	</header>
-	<!-- End Header Area -->
 
+{% if messages %}
+							<ul class="messages">
+								{% for message in messages %}
+									<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+								{% endfor %}
+							</ul>
+						{% endif %}
 	<!-- start banner Area -->
 	<section class="banner-area">
 		<div class="container">
@@ -223,9 +112,15 @@
 		</div>
 	</section>
 	<!-- end features Area -->
+	<style>
+	.violet-bg {
+		background-color: #8189A1;
+		padding: 1px; /* Optional: Adjust padding as needed */
+	
+	}
+</style>
+	
 
-	<!-- Start category Area -->
-	 category Area -->
 
 	<!-- start product Area -->
 	<section class="owl-carousel active-product-area section_gap">
@@ -246,29 +141,38 @@
 					{% for product in products %}
 					<div class="col-lg-3 col-md-6">
 						<div class="single-product">
-							<!-- Product Image -->
-							{% if product.variants.all %}
-								{% with product.variants.all|first as first_variant %}
-									{% if first_variant.images.all %}
-										{% with first_variant.images.all|first as first_image %}
-											<img class="img-fluid product-image product-image-home" src="{{ first_image.image.url }}" alt="No image">
-										{% endwith %}
-									{% else %}
-										<img class="img-fluid product-image product-image-home" src="{% static 'path/to/default-image.jpg' %}" alt="No image">
-									{% endif %}
-								{% endwith %}
-							{% else %}
-								<img class="img-fluid product-image product-image-home" src="{% static 'path/to/default-image.jpg' %}" alt="No image">
-							{% endif %}
-				
+							<!-- Product Image with violet background -->
+							<div class="violet-bg">
+								{% if product.variants.all %}
+									{% with product.variants.all|first as first_variant %}
+										{% if first_variant.images.all %}
+											{% with first_variant.images.all|first as first_image %}
+												<img class="img-fluid product-image product-image-home" src="{{ first_image.image.url }}" alt="No image">
+											{% endwith %}
+										{% else %}
+											<img class="img-fluid product-image product-image-home" src="{% static 'path/to/default-image.jpg' %}" alt="No image">
+										{% endif %}
+									{% endwith %}
+								{% else %}
+									<img class="img-fluid product-image product-image-home" src="{% static 'path/to/default-image.jpg' %}" alt="No image">
+								{% endif %}
+							</div>
+							<div class="SPACE" style="margin-top: 45px;"></div>
+
 							<!-- Product Details -->
 							<div class="product-details">
-								<h6>{{ product.product_name }}</h6>
+								<h5>{{ product.product_name }}</h5>
+								<h6 style="color:blue;">{{ product.product_brand.brand_name }}</h6>
+
 								<div class="price">
 									{% if product.offer_price %}
-										<h6>{{ product.offer_price }}$</h6>
+									<h4 style="color: green; font-weight: bold;">{{ product.offer_price }}$</h4>
+
 									{% endif %}
-									<h6 class="l-through">{{ product.price }}$</h6>
+									<h6 class="l-through" style="color: black;">
+										<span class="red-line">{{ product.price }}$</span>
+									</h6>
+									
 								</div>
 								<div class="prd-bottom">
 									<a href="" class="social-info">

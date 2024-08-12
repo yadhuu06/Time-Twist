@@ -1,78 +1,7 @@
 {% extends "AdminSide/base.html" %}
 
-
 {% block title %}Products Page{% endblock %}
 
-<style>
-
-    .variant-button {
-    border-radius: 50px; /* Rounded corners */
-    padding: 10px 20px; /* Spacing inside the button */
-    font-size: 16px; /* Font size */
-    font-weight: 600; /* Font weight */
-    transition: all 0.3s ease; /* Smooth transition for hover effects */
-    }
-    
-    /* Hover effects */
-    .variant-button:hover {
-    opacity: 0.8; /* Slightly fade the button on hover */
-    transform: scale(1.05); /* Slightly increase the button size on hover */
-    }
-
-    /* Active state effects */
-    .variant-button:active {
-    transform: scale(0.98); /* Slightly decrease the button size on click */
-    }
-
-    /* Additional button styles */
-    .btn-primary {
-    background-color: #007bff; /* Primary color */
-    border: none; /* Remove border */
-    color: #fff; /* Text color */
-    }
-
-    .btn-secondary {
-    background-color: #6c757d; /* Secondary color */
-    border: none; /* Remove border */
-    color: #fff; /* Text color */
-    }
-
-    .btn-success {
-    background-color: #28a745; /* Success color */
-    border: none; /* Remove border */
-    color: #fff; /* Text color */
-    }
-
-    .btn-danger {
-    background-color: #dc3545; /* Danger color */
-    border: none; /* Remove border */
-    color: #fff; /* Text color */
-    }
-
-    .btn-warning {
-    background-color: #ffc107; /* Warning color */
-    border: none; /* Remove border */
-    color: #212529; /* Text color */
-    }
-
-    .btn-info {
-    background-color: #17a2b8; /* Info color */
-    border: none; /* Remove border */
-    color: #fff; /* Text color */
-    }
-
-    .btn-light {
-    background-color: #f8f9fa; /* Light color */
-    border: none; /* Remove border */
-    color: #212529; /* Text color */
-    }
-
-    .btn-dark {
-    background-color: #343a40; /* Dark color */
-    border: none; /* Remove border */
-    color: #fff; /* Text color */
-    }
-</style>
 
 {% block content %}
 {% if messages %}
@@ -86,61 +15,57 @@
     {% endfor %}
 {% endif %}
  <div style="display: flex; flex-direction: row; align-items: center; font-family: Montserrat;">
-
      <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown"  aria-expanded="false" href="{% url 'products:add_products' %}">+ Add New Products </a> 
     <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">Products</h3>
 </div> 
- 
-<div class="container">
-    <div class="row">
-        <div class="col-md-10 offset-md-1">
-            <div class="card">
-                <div class="card-body">
-                   
-                    <div class="table">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">Product Name</th>       
-                                    <th scope="col">Product Price</th>                                  
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for p in products %}
-                                <tr>
-                                    <td>{{ p.product_name }}</td>
-                                    <td>{{ p.price }}</td>
-                                    <td>{{ p.brand }}</td>  
-                                    <td>{{ p.is_active}}</td> 
-                                    <td>
-                                        {% comment %} <form method="" action="{% url 'products:edit_product' p.id  %}">  {% endcomment %}
-                                            {% comment %} {% csrf_token %}
-                                            <input type="hidden" name="product_name" value="{p.product_name}">
-                                            <button type="submit" class="btn btn-sm btn-primary">Edit</button>
-                                        </form> {% endcomment %}
-                                    </td>
-                                    <td>
-                                
-                                <form method="" action="{% url 'products:add_productVarient' p.id  %}">        
-                                   {% csrf_token %}
-                                   <input type="hidden" name="product_name" value="{p.product_name}">
-                                   <button type="submit" class="btn btn-sm btn-secondary">Varients</button>
-                               </form>
-                           </td>
-                           <td><a href="{% url 'products:product_detail' p.id %}" class="btn btn-warning me-2">Detail</a>
-                           </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Product List</h4>
+            <p class="card-description"> available <code>Products are:</code></p>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Product Price</th>
+                            <th>Brand</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                            <th>Variants</th> <!-- Updated column name -->
+                            <th>Details</th> <!-- Added Details column -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in products %}
+                        <tr>
+                            <td class="high-visibility-cell">{{ p.product_name }}</td>
+                            <td class="high-visibility-cell">${{ p.price }}</td>
+                            <td class="high-visibility-cell">{{ p.product_brand.brand_name }}</td>
+                            <td>{{ p.is_active|yesno:"Active,Inactive" }}</td> <!-- Conditional yes/no filter for status -->
+                            <td>
+                                <a href="{% url 'products:edit_product' p.id %}" class="btn btn-sm btn-primary">Edit</a>
+                            </td>
+                            <td>
+                                <form method="get" action="{% url 'products:list_productVarient' p.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-secondary">Variants</button>
+                                </form>
+                            </td>
+                            <td>
+                                <a href="{% url 'products:product_detail' p.id %}" class="btn btn-sm btn-warning">Detail</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No products available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
-
 
 {% endblock %}

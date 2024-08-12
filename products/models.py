@@ -25,6 +25,8 @@ class ProductVariant(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='variants')
     variant_name = models.CharField(max_length=100, null=False)
     price = models.DecimalField(max_digits=8, decimal_places=2)
+    variant_stock = models.PositiveIntegerField(null=False,default=0)
+    colour_code = models.CharField(null=False,default='default_color')
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
