@@ -8,11 +8,7 @@
 {% block content %}
 
 
-{% if messages %}
-<div id="messages">
-    {% for message in messages %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ message }}
+
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -72,6 +68,31 @@
             messages.style.display = 'none';
         }
     }, 20000); /
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
 </script>
 
 {% endblock %}

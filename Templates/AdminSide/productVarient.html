@@ -64,16 +64,6 @@
 
                         <div id="image-preview" class="mb-3 d-flex flex-wrap"></div>
 
-                        {% if messages %}
-                            <div class="mt-3">
-                                {% for message in messages %}
-                                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
-                                        {{ message }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
                         <button type="submit" class="btn btn-primary">Add Variant</button>
                     </form>
                 </div>
@@ -240,5 +230,30 @@ document.addEventListener("DOMContentLoaded", () => {
         imageInput.files = dataTransfer.files;
     }
 });
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
 </script>
 {% endblock %}
