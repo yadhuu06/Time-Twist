@@ -37,13 +37,23 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="price">New Price</label>
-            <input type="number" name="price" id="price" value="{{ product.price }}" class="form-control" step="1" pattern="\d+" required>
-
+            <label for="price" class="form-label">New Price</label>
+            <input 
+                type="number" 
+                name="price" 
+                id="price" 
+                value="{{ product.price }}" 
+                class="form-control" 
+                min="0" <!-- Sets the minimum value to 0 -->
+                placeholder="Enter the new price" 
+                required 
+            >
+        </div>
+        
         </div>
         <div class="form-group">
             <label for="offer_price">Offer Price</label>
-            <input type="number" name="offer_price" id="offer_price" value="{{ product.offer_price }}" class="form-control">
+            <input type="number" name="offer_price" id="offer_price" value="{{ product.offer_price }}"  class="form-control">
         </div>
         <div class="form-group form-check">
             <input type="checkbox" name="is_active" id="is_active" class="form-check-input" {% if product.is_active %}checked{% endif %}>

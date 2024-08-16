@@ -31,7 +31,7 @@
                     <ul class="main-categories">
                         <li class="main-nav-list">
                             <a data-toggle="collapse" href="#fruitsVegetable" aria-expanded="false" aria-controls="fruitsVegetable">
-                                <span class="lnr lnr-arrow-right"></span>Fruits and Vegetables<span class="number">(53)</span>
+                                <span class="lnr lnr-arrow-right"></span><span class="number"></span>
                             </a>
                             <ul class="collapse" id="fruitsVegetable" data-toggle="collapse" aria-expanded="false" aria-controls="fruitsVegetable">
                                 <li class="main-nav-list child"><a href="#">Frozen Fish<span class="number">(13)</span></a></li>
@@ -47,80 +47,98 @@
 
                 <!-- Sidebar Filters -->
                 <div class="sidebar-filter mt-50">
-                    <div class="top-filter-head">Product Filters</div>
-                    <div class="common-filter">
-                        <div class="head">Brands</div>
-                        <form action="#">
-                            <ul>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="apple" name="brand">
-                                    <label for="apple">Apple<span>(29)</span></label>
-                                </li>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="asus" name="brand">
-                                    <label for="asus">Asus<span>(29)</span></label>
-                                </li>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="gionee" name="brand">
-                                    <label for="gionee">Gionee<span>(19)</span></label>
-                                </li>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="micromax" name="brand">
-                                    <label for="micromax">Micromax<span>(19)</span></label>
-                                </li>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="samsung" name="brand">
-                                    <label for="samsung">Samsung<span>(19)</span></label>
-                                </li>
-                            </ul>
-                        </form>
-                    </div>
-
-                    <div class="common-filter">
-                        <div class="head">Color</div>
-                        <form action="#">
-                            <ul>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="black" name="color">
-                                    <label for="black">Black<span>(29)</span></label>
-                                </li>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="blackleather" name="color">
-                                    <label for="blackleather">Black Leather<span>(29)</span></label>
-                                </li>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="blackred" name="color">
-                                    <label for="blackred">Black with red<span>(19)</span></label>
-                                </li>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="gold" name="color">
-                                    <label for="gold">Gold<span>(19)</span></label>
-                                </li>
-                                <li class="filter-list">
-                                    <input class="pixel-radio" type="radio" id="spacegrey" name="color">
-                                    <label for="spacegrey">Spacegrey<span>(19)</span></label>
-                                </li>
-                            </ul>
-                        </form>
-                    </div>
-
-                    <div class="common-filter">
-                        <div class="head">Price</div>
-                        <div class="price-range-area">
-                            <div id="price-range"></div>
-                            <div class="value-wrapper d-flex">
-                                <div class="price">Price:</div>
-                                <span>$</span>
-                                <div id="lower-value">0</div>
-                                <div class="to">to</div>
-                                <span>$</span>
-                                <div id="upper-value">500</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+					<div class="top-filter-head">Product Filters</div>
+					<div class="common-filter">
+						<div class="head">Category</div>
+						<form id="filterForm" method="get" action="{% url 'shop_view' %}">
+							<ul><li class="filter-list">
+								<input 
+									class="pixel-radio" 
+									type="radio" 
+									id="category_all" 
+									name="category" 
+									value=""  <!-- No value to reset filter -->
+									{% if not request.GET.category %}{% endif %}
+								
+								<label for="category_all">All Watches<span></span></label>
+							</li>
+								{% for cat in categories %}
+									<li class="filter-list">
+										<input 
+											class="pixel-radio" 
+											type="radio" 
+											id="category_{{ cat.id }}" 
+											name="category" 
+											value="{{ cat.id }}"
+											{% if request.GET.category == cat.id|stringformat:"s" %}checked{% endif %}
+										>
+										<label for="category_{{ cat.id }}">{{ cat.category_name }}<span></span></label>
+									</li>
+								{% endfor %}
+							</ul>
+						</form>
+					</div>
+					<div class="common-filter">
+						<div class="head">Brands</div>
+						<ul>
+							{% for brand in brands %}
+								<li class="filter-list">
+									<input 
+										class="pixel-radio" 
+										type="radio" 
+										id="brand_{{ brand.id }}" 
+										name="brand" 
+										value="{{ brand.id }}"
+										{% if request.GET.brand == brand.id|stringformat:"s" %}checked{% endif %}
+									>
+									<label for="brand_{{ brand.id }}">{{ brand.brand_name }}<span></span></label>
+								</li>
+							{% endfor %}
+						</ul>
+					</div>
+					<div class="common-filter">
+						<div class="head"><b>Price</b></div>
+						<ul class="filter-list sort-options mt-3">
+							<li class="filter-list no-margin">
+								<input 
+									class="pixel-radio" 
+									type="radio" 
+									id="priceLowToHigh" 
+									name="priceSort" 
+									value="low-to-high"
+									{% if request.GET.priceSort == "low-to-high" %}checked{% endif %}
+								>
+								<label for="priceLowToHigh">Low to High<span></span></label>
+							</li>
+							<li class="filter-list no-margin">
+								<input 
+									class="pixel-radio" 
+									type="radio" 
+									id="priceHighToLow" 
+									name="priceSort" 
+									value="high-to-low"
+									{% if request.GET.priceSort == "high-to-low" %}checked{% endif %}
+								>
+								<label for="priceHighToLow">High to Low<span></span></label>
+							</li>
+						</ul>
+					</div>
+				</div>
+				
+				<script>
+					// Auto-submit the form when any filter is changed
+					document.querySelectorAll('input[type="radio"]').forEach((input) => {
+						input.addEventListener('change', () => {
+							document.getElementById('filterForm').submit();
+						});
+					});
+				</script>
+				
             </div>
-
+<STYle>.no-margin {
+    margin-left: 0 !important; 
+}
+</STYle>
             <!-- Main Content -->
             <div class="col-9">
                 <!-- Start Filter Bar -->
@@ -148,6 +166,7 @@
                     </div>
                 </div>
                 <!-- End Filter Bar -->
+				<div class="SPACE" style="margin-top: 50px;"></div>
 
                 <!-- Product Grid -->
 	<div class="row">
@@ -180,18 +199,18 @@
 
 								<div class="price">
 									{% if product.offer_price %}
-									<h4 style="color: green; font-weight: bold;">{{ product.offer_price }}$</h4>
+									<h4 style="color: green; font-weight: bold;">₹ {{ product.offer_price }}</h4>
 
 									{% endif %}
 									<h6 class="l-through" style="color: black;">
-										<span class="red-line">{{ product.price }}$</span>
+										<span class="red-line">₹ {{ product.price }}</span>
 									</h6>
 									
 								</div>
 								<div class="prd-bottom">
-									<a href="" class="social-info">
+									<a href="{% url 'cart:add_cart' product.id %}" class="social-info">
 										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
+										<p class="hover-text">Add to Cart</p>
 									</a>
 									<a href="" class="social-info">
 										<span class="lnr lnr-heart"></span>

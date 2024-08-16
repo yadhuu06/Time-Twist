@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <!-- Start Banner Area -->
 <section class="banner-area organic-breadcrumb">
     <div class="container">
@@ -19,146 +21,157 @@
 </section>
 <!-- End Banner Area -->
 
-<!--================Single Product Area =================-->
+<!-- Display Product Information -->
 <div class="container mt-5">
     <div class="row">
         <!-- Product Images -->
-        <div class="col-lg-6 mb-4">
-            <div id="productImagesCarousel" class="carousel slide" data-ride="carousel">
+        <div class="col-lg-6">
+            <div id="productImagesCarousel" class="carousel slide" data-ride="false">
                 <div class="carousel-inner">
-                    {% for variant in product.variants.all %}
-                        {% for image in variant.images.all %}
+                    {% for variant in variants %}
+                        {% for image_url in variant.images %}
                             <div class="carousel-item {% if forloop.first and forloop.parentloop.first %}active{% endif %}" data-variant="{{ variant.id }}">
-                                <img src="{{ image.image.url }}" class="d-block w-100 product-image img-fluid" alt="{{ product.product_name }}">
+                                <img src="{{ image_url }}" class="d-block w-100" alt="{{ product.product_name }}" style="object-fit: contain; height: 400px;">
                             </div>
                         {% endfor %}
                     {% endfor %}
                 </div>
                 <a class="carousel-control-prev" href="#productImagesCarousel" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true" style="background-color: black;"></span>
+                    <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
                     <span class="sr-only">Previous</span>
                 </a>
                 <a class="carousel-control-next" href="#productImagesCarousel" role="button" data-slide="next">
-					<span class="carousel-control-next-icon" aria-hidden="true" style="background-color: black;"></span>
-					<span class="sr-only">Next</span>
-				</a>
+                    <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
             </div>
         </div>
 
         <!-- Product Details -->
         <div class="col-lg-6">
-            <h2 class="mb-3">{{ product.product_name }}</h2>
-            <h4 class="text-success mb-3">${{ product.offer_price }}</h4>
-            
-            <p class="mb-4">{{ product.product_description }}</p>
-            
-            <div class="mb-4">
-                <h5>Select Color:</h5>
-                <div class="btn-group-toggle" data-toggle="buttons">
-					{% for variant in product.variants.all %}
-						<label class="btn btn-outline-secondary mr-2 mb-2" style="background-color: {{ variant.colour_code }};">
-							<input type="radio" name="color" value="{{ variant.id }}"> 
-							<span style="color: #fff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
-				
-							</span>
-						</label>
-					{% endfor %}
-				</div>
-            </div>
-            
-            <div class="mb-4">
-                <h5>Quantity:</h5>
-                <div class="input-group" style="max-width: 200px;">
-                    <div class="input-group-prepend">
-                        <button class="btn btn-outline-secondary" type="button" id="quantity-minus">-</button>
-                    </div>
-                    <input type="text" class="form-control text-center" value="1" id="quantity">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="quantity-plus">+</button>
+            <div class="product-details">
+                <h1 class="product-name">{{ product.product_name }}</h1>
+                
+                <div class="pricing">
+                    <span class="original-price">₹<span id="original-price">{{ product.price }}</span></span>
+                    <span class="current-price">₹<span id="current-price">{{ product.offer_price }}</span></span>
+                </div>
+                
+                <div class="product-description">
+                    <p>{{ product.product_description }}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Select Color:</h5>
+                    <div class="d-flex flex-wrap">
+                        {% for variant in variants %}
+                            <button type="button" class="btn btn-outline-secondary mr-2 mb-2 color-button" 
+                                    data-variant="{{ variant.id }}" 
+                                    data-price="{{ variant.price }}"
+                                    data-images="{{ variant.images|join:', ' }}"
+                                    style="width: 40px; height: 40px; border-radius: 50%; background-color: {{ variant.colour_code }};">
+                            </button>
+                        {% endfor %}
                     </div>
                 </div>
-            </div>
-            
-            <button class="btn btn-primary btn-lg mb-4" id="addToCartBtn">Add to Cart</button>
-            
-            <div>
-                <h5>Product Details:</h5>
-                <ul class="list-unstyled">
-                    <li><strong>Brand:</strong> {{ product.product_brand.brand_name }}</li>
-                    <li><strong>Category:</strong> {{ product.product_category.category_name }}</li>
-                    {% if product.offer_price %}
-                        <li><strong>Discount:</strong> {{ product.offer_price_percentage|floatformat:2 }}% OFF</li>
-                    {% endif %}
-                </ul>
+                
+                <input type="hidden" id="selected-variant-id" name="variant_id" value="{{ variants.0.id }}">
+                <a href="{% url 'cart:add_cart' product.id %}" id="add-to-cart-btn" class="genric-btn info-border circle arrow btn-primary mb-4">
+                    Add to Cart<span class="lnr lnr-arrow-right"></span>
+                </a>
+                
+                <div>
+                    <h5>Product Details:</h5>
+                    <ul class="list-unstyled">
+                        <li><strong>Brand:</strong> {{ product.product_brand.brand_name }}</li>
+                        <li><strong>Category:</strong> {{ product.product_category.category_name }}</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<!--================End Single Product Area =================-->
+<!-- End Product Information -->
 
-<!--================Product Description Area =================-->
-<section class="product_description_area">
-    <div class="container">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Description</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Specification</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Comments</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Reviews</a>
-            </li>
-        </ul>
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                <p>{{ product.product_description }}</p>
-            </div>
-            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                <!-- Add product specifications here -->
-            </div>
-            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                <!-- Add comments section here -->
-            </div>
-            <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
-                <!-- Add reviews section here -->
-            </div>
-        </div>
-    </div>
-</section>
-<!--================End Product Description Area =================-->
-
+<!-- JavaScript to handle price and image updates -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const colorButtons = document.querySelectorAll('input[name="color"]');
-    const carousel = document.querySelector('#productImagesCarousel');
-    const quantityInput = document.querySelector('#quantity');
-    const minusBtn = document.querySelector('#quantity-minus');
-    const plusBtn = document.querySelector('#quantity-plus');
+    document.addEventListener('DOMContentLoaded', function() {
+        const colorButtons = document.querySelectorAll('.color-button');
+        const originalPrice = document.querySelector('#original-price');
+        const currentPrice = document.querySelector('#current-price');
+        const selectedVariantInput = document.querySelector('#selected-variant-id');
+        const addToCartBtn = document.querySelector('#add-to-cart-btn');
+        const carouselInner = document.querySelector('.carousel-inner');
 
-    colorButtons.forEach(button => {
-        button.addEventListener('change', function() {
-            const variantId = this.value;
-            const targetSlide = carousel.querySelector(`.carousel-item[data-variant="${variantId}"]`);
-            if (targetSlide) {
-                $(carousel).carousel($(targetSlide).index());
-            }
+        colorButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const variantId = this.dataset.variant;
+                const price = this.dataset.price;
+                const images = this.dataset.images.split(', ');
+
+                // Update price based on selected variant
+                originalPrice.textContent = price;
+                currentPrice.textContent = price;
+                selectedVariantInput.value = variantId;
+                addToCartBtn.href = `{% url 'cart:add_cart' product.id %}?variant_id=${variantId}`;
+
+                // Update carousel images
+                carouselInner.innerHTML = ''; // Clear existing images
+                images.forEach((imageUrl, index) => {
+                    const carouselItem = document.createElement('div');
+                    carouselItem.className = 'carousel-item';
+                    if (index === 0) carouselItem.classList.add('active'); // Make the first image active
+
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.className = 'd-block w-100';
+                    img.alt = '{{ product.product_name }}';
+                    img.style.objectFit = 'contain';
+                    img.style.height = '400px';
+
+                    carouselItem.appendChild(img);
+                    carouselInner.appendChild(carouselItem);
+                });
+
+                // Update active class on color buttons
+                colorButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        if (colorButtons.length > 0) {
+            colorButtons[0].click();
+        }
+
+        $('#productImagesCarousel').carousel({
+            interval: false
         });
     });
-
-    minusBtn.addEventListener('click', function() {
-        let value = parseInt(quantityInput.value);
-        if (value > 1) quantityInput.value = value - 1;
-    });
-
-    plusBtn.addEventListener('click', function() {
-        let value = parseInt(quantityInput.value);
-        quantityInput.value = value + 1;
-    });
-});
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
 {% endblock %}

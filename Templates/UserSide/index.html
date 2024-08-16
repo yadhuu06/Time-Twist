@@ -4,13 +4,7 @@
 {%block content%}
 
 
-{% if messages %}
-							<ul class="messages">
-								{% for message in messages %}
-									<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-								{% endfor %}
-							</ul>
-						{% endif %}
+
 	<!-- start banner Area -->
 	<section class="banner-area">
 		<div class="container">
@@ -112,14 +106,7 @@
 		</div>
 	</section>
 	<!-- end features Area -->
-	<style>
-	.violet-bg {
-		background-color: #8189A1;
-		padding: 1px; /* Optional: Adjust padding as needed */
-	
-	}
-</style>
-	
+
 
 
 	<!-- start product Area -->
@@ -166,16 +153,16 @@
 
 								<div class="price">
 									{% if product.offer_price %}
-									<h4 style="color: green; font-weight: bold;">{{ product.offer_price }}$</h4>
+									<h4 style="color: green; font-weight: bold;">₹ {{ product.offer_price }}</h4>
 
 									{% endif %}
 									<h6 class="l-through" style="color: black;">
-										<span class="red-line">{{ product.price }}$</span>
+										<span class="red-line">₹ {{ product.price }}</span>
 									</h6>
 									
 								</div>
 								<div class="prd-bottom">
-									<a href="" class="social-info">
+									<a href="{% url 'cart:add_cart' product.id %}" class="social-info">
 										<span class="ti-bag"></span>
 										<p class="hover-text">add to bag</p>
 									</a>
@@ -721,7 +708,31 @@
 	</section>
 	<!-- End related-product Area -->
 
-
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', (event) => {
+			{% if messages %}
+				const messages = [
+					{% for message in messages %}
+						{
+							level: "{{ message.tags }}",
+							text: "{{ message }}"
+						},
+					{% endfor %}
+				];
+				messages.forEach(message => {
+					Swal.fire({
+						toast: true,
+						position: 'top-right',
+						icon: message.level === 'success' ? 'success' : 'error',
+						title: message.text,
+						showConfirmButton: false,
+						timer: 3000
+					});
+				});
+			{% endif %}
+		});
+	</script>
 </body>
  {% endblock %}
 </html>

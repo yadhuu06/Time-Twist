@@ -1,0 +1,159 @@
+{% extends 'UserSide/base.html' %}
+
+{% block content %}
+<div class="container my-5 pt-5">
+    <h1 class="mb-4 text-center">Your Shopping Cart</h1>
+    
+    {% if cart_items %}
+        <div class="row g-4">
+            <!-- Cart Items Section -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <tbody>
+                                    {% for item in cart_items %}
+                                    <tr>
+                                        <td class="d-flex align-items-center">
+                                            {% if item.variant_image %}
+                                                <img src="{{ item.variant_image.image.url }}" alt="{{ item.variant.name }}" class="img-fluid rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-secondary rounded me-3" style="width: 80px; height: 80px;"></div>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ item.product.name }}</strong><br>
+                                                <small class="text-muted">{{ item.variant.name }}</small>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="input-group justify-content-center" style="max-width: 120px;">
+                                                <button class="btn btn-light border" type="button" onclick="updateQuantity({{ item.id }}, -1)">-</button>
+                                                <input type="text" class="form-control text-center border" id="quantity-{{ item.id }}" value="{{ item.quantity }}" readonly style="max-width: 40px;">
+                                                <button class="btn btn-light border" type="button" onclick="updateQuantity({{ item.id }}, 1)">+</button>
+                                            </div>
+                                        </td>
+                                        <td class="text-end" style="min-width: 100px;">₹<span id="subtotal-{{ item.id }}">{{ item.sub_total }}</span></td>
+                                        <td class="text-end">
+                                            <a href="{% url 'cart:remove_cart_item' item.id %}" class="btn btn-sm btn-link text-danger p-0" title="Remove item">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-start">
+                            <a href="" class="btn btn-outline-dark">Continue Shopping</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary Section -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Subtotal:</span>
+                            <strong>₹<span id="cart-total">{{ cart.total }}</span></strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Shipping:</span>
+                            <strong>Free</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span>Total:</span>
+                            <strong class="text-success">₹<span id="cart-total-final">{{ cart.total }}</span></strong>
+                        </div>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Promo code" aria-label="Promo code">
+                            <button class="btn btn-outline-dark" type="button">Apply</button>
+                        </div>
+                        <div class="d-grid">
+                            <a href="#"class="genric-btn primary"><strong>Proceed To Checkout</strong></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            <p class="mb-3">Your cart is currently empty.</p>
+            <a href="{% url 'shop_view' %}" class="btn btn-dark">Start Shopping Now</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function updateQuantity(itemId, change) {
+        var quantityElement = document.getElementById('quantity-' + itemId);
+        var currentQuantity = parseInt(quantityElement.value);
+        var newQuantity = currentQuantity + change;
+
+        if (newQuantity >= 1 && newQuantity <= 10) {
+            quantityElement.value = newQuantity;
+
+            // Update the subtotal on the client side
+            var pricePerItem = parseFloat(document.getElementById('subtotal-' + itemId).innerText) / currentQuantity;
+            var newSubtotal = (pricePerItem * newQuantity).toFixed(2);
+            document.getElementById('subtotal-' + itemId).innerText = newSubtotal;
+
+            updateCartTotal();
+        }
+    }
+
+    function updateCartTotal() {
+        var subtotals = document.querySelectorAll('[id^="subtotal-"]');
+        var total = 0;
+        subtotals.forEach(function(subtotal) {
+            total += parseFloat(subtotal.innerText);
+        });
+
+        document.getElementById('cart-total').innerText = total.toFixed(2);
+        document.getElementById('cart-total-final').innerText = total.toFixed(2);
+
+        var totalItems = 0;
+        var quantities = document.querySelectorAll('[id^="quantity-"]');
+        quantities.forEach(function(quantity) {
+            totalItems += parseInt(quantity.value);
+        });
+        document.getElementById('total-items').innerText = totalItems;
+    }
+
+    // Call updateCartTotal() on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCartTotal();
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
+{% endblock %}

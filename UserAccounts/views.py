@@ -219,46 +219,4 @@ def logout_view(request):
     messages.success(request, "Logout successful")  
     return redirect('login_view')   
 
-@login_required
-def product_detail_user(request, id):
-    try:
-        product = Products.objects.get(id=id)
-        variants = product.variants.all().prefetch_related('images')
-        variant_data = []
-        for variant in variants:
-            variant_data.append({
-                'id': variant.id,
-                'name': variant.variant_name,
-                'price': str(variant.price),  # Convert to string for JSON serialization
-                'colour_code': variant.colour_code,
-                'images': [image.image.url for image in variant.images.all()]
-            })
-    except Products.DoesNotExist:
-        product = None
-        variant_data = []
 
-    context = {
-        'product': product,
-        'variants': variant_data
-    }
-    return render(request, 'UserSide/product_detailss.html', context)
-def forgot_password(request):
-    
-    if request.method=='post':
-        email=request.get('email')
-        print(email)
-    return render(request,'UserSide/password_reset.html')
-
-@login_required
-def user_profile(request):
-    current_user = request.user
-    addresses = UserAddress.objects.filter(user_id=current_user.id)
-     
-    context = {
-        'user': current_user,
-        'addresses': addresses  
-    }
-
-    return render(request, 'UserSide/user-login/user_profile.html', context)
-
-    

@@ -1,13 +1,11 @@
 <!-- brand.html -->
 {% extends "AdminSide/base.html" %}
 
-
 {% block title %}Category Page{% endblock %}
-
 
 {% block content %}
 
-
+<!-- Messages Section -->
 {% if messages %}
     {% for message in messages %}
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -18,24 +16,25 @@
         </div>
     {% endfor %}
 {% endif %}
- <div style="display: flex; flex-direction: row; align-items: center; font-family: Montserrat;">
 
-     <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown"  aria-expanded="false" href="{% url 'catogory:add_catogory' %}">+ Add New Category</a> 
+<!-- Page Header Section -->
+<div style="display: flex; flex-direction: row; align-items: center; font-family: Montserrat;">
+    <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" aria-expanded="false" href="{% url 'catogory:add_catogory' %}">+ Add New Category</a> 
     <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">Category</h3>
 </div> 
- 
+
+<!-- Table Section -->
 <div class="container">
     <div class="row">
         <div class="col-md-10 offset-md-1">
             <div class="card">
                 <div class="card-body">
-                   
                     <div class="table">
                         <table class="table table-striped">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col">Catogory Name</th>
-                                    <th scope="col">Catogory Description</th>                                  
+                                    <th scope="col">Category Name</th>
+                                    <th scope="col">Category Description</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Action</th>
                                 </tr>
@@ -45,9 +44,9 @@
                                 <tr>
                                     <td>{{ c.category_name }}</td>
                                     <td>{{ c.category_description }}</td>
-                                    <td>{{ c.is_available}}</td>
+                                    <td>{{ c.is_available }}</td>
                                     <td>
-                                                 <form method="" action="{% url 'catogory:edit_category' c.id  %}">
+                                        <form method="" action="{% url 'catogory:edit_category' c.id %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="brand_name" value="{{ brand.brand_name }}">
                                             <button type="submit" class="btn btn-sm btn-primary">Edit</button>
@@ -64,6 +63,4 @@
     </div>
 </div>
 
-
 {% endblock %}
-

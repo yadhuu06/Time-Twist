@@ -12,7 +12,7 @@
                     <h5 class="card-title">{{ user.first_name }} {{ user.last_name }}</h5>
                     <p class="card-text text-muted">{{ user.email }}</p>
                     <p class="card-text"><small class="text-muted">{{ user.ceated_at }}</small></p>
-                    <button class="btn btn-primary btn-sm mt-2">Edit Profile</button>
+                    <a href="#" class="genric-btn primary-border small">logout</a>
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
@@ -53,18 +53,13 @@
                     </div>
                 </div>
             </div>
-            {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+        
 <!-- Add New Address -->
 <!-- Button to toggle the form dropdown -->
-<button class="btn btn-primary mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#add-address-form" aria-expanded="false" aria-controls="add-address-form">
-    Add New Address
+<button class="genric-btn info-border circle arrow btn-primary mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#add-address-form" aria-expanded="false" aria-controls="add-address-form">
+    Add  New Address<span class="lnr lnr-arrow-right"></span>
 </button>
+
 
 <!-- Collapsible form -->
 <div class="collapse" id="add-address-form">
@@ -102,7 +97,10 @@
                         <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Add Address</button>
+                <button type="submit" class="genric-btn success-border circle">
+                   Add New Address
+                </button>
+                
             </form>
         </div>
     </div>
@@ -191,7 +189,31 @@
         }
     }
 </script>
-       
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>     
                 </div>
             </div>
         </div>
