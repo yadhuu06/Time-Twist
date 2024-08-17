@@ -1,0 +1,61 @@
+{% load static %}
+<div class="row">
+    <!-- Start of the for loop -->
+    {% for product in products %}
+    <div class="col-lg-3 col-md-6">
+        <div class="single-product">
+            <!-- Product Image with violet background -->
+            <div class="violet-bg">
+                {% if product.variants.exists %}
+                    {% with product.variants.first as first_variant %}
+                        {% if first_variant.images.exists %}
+                            {% with first_variant.images.first as first_image %}
+                                <img class="img-fluid product-image product-image-home" src="{{ first_image.image.url }}" alt="{{ first_image.alt_text|default:'No image' }}">
+                            {% endwith %}
+                        {% else %}
+                            <img class="img-fluid product-image product-image-home" src="{% static 'path/to/default-image.jpg' %}" alt="No image">
+                        {% endif %}
+                    {% endwith %}
+                {% else %}
+                    <img class="img-fluid product-image product-image-home" src="{% static 'path/to/default-image.jpg' %}" alt="No image">
+                {% endif %}
+            </div>
+            <div class="SPACE" style="margin-top: 45px;"></div>
+
+            <!-- Product Details -->
+            <div class="product-details">
+                <h5>{{ product.product_name }}</h5>
+                <h6 style="color:blue;">{{ product.product_brand.brand_name }}</h6>
+
+                <div class="price">
+                    {% if product.offer_price %}
+                        <h4 style="color: green; font-weight: bold;">₹ {{ product.offer_price }}</h4>
+                    {% endif %}
+                    <h6 class="l-through" style="color: black;">
+                        <span class="red-line">₹ {{ product.price }}</span>
+                    </h6>
+                </div>
+                <div class="prd-bottom">
+                    <a href="{% url 'cart:add_cart' product.id %}" class="social-info">
+                        <span class="ti-bag"></span>
+                        <p class="hover-text">Add to Cart</p>
+                    </a>
+                    <a href="" class="social-info">
+                        <span class="lnr lnr-heart"></span>
+                        <p class="hover-text">Wishlist</p>
+                    </a>
+                    <a href="" class="social-info">
+                        <span class="lnr lnr-sync"></span>
+                        <p class="hover-text">Buy Now</p>
+                    </a>
+                    <a href="{% url 'product_detail_user' product.id %}" class="social-info">
+                        <span class="lnr lnr-move"></span>
+                        <p class="hover-text">Details</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <!-- End of the for loop -->
+</div>

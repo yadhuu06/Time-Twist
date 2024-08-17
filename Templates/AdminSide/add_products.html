@@ -125,16 +125,8 @@
                 <i class="fas fa-plus-circle"></i> Add New Product
             </div>
             <div class="card-body">
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+           
+                          
                 <form method="post" action="{% url 'products:add_products' %}">
                     {% csrf_token %}
                     <div class="form-group">
@@ -195,5 +187,30 @@
     <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
     <script src="{% static 'js/popper.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
 </body>
 </html>

@@ -11,31 +11,46 @@ def catogory_list(request):
     return render(request,'AdminSide/catogory_list.html',{'catogory':catogories})
 
 def add_catogory(request):
-    if request.method=='POST':
-        catogory_name=request.POST.get('category_name')
-        discription=request.POST.get('category_description')
-        status=request.POST.get('category_status')
-        new_catogory=Category(category_name=catogory_name,category_description=discription,is_available=status)    
+    if request.method == 'POST':
+        catogory_name = request.POST.get('category_name').strip()  
+        discription = request.POST.get('category_description')
+        status = request.POST.get('category_status')
+
+        if not catogory_name:
+            messages.error(request, "Category name cannot be empty or whitespace.")
+            return render(request, 'AdminSide/add_catogory.html')
+
+        new_catogory = Category(category_name=catogory_name, category_description=discription, is_available=status)
         new_catogory.save()
-        print ("success")
-        messages.success(request,"brand created succesfullly")
-        return redirect('catogory:catogory_list')       
+        messages.success(request, "Category created successfully")
+        return redirect('catogory:catogory_list')
         
-    return render(request,'AdminSide/add_catogory.html')
+    return render(request, 'AdminSide/add_catogory.html')
 
 
 def edit_category(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     
     if request.method == 'POST':
-        category.category_name = request.POST.get('category_name')
-        category.category_description = request.POST.get('category_description')
-        category.is_available = request.POST.get('is_available') == 'true'     
+        catogory_name = request.POST.get('category_name').strip()  
+        discription = request.POST.get('category_description')
+        status = request.POST.get('is_available') == 'true'
+
+        if not catogory_name:  
+            messages.error(request, "Category name cannot be empty or whitespace.")
+            return render(request, 'AdminSide/edit_catogory.html', {'category': category})
+
+        category.category_name = catogory_name
+        category.category_description = discription
+        category.is_available = status
         category.save()
         messages.success(request, 'Category updated successfully!')
-        return redirect('catogory:catogory_list')  
-    
+        return redirect('catogory:catogory_list')
+
     return render(request, 'AdminSide/edit_catogory.html', {'category': category})
+
+
+
 def varient_list(request):
     varient=ProductVariant.objects.all()
   

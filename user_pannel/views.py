@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404,HttpResponse
 from .models import UserAddress
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from products.models import Category, Brand, Products, ProductVariant, ProductVariantImages
 from brand.models import Brand
+from cart.models import Cart
+from django.db.models import Q
 
 @login_required
 def add_address(request):
@@ -16,7 +18,6 @@ def add_address(request):
         state = request.POST.get('state')
         phone_number = request.POST.get('phone_number')
 
-        # Check for duplicate address
         if UserAddress.objects.filter(user=request.user, house_name=house_name, street_name=street_name, pin_number=pin_number).exists():
             messages.error(request, 'This address already exists.')
             return redirect('user_profile')
@@ -75,50 +76,17 @@ def delete_address(request, address_id):
 
     return render(request, 'UserSide/user-login/confirm_delete.html', {'address': address})
 
-# def shop_view(request):
-#     if request.user.is_authenticated:
-#         category_filter = request.GET.get('category')
-#         brand_filter = request.GET.get('brand')
-#         price_sort = request.GET.get('priceSort')
-        
+@login_required
+def user_profile(request):
+    current_user = request.user
+    addresses = UserAddress.objects.filter(user_id=current_user.id)
+     
+    context = {
+        'user': current_user,
+        'addresses': addresses  
+    }
 
-#         products = Products.objects.filter(is_active=True)
-
-#         if category_filter:
-#             products = products.filter(product_category=category_filter)
-        
-#         if brand_filter:
-#             products = products.filter(product_brand=brand_filter)
-        
-#         if price_sort == 'low-to-high':
-#             products = products.order_by('price')
-#         elif price_sort == 'high-to-low':
-#             products = products.order_by('-price')
-
-#         products = products.prefetch_related('variants__images')
-
-#         brands = Brand.objects.filter(status=True)
-#         categories = Category.objects.all()
-
-#         user_details = {
-#             'first_name': request.user.first_name,
-#             'last_name': request.user.last_name,
-#             'email': request.user.email,
-#             'phone_number': request.user.phone_number
-#         }
-
-#         response = render(request, 'UserSide/shop.html', {
-#             'products': products, 
-#             'user_details': user_details,
-#             'brands': brands,
-#             'categories': categories,
-#         })
-#         response['Cache-Control'] = 'no-store'
-#         return response
-#     else:
-#         return redirect('login')
-
-
+    return render(request, 'UserSide/user-login/user_profile.html', context)
 
 def shop_view(request):
     if request.user.is_authenticated:
@@ -132,18 +100,29 @@ def shop_view(request):
             products = products.filter(product_category=category_filter)
         
         if brand_filter:
-            products = products.filter(brand_id=brand_filter)  
+            products = products.filter(product_brand=brand_filter)     
         
         if price_sort == 'low-to-high':
-            products = products.order_by('price')
+            products = products.order_by('offer_price')
         elif price_sort == 'high-to-low':
-            products = products.order_by('-price')
+            products = products.order_by('-offer_price')
 
+        # Integrating search query with other filters
+        query = request.GET.get('search_input', '')  
+        if query:
+            products = products.filter(
+                Q(product_name__icontains=query) | Q(product_brand__brand_name__icontains=query)
+            )
+  
         products = products.prefetch_related('variants__images')
 
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            product_html = render_to_string('UserSide/product_list.html', {'products': products})
+            return JsonResponse({'product_html': product_html})
+        
         brands = Brand.objects.filter(status=True)
         categories = Category.objects.all()
-
+        
         user_details = {
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
@@ -151,7 +130,6 @@ def shop_view(request):
             'phone_number': request.user.phone_number
         }
 
-        # Render the template with the context data
         response = render(request, 'UserSide/shop.html', {
             'products': products, 
             'user_details': user_details,
@@ -161,7 +139,8 @@ def shop_view(request):
         response['Cache-Control'] = 'no-store'
         return response
     else:
-        return redirect('login')
+        return redirect('login')   
+    
 @login_required
 def product_detail_user(request, id):
     try:
@@ -186,25 +165,24 @@ def product_detail_user(request, id):
     }
     return render(request, 'UserSide/product_detailss.html', context)
 
-# def forgot_password(request):    
-#     if request.method=='post':
-#         email=request.get('email')
-#         print(email)
-#     return render(request,'UserSide/password_reset.html')
 
-@login_required
-def user_profile(request):
-    current_user = request.user
-    addresses = UserAddress.objects.filter(user_id=current_user.id)
-     
+
+def checkout(request):
+    cart = get_object_or_404(Cart, user=request.user)
+    cart_items = cart.items.filter(is_active=True)
+    user_address=UserAddress.objects.filter(user=request.user)
+
+    for item in cart_items:
+        item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
+        item.total_price=sum(ProductVarient.object)
+    
     context = {
-        'user': current_user,
-        'addresses': addresses  
+        'cart': cart,
+        'cart_items': cart_items,
+        'user_address':user_address
     }
-
-    return render(request, 'UserSide/user-login/user_profile.html', context)
-
-
+    return render(request, 'UserSide/checkout.html', context)
+ 
 
 
 

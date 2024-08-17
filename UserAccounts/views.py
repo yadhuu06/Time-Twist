@@ -17,7 +17,6 @@ from products.models import Category, Brand, Products, ProductVariant, ProductVa
 from django.views.decorators.cache import cache_control
 from UserAccounts.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import login_required
 from user_pannel.models import UserAddress
 
 

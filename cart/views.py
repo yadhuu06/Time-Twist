@@ -8,15 +8,25 @@ from products.models import ProductVariantImages
 def cart_view(request):
     cart = get_object_or_404(Cart, user=request.user)
     cart_items = cart.items.filter(is_active=True)
+    
 
     for item in cart_items:
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
+    
+   
+    def cart_total(cart_item):
+        for item in cart_items:
+            cart_total += item.sub_total()
+            return str(cart_total)
+       
+    print() 
     
     context = {
         'cart': cart,
         'cart_items': cart_items,
     }
     return render(request, 'UserSide/cart.html', context)
+
 
 @login_required
 def add_cart(request, id):
@@ -53,3 +63,14 @@ def remove_cart_item(request,id):
     messages.success(request, 'Item removed from your cart.')
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+
+def wishlist_view(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user)
+    return render(request, 'wishlist.html', {'wishlist_items': wishlist_items})
+
+def remove_from_wishlist(request, item_id):
+    wishlist_item = get_object_or_404(Wishlist, id=item_id, user=request.user)
+    wishlist_item.delete()
+    return redirect('wishlist')

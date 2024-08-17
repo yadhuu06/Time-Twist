@@ -35,5 +35,29 @@
       </div>
     </div>
   </div>
-  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 5000
+                });
+            });
+        {% endif %}
+    });
+</script>
 {% endblock %}

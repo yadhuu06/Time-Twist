@@ -21,7 +21,6 @@ def is_admin(user):
     return user.is_authenticated and user.is_staff
 
 @admin_required
-
 def add_products(request):
     if request.method == 'POST':
         product_name = request.POST.get('product_name')
@@ -34,7 +33,7 @@ def add_products(request):
 
         product_category = Category.objects.get(id=product_category_id) if product_category_id else None
         product_brand = Brand.objects.get(id=product_brand_id) if product_brand_id else None
-
+        
         if Products.objects.filter(product_name=product_name).exists():
             messages.warning(request, 'Product already exists.')
         else:
@@ -193,5 +192,6 @@ def edit_product(request, product_id):
     categories = Category.objects.all()
     brands = Brand.objects.all()
     return render(request, 'AdminSide/edit_product.html', {'product': product, 'categories': categories, 'brands': brands})
+
 
 

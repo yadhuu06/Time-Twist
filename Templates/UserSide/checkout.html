@@ -5,78 +5,48 @@
     <h1 class="mb-4 text-center">Checkout</h1>
 
     <div class="row">
-        <!-- Billing Details -->
+        <!-- Address Selection -->
         <div class="col-md-8">
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h5 class="card-title mb-4">Billing Details</h5>
-                    <form>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="firstName" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="firstName" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="lastName" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="lastName" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" required>
-                            </div>
-                            <div class="col-12">
-                                <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="address" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" id="city" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="state" class="form-label">State</label>
-                                <select class="form-select" id="state" required>
-                                    <option value="">Choose...</option>
-                                    <option>...</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="zip" class="form-label">Zip</label>
-                                <input type="text" class="form-control" id="zip" required>
-                            </div>
+                    <h5 class="card-title mb-4">Select Delivery Address</h5>
+                    <form id="checkoutForm">
+                        <div class="mb-3">
+                            <select class="form-select" id="addressSelect" required>
+                                <option value="">Choose an address...</option>
+                                {% for a in user_address %}
+                                <option value="{{ a.id }}">{{ a.name }} - {{ a.house_name }}, {{ a.street_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div id="selectedAddressDetails" class="mt-3 p-3 border rounded" style="display: none;">
+                            <h6 id="addressName"></h6>
+                            <p id="addressDetails" class="mb-2"></p>
                         </div>
                     </form>
                 </div>
             </div>
 
             <!-- Payment Details -->
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h5 class="card-title mb-4">Payment Details</h5>
+                    <h5 class="card-title mb-4">Payment Method</h5>
                     <div class="mb-3">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="creditCard" checked>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="creditCard">
                             <label class="form-check-label" for="creditCard">Credit Card</label>
                         </div>
-                        <div class="form-check form-check-inline">
+                        <div class="form-check">
                             <input class="form-check-input" type="radio" name="paymentMethod" id="paypal" value="paypal">
                             <label class="form-check-label" for="paypal">PayPal</label>
                         </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="cashOnDelivery" value="cashOnDelivery" checked>
+                            <label class="form-check-label" for="cashOnDelivery">Cash on Delivery</label>
+                        </div>
                     </div>
-                    <div id="creditCardDetails">
-                        <div class="mb-3">
-                            <label for="cardNumber" class="form-label">Card Number</label>
-                            <input type="text" class="form-control" id="cardNumber" required>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="expiration" class="form-label">Expiration</label>
-                                <input type="text" class="form-control" id="expiration" placeholder="MM/YY" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="cvv" class="form-label">CVV</label>
-                                <input type="text" class="form-control" id="cvv" required>
-                            </div>
-                        </div>
+                    <div id="creditCardDetails" style="display: none;">
+                        <!-- Credit card details inputs here -->
                     </div>
                 </div>
             </div>
@@ -89,18 +59,25 @@
                     <h5 class="card-title mb-0">Order Summary</h5>
                 </div>
                 <div class="card-body">
-                    <ul class="list-group list-group-flush">
+                    <ul class="list-group list-group-flush" id="orderSummary">
                         {% for item in cart_items %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ item.product.name }} ({{ item.quantity }})
-                            <span>₹{{ item.sub_total }}</span>
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if item.variant_image %}
+                                        <img src="{{ item.variant_image.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                    {% endif %}
+                                    <span class="ms-2">{{ item.product.name }} ({{ item.quantity }})</span>
+                                </div>
+                                <span>₹{{ item.sub_total }}</span>
+                            </div>
                         </li>
                         {% endfor %}
                     </ul>
                     <hr>
                     <div class="d-flex justify-content-between mb-3">
                         <span>Subtotal:</span>
-                        <strong>₹{{ cart.total }}</strong>
+                        <strong id="subtotal">₹{{ subtotal }}</strong>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span>Shipping:</span>
@@ -108,10 +85,10 @@
                     </div>
                     <div class="d-flex justify-content-between mb-4">
                         <span>Total:</span>
-                        <strong class="text-success">₹{{ cart.total }}</strong>
+                        <strong class="text-success" id="total">₹{{ cart.total }}</strong>
                     </div>
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">Place Order</button>
+                        <button type="submit" class="btn btn-primary btn-lg" id="placeOrderBtn">Place Order</button>
                     </div>
                 </div>
             </div>
@@ -120,12 +97,59 @@
 </div>
 
 <script>
-    // Simple script to toggle credit card details visibility
+    // Handle address selection
+    const addressSelect = document.getElementById('addressSelect');
+    const selectedAddressDetails = document.getElementById('selectedAddressDetails');
+    const addressName = document.getElementById('addressName');
+    const addressDetails = document.getElementById('addressDetails');
+
+    const addresses = {
+        {% for a in user_address %}
+        "{{ a.id }}": {
+            name: "{{ a.name }}",
+            details: "Address: {{ a.house_name }}, {{ a.street_name }}, Pin: {{ a.pin_number }}<br>District: {{ a.district }}, State: {{ a.state }}<br>Phone: {{ a.phone_number }}"
+        },
+        {% endfor %}
+    };
+
+    addressSelect.addEventListener('change', function() {
+        if (this.value) {
+            const address = addresses[this.value];
+            addressName.textContent = address.name;
+            addressDetails.innerHTML = address.details;
+            selectedAddressDetails.style.display = 'block';
+        } else {
+            selectedAddressDetails.style.display = 'none';
+        }
+    });
+
+    // Toggle payment method details
     document.querySelectorAll('input[name="paymentMethod"]').forEach((elem) => {
         elem.addEventListener("change", function(event) {
             var creditCardDetails = document.getElementById("creditCardDetails");
             creditCardDetails.style.display = event.target.value === "creditCard" ? "block" : "none";
         });
     });
+
+    // Place order button click handler
+    document.getElementById('placeOrderBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (validateForm()) {
+            alert('Order placed successfully!');
+            // Here you would typically submit the form or make an AJAX call to process the order
+        }
+    });
+
+    // Form validation function
+    function validateForm() {
+        let form = document.getElementById('checkoutForm');
+        if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+            form.classList.add('was-validated');
+            return false;
+        }
+        return true;
+    }
 </script>
 {% endblock %}
