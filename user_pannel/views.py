@@ -6,6 +6,9 @@ from products.models import Category, Brand, Products, ProductVariant, ProductVa
 from brand.models import Brand
 from cart.models import Cart
 from django.db.models import Q
+from django.template.loader import render_to_string
+from django.http import JsonResponse
+
 
 @login_required
 def add_address(request):
@@ -107,7 +110,7 @@ def shop_view(request):
         elif price_sort == 'high-to-low':
             products = products.order_by('-offer_price')
 
-        # Integrating search query with other filters
+ 
         query = request.GET.get('search_input', '')  
         if query:
             products = products.filter(
@@ -166,23 +169,26 @@ def product_detail_user(request, id):
     return render(request, 'UserSide/product_detailss.html', context)
 
 
-
+@login_required
 def checkout(request):
     cart = get_object_or_404(Cart, user=request.user)
     cart_items = cart.items.filter(is_active=True)
-    user_address=UserAddress.objects.filter(user=request.user)
-
+    user_address = UserAddress.objects.filter(user=request.user)
+    total_price = 0 
     for item in cart_items:
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
-        item.total_price=sum(ProductVarient.object)
+        total_price += item.sub_total()  
     
     context = {
         'cart': cart,
         'cart_items': cart_items,
-        'user_address':user_address
+        'user_address': user_address,
+        'total_price': total_price,  
     }
     return render(request, 'UserSide/checkout.html', context)
- 
 
-
-
+@login_required
+def order_request(request):
+    pass
+    
+    

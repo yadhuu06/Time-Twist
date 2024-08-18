@@ -12,30 +12,44 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-end">Price</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
                                 <tbody>
                                     {% for item in cart_items %}
                                     <tr>
-                                        <td class="d-flex align-items-center">
-                                            {% if item.variant_image %}
-                                                <img src="{{ item.variant_image.image.url }}" alt="{{ item.variant.name }}" class="img-fluid rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
-                                            {% else %}
-                                                <div class="bg-secondary rounded me-3" style="width: 80px; height: 80px;"></div>
-                                            {% endif %}
-                                            <div>
-                                                <strong>{{ item.product.name }}</strong><br>
-                                                <small class="text-muted">{{ item.variant.name }}</small>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if item.variant_image %}
+                                                    <img src="{{ item.variant_image.image.url }}" alt="{{ item.variant.variant_name }}" class="img-fluid rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                                {% else %}
+                                                    <div class="bg-secondary rounded me-3" style="width: 80px; height: 80px;"></div>
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ item.product.product_name }}</strong><br>
+                                                    <small class="text-muted">{{ item.variant.variant_name }}</small>
+                                                    <br>
+                                                    <small class="text-muted">Stock left: <span class="text-success">{{ item.variant.variant_stock }}</span></small>
+                                                </div>
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <div class="input-group justify-content-center" style="max-width: 120px;">
-                                                <button class="btn btn-light border" type="button" onclick="updateQuantity({{ item.id }}, -1)">-</button>
-                                                <input type="text" class="form-control text-center border" id="quantity-{{ item.id }}" value="{{ item.quantity }}" readonly style="max-width: 40px;">
-                                                <button class="btn btn-light border" type="button" onclick="updateQuantity({{ item.id }}, 1)">+</button>
-                                            </div>
+                                            <select class="form-select form-select-sm" style="width: 70px; margin: auto;" onchange="updateQuantity({{ item.id }}, this.value)">
+                                                {% for i in "12345"|make_list %}
+                                                    <option value="{{ forloop.counter }}" {% if item.quantity == forloop.counter %}selected{% endif %}>
+                                                        {{ forloop.counter }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
                                         </td>
                                         <td class="text-end" style="min-width: 100px;">₹<span id="subtotal-{{ item.id }}">{{ item.sub_total }}</span></td>
                                         <td class="text-end">
-                                            <a href="{% url 'cart:remove_cart_item' item.id %}" class="btn btn-sm btn-link text-danger p-0" title="Remove item">
+                                            <a href="{% url 'cart:remove_cart_item' item.id %}" class="btn btn-sm btn-outline-danger" title="Remove item">
                                                 <i class="fa fa-trash"></i>
                                             </a>
                                         </td>
@@ -44,8 +58,8 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex justify-content-start">
-                            <a href="" class="btn btn-outline-dark">Continue Shopping</a>
+                        <div class="d-flex justify-content-start mt-3">
+                            <a href="{% url 'shop_view' %}" class="btn btn-outline-primary">Continue Shopping</a>
                         </div>
                     </div>
                 </div>
@@ -73,10 +87,10 @@
                         </div>
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" placeholder="Promo code" aria-label="Promo code">
-                            <button class="btn btn-outline-dark" type="button">Apply</button>
+                            <button class="btn btn-outline-secondary" type="button">Apply</button>
                         </div>
                         <div class="d-grid">
-                            <a href="{% url 'checkout' %}"class="genric-btn primary"><strong>Proceed To Checkout</strong></a>
+                            <a href="{% url 'checkout' %}" class="btn btn-primary"><strong>Proceed To Checkout</strong></a>
                         </div>
                     </div>
                 </div>
@@ -85,27 +99,44 @@
     {% else %}
         <div class="alert alert-info text-center" role="alert">
             <p class="mb-3">Your cart is currently empty.</p>
-            <a href="{% url 'shop_view' %}" class="btn btn-dark">Start Shopping Now</a>
+            <a href="{% url 'shop_view' %}" class="btn btn-primary">Start Shopping Now</a>
         </div>
     {% endif %}
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    function updateQuantity(itemId, change) {
-        var quantityElement = document.getElementById('quantity-' + itemId);
-        var currentQuantity = parseInt(quantityElement.value);
-        var newQuantity = currentQuantity + change;
-
-        if (newQuantity >= 1 && newQuantity <= 10) {
-            quantityElement.value = newQuantity;
-
-            // Update the subtotal on the client side
-            var pricePerItem = parseFloat(document.getElementById('subtotal-' + itemId).innerText) / currentQuantity;
-            var newSubtotal = (pricePerItem * newQuantity).toFixed(2);
-            document.getElementById('subtotal-' + itemId).innerText = newSubtotal;
-
-            updateCartTotal();
-        }
+    function updateQuantity(itemId, newQuantity) {
+        const url = '{% url "cart:update_cart_quantity" %}';
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'item_id': itemId,
+                'quantity': newQuantity
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`subtotal-${itemId}`).innerText = data.subtotal;
+                updateCartTotal();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: data.error || 'Failed to update quantity. Please try again.',
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
     }
 
     function updateCartTotal() {
@@ -117,13 +148,21 @@
 
         document.getElementById('cart-total').innerText = total.toFixed(2);
         document.getElementById('cart-total-final').innerText = total.toFixed(2);
+    }
 
-        var totalItems = 0;
-        var quantities = document.querySelectorAll('[id^="quantity-"]');
-        quantities.forEach(function(quantity) {
-            totalItems += parseInt(quantity.value);
-        });
-        document.getElementById('total-items').innerText = totalItems;
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 
     // Call updateCartTotal() on page load
@@ -131,6 +170,7 @@
         updateCartTotal();
     });
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {

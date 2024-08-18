@@ -176,22 +176,29 @@ def verify_otp(request):
         return redirect('home_view')
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Existing user loggin   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+from django.contrib.auth import login
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .forms import EmailAuthenticationForm
+
 def login_view(request):
     if request.method == 'POST':
         form = EmailAuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            user = form.get_user()
-            if user.is_active and not user.is_blocked:  
+            user = form.get_user()  # get_user() relies on self.user_cache set in the clean method
+            if user and user.is_active and not user.is_blocked:
                 login(request, user)
                 messages.success(request, f"Welcome, {user.first_name}! You have successfully logged in.")
                 return redirect('home_view')
             else:
-                messages.error(request, "This account is inactive. Please contact support.")
+                messages.error(request, "This account is inactive or blocked. Please contact support.")
         else:
             messages.error(request, "Invalid email or password. Please try again.")
     else:
         form = EmailAuthenticationForm()
+    
     return render(request, 'UserSide/user-login/login.html', {'form': form})
+
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  user loggin success>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
 
 

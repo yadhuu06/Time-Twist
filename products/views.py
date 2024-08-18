@@ -54,8 +54,8 @@ def add_products(request):
                 product.save()
                 messages.success(request, 'Product created successfully.')
 
-        return redirect('products:products_list')
-
+                return redirect('products:products_list')
+        
     categories = Category.objects.all()
     brands = Brand.objects.all()
     return render(request, 'AdminSide/add_Products.html', {'categories': categories, 'brands': brands})
