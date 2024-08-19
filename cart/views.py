@@ -21,7 +21,12 @@ def cart_view(request):
 
     for item in cart_items:
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
-    
+        
+   
+    # for item in cart_items:
+    #        payable_total=cart.items.variant.price
+    #        print(payable_total)
+                
     def cart_total(cart_item):
         for item in cart_items:
             cart_total += item.sub_total()
@@ -33,17 +38,16 @@ def cart_view(request):
     }
     return render(request, 'UserSide/cart.html', context)
 
-
 @login_required
 def add_cart(request, id):
     product = get_object_or_404(Products, id=id)
     variant_id = request.GET.get('variant_id')
+    
     if not variant_id:
-        messages.error(request, 'Select the varient first.')
-        return redirect(request.META.get('HTTP_REFERER', '/'))  
+        messages.error(request, 'Select the variant first.')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
 
     variant = get_object_or_404(ProductVariant, id=variant_id)
-
     cart, created = Cart.objects.get_or_create(user=request.user)
 
     cart_item, created = CartItem.objects.get_or_create(
@@ -52,12 +56,12 @@ def add_cart(request, id):
         variant=variant,
         defaults={'quantity': 1}
     )
-    if not created:
-        cart_item.quantity += 1
-        cart_item.save()
-        messages.succes(request, 'Item quantity added in your cart.')
-    else:
+
+    if created:
+
         messages.success(request, 'Item added to your cart.')
+    else:
+        messages.info(request, 'Item already in your cart.')
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -69,9 +73,6 @@ def remove_cart_item(request,id):
     messages.success(request, 'Item removed from your cart.')
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
-
-
-
 
 @require_POST
 def update_cart_quantity(request):

@@ -8,7 +8,7 @@ from cart.models import Cart
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.http import JsonResponse
-
+from cart.models import CartItem
 
 @login_required
 def add_address(request):
@@ -60,13 +60,11 @@ def edit_address(request, address_id):
         if 'set_as_primary' in request.POST:
             UserAddress.objects.filter(user=request.user).update(status=False)
             address.status = True
-
         address.save()
         messages.success(request, 'Address updated successfully!')
         return redirect('user_profile')
 
     return render(request, 'edit_address.html', {'address': address})
-
 
 @login_required
 def delete_address(request, address_id):
@@ -142,21 +140,26 @@ def shop_view(request):
         response['Cache-Control'] = 'no-store'
         return response
     else:
-        return redirect('login')   
+        return redirect('login') 
     
+      
 @login_required
 def product_detail_user(request, id):
     try:
         product = Products.objects.get(id=id)
         variants = product.variants.all().prefetch_related('images')
+        cart_items = CartItem.objects.filter(cart__user=request.user, product=product)
+
         variant_data = []
         for variant in variants:
+            variant_in_cart = any(cart_item.variant.id == variant.id for cart_item in cart_items)
             variant_data.append({
                 'id': variant.id,
                 'name': variant.variant_name,
-                'price': str(variant.price),  
+                'price': str(variant.price),
                 'colour_code': variant.colour_code,
-                'images': [image.image.url for image in variant.images.all()]
+                'images': [image.image.url for image in variant.images.all()],
+                'in_cart': variant_in_cart  # Added field to indicate if variant is in the cart
             })
     except Products.DoesNotExist:
         product = None
@@ -174,21 +177,33 @@ def checkout(request):
     cart = get_object_or_404(Cart, user=request.user)
     cart_items = cart.items.filter(is_active=True)
     user_address = UserAddress.objects.filter(user=request.user)
-    total_price = 0 
+    
+    
+    out_of_stock = False
+    total_price = 0
+    for i in cart_items:
+        print(i.variant.price)
+    
+    for item in cart_items:
+        if item.quantity > item.variant.variant_stock:
+            out_of_stock = True
+            messages.error(request, f"Insufficient stock for {item.product.product_name} - {item.variant.variant_name}. Available stock is {item.variant.variant_stock}.")
+            break
+
+    if out_of_stock:
+        return redirect('cart')  
+    
     for item in cart_items:
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
-        total_price += item.sub_total()  
+        total_price += item.sub_total()
     
     context = {
         'cart': cart,
         'cart_items': cart_items,
         'user_address': user_address,
-        'total_price': total_price,  
+        'total_price': total_price,
     }
     return render(request, 'UserSide/checkout.html', context)
 
-@login_required
-def order_request(request):
-    pass
     
     

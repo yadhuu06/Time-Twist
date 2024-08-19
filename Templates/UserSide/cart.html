@@ -47,7 +47,7 @@
                                                 {% endfor %}
                                             </select>
                                         </td>
-                                        <td class="text-end" style="min-width: 100px;">₹<span id="subtotal-{{ item.id }}">{{ item.sub_total }}</span></td>
+                                        <td class="text-end" style="min-width: 100px;">₹<span id="subtotal-{{ item.id }}">{{ item.variant.price }}</span></td>
                                         <td class="text-end">
                                             <a href="{% url 'cart:remove_cart_item' item.id %}" class="btn btn-sm btn-outline-danger" title="Remove item">
                                                 <i class="fa fa-trash"></i>
@@ -74,7 +74,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-3">
                             <span>Subtotal:</span>
-                            <strong>₹<span id="cart-total">{{ cart.total }}</span></strong>
+                            <strong>₹<span id="cart-total">{{ cart.price }}</span></strong>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Shipping:</span>
