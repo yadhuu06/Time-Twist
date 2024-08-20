@@ -1,8 +1,9 @@
 {% extends 'UserSide/base.html' %}
 
 {% block content %}
+<div class="sp"style=margin-top: 60px;></div>
 <div class="container my-5 pt-5">
-    <h1 class="mb-4 text-center">Your Shopping Cart</h1>
+    <h1 class="mb-4 text-center"><b><stromg>Your Shopping Cart</strong></b></h1>
     
     {% if cart_items %}
         <div class="row g-4">
@@ -97,9 +98,12 @@
             </div>
         </div>
     {% else %}
-        <div class="alert alert-info text-center" role="alert">
-            <p class="mb-3">Your cart is currently empty.</p>
-            <a href="{% url 'shop_view' %}" class="btn btn-primary">Start Shopping Now</a>
+    <div class="alert alert-info text-center" role="alert" style="height: 400px; justify-content: center;">
+        <h4 class="mb-3" style="margin-top: 150px;">
+            Your cart is currently empty.
+        </h4>
+        
+            <a href="{% url 'shop_view' %}" class="genric-btn primary">Start Shopping Now</a>
         </div>
     {% endif %}
 </div>

@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from cart.models import Cart
+from cart.models import Cart, CartItem
 from user_pannel.models import UserAddress
 from products.models import ProductVariant
 from order_management.models import Order, Payment, OrderItem 
+from django.http import HttpResponse
+
 
 @login_required
 def place_order(request):
@@ -12,10 +14,15 @@ def place_order(request):
         payment_method = request.POST.get('paymentMethod')
         address_id = request.POST.get('address')
 
+        if not payment_method or not address_id:
+            messages.error(request, 'Please select both a payment method and a delivery address.')
+            return redirect('checkout')
+
+        total_price = calculate_cart_total(request.user)
+
         if payment_method == 'cashOnDelivery':
-            total_price = calculate_cart_total(request.user)
-            if total_price >= 10000:
-                messages.error(request, 'Cash on Delivery is not available for orders over Rs 10,000.')
+            if total_price >= 15000:
+                messages.error(request, 'Cash on Delivery is not available for orders over Rs 15,000.')
                 return redirect('checkout')
 
         try:
@@ -24,17 +31,17 @@ def place_order(request):
             messages.error(request, 'Selected address is invalid.')
             return redirect('checkout')
 
-        cart_items = Cart.objects.filter(user=request.user)
+        cart_items = CartItem.objects.filter(cart__user=request.user, is_active=True)
         if not cart_items.exists():
             messages.error(request, 'Your cart is empty.')
             return redirect('checkout')
 
         for item in cart_items:
-            product_variant = ProductVariant.objects.get(id=item.variant.id)
+            product_variant = item.variant
             if not product_variant.is_active:
                 messages.error(request, f'Product {product_variant.product_name} is no longer available.')
                 return redirect('checkout')
-            if product_variant.stock < item.quantity:
+            if product_variant.variant_stock < item.quantity:
                 messages.error(request, f'Insufficient stock for {product_variant.product_name}.')
                 return redirect('checkout')
 
@@ -53,13 +60,21 @@ def place_order(request):
                 order=order,
                 product_variant=product_variant,
                 quantity=item.quantity,
-                price=item.variant.price
+                price=product_variant.price
             )
-            product_variant.stock -= item.quantity
+            product_variant.variant_stock -= item.quantity
             product_variant.save()
             item.delete()  
 
         messages.success(request, 'Your order has been placed successfully!')
-        return redirect('order_success', order_id=order.id)
+        return redirect('checkout')
 
     return redirect('checkout')
+
+def calculate_cart_total(user):
+    cart_items = CartItem.objects.filter(cart__user=user, is_active=True)
+    return sum(item.variant.price * item.quantity for item in cart_items)
+    
+def my_orders(request):
+    return render(request,'UserSide/my_orders.html')
+    

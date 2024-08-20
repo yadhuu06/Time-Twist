@@ -159,7 +159,7 @@ def product_detail_user(request, id):
                 'price': str(variant.price),
                 'colour_code': variant.colour_code,
                 'images': [image.image.url for image in variant.images.all()],
-                'in_cart': variant_in_cart  # Added field to indicate if variant is in the cart
+                'in_cart': variant_in_cart
             })
     except Products.DoesNotExist:
         product = None
@@ -188,7 +188,7 @@ def checkout(request):
         if item.quantity > item.variant.variant_stock:
             out_of_stock = True
             messages.error(request, f"Insufficient stock for {item.product.product_name} - {item.variant.variant_name}. Available stock is {item.variant.variant_stock}.")
-            break
+            
 
     if out_of_stock:
         return redirect('cart')  

@@ -1,265 +1,40 @@
-<!DOCTYPE html>
 {% load static %}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/outlook.css' %}">
+    <title>Account Signup</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap">
-    <link rel="stylesheet" href="{% static 'UserSide/css/linearicons.css' %}">
-	<link rel="stylesheet" href="{% static 'UserSide/css/owl.carousel.css' %}">
-	<link rel="stylesheet" href="{% static 'UserSide/css/themify-icons.css' %}">
-	<link rel="stylesheet" href="{% static 'UserSide/css/font-awesome.min.css' %}">
-	<link rel="stylesheet" href="{% static 'UserSide/css/nice-select.css' %}">
-	<link rel="stylesheet" href="{% static 'UserSide/css/nouislider.min.css' %}">
-	<link rel="stylesheet" href="{% static 'UserSide/css/bootstrap.css' %}">
-	<link rel="stylesheet" href="{% static 'UserSide/css/main.css' %}">
-</head>
-
-  
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: url('{% static 'UserSide/img/back1.jpg' %}') no-repeat center center fixed;
-            background-size: cover;
-        }
-        .card {
-            margin-top: 40px;
-            background-color: rgba(255, 255, 224, 0.3) !important;
-            width: 60%; 
-            max-width: 100%; 
-            backdrop-filter: saturate(200%) blur(25px);
-            border: 5px solid #3498db;
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .form-control {
-            height: 30px;
-            font-size: 14px;
-        }
-        .btn-primary {
-            font-size: 14px;
-            padding: 5px;
-        }
-   
-        .ggl{margin-top: 20px;}
-        .bg-custom {
-            margin-left: -229px; /* Adjusted margin */
-            padding: 20px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-family: 'Arial', 'Helvetica', sans-serif; /* You can replace with any stylish font you prefer */
-            color: #ffffff; /* White text color for black background */
-            text-align: center; /* Center align text if necessary */
-            border: 2px solid yellow; /* Yellow border */
-            text-shadow: 0 0 15px yellow; /* Yellow text shadow for border effect */
-        }
-        .google-login-btn {
-            display: inline-flex;
-            align-items: center;
-            background-color: #db4437; /* Google red */
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            font-family: 'Roboto', sans-serif;
-            text-decoration: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .google-login-btn:hover {
-            background-color: #e74c3c; /* Darker shade of red on hover */
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .google-login-btn img {
-            margin-right: 10px;
-            width: 24px;
-            height: 24px;
-        }
-        .google-login-btn {
-            display: inline-flex;
-            align-items: center;
-            background-color:  #f4c20d; /* Google red */
-            color: #000000;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            font-family: 'Roboto', sans-serif;
-            text-decoration: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .google-login-btn:hover {
-            background-color: #e74c3c; /* Darker shade of red on hover */
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .google-login-btn img {
-            margin-right: 10px;
-            width: 24px;
-            height: 24px;
-        }
-        
-        .left-content {
-            color: hsl(218, 81%, 95%);
-        }
-        .left-content span {
-            color: hsl(218, 81%, 75%);
-        }
-    </style>
 </head>
 <body>
- <!-- Start Header Area -->
- {% comment %} <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
-    
-    .logo {
-       font-family: 'Montserrat', sans-serif; 
-     
-
-
-
-
-
-      font-size: 32px;
-      display: inline-block;
-      padding: 10px 15px;
-      background: #1a1a1a;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-    
-    .logo:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-    }
-    
-    .logo .time {
-      font-weight: 800;
-      color: #ffffff;
-    }
-    
-    .logo .twist {
-      font-weight: 600;
-      color: #00ffff;
-      position: relative;
-    }
-    
-    .logo .twist::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -2px;
-      width: 100%;
-      height: 2px;
-      background: #00ffff;
-      transform: scaleX(0);
-      transition: transform 0.3s ease;
-    }
-    
-    .logo:hover .twist::after {
-      transform: scaleX(1);
-    }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
-  <!-- Layout styles -->
-  <link rel="stylesheet" href="{% static 'AdminSide/assets/css/style.css' %}">
-  <!-- End layout styles -->
-  <link rel="shortcut icon" href="AdminSide/images/favicon.png" />
-</head>
-<body>
-  <div class="container-scroller">
-    <!-- partial:partials/_sidebar.html -->
-   
-        <div class="logo">
-          <span class="time">Time</span><span class="twist">Twist</span>
-        </div>
-	<header class="header_area sticky-header">
-		<div class="main_menu">
-			<nav class="navbar navbar-expand-lg navbar-light main_box">
-
-				<div class="container"> {% endcomment %}
-
-					<!-- Brand and toggle get grouped for better mobile display -->
-					{% comment %} <a class="navbar-brand logo_h" href="index.html"><img src="{% static 'UserSide/img/Glow Gears11.png' %}" alt=""></a> {% endcomment %}
-					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-					 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					
-					</div>
-				</div>
-			</nav>
-		</div>
-		<div class="search_input" id="search_input_box">
-			<div class="container">
-				<form class="d-flex justify-content-between">
-					<input type="text" class="form-control" id="search_input" placeholder="Search Here">
-					<button type="submit" class="btn"></button>
-					<span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
-				</form>
-			</div>
-		</div>
-	</header>
-	<!-- End Header Area -->
-
-	 <!-- Start Banner Area -->
-	<section class="banner-area organic-breadcrumb">
-		<div class="container">
-			<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
-				<div class="col-first">
-					<h1>Register As A New User</h1>
-					<nav class="d-flex align-items-center">
-						
-					</nav>
-				</div>
-			</div>
-		</div>
-	</section>
-
-    <div class="container-fluid p-0">
-        <div class="row">
-            <!-- Left side with image -->
-            <div class="col-md-6 p-0 d-flex justify-content-center align-items-center">
-                <div class="container px- py- px-md-3 text-center text-lg-start my-4 left-content">
-                    <div class="row gx-lg-6 align-items-center mb-6">
-                      <div class="col-lg-6 mb-6 mb-lg-0" style="z-index: 10">
-                        <h1 class="my-5 display-5 fw-bold ls-tight">
-                          CREATE NEW <br/>
-                          <span>ACCOUNT </span>
-                        </h1>
-
-                      </div>
-                    </div>
-                </div>
+    <div class="container-fluid vh-100">
+        <div class="row h-100">
+            <!-- Left side image -->
+            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center p-0">
+                <img src="{% static 'UserSide/img/reg.jpg' %}" class="img-fluid h-100 w-100 object-fit-cover" alt="Image">
             </div>
-            <!-- Right side with form -->
-            <div class="col-md-6 d-flex align-items-center justify-content-center">
-                <div class="card">
+
+            <!-- Right side form -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                <div class="w-75">
+                    <div class="text-center mb-5">
+     
+                        <h2 class="fw-bold">Account Signup</h2>
+                        <p class="text-muted">Create your account in just a few steps</p>
+                    </div>
+
                     <form action="{% url 'Register' %}" method="post">
                         {% csrf_token %}
-                   
-                        <div class="mb-3">
-                            <label for="id_firstname" class="form-label">First Name</label>
-                            <input type="text" id="id_firstname" class="form-control" name="firstname" required minlength="3">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_lastname" class="form-label">Last Name</label>
-                            <input type="text" id="id_lastname" class="form-control" name="lastname" required minlength="2">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="id_firstname" class="form-label">First Name</label>
+                                <input type="text" id="id_firstname" class="form-control" name="firstname" required minlength="3">
+                            </div>
+                            <div class="col">
+                                <label for="id_lastname" class="form-label">Last Name</label>
+                                <input type="text" id="id_lastname" class="form-control" name="lastname" required minlength="2">
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -269,7 +44,7 @@
 
                         <div class="mb-3">
                             <label for="id_phone" class="form-label">Phone Number</label>
-                            <input type="number" id="id_phone" class="form-control" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits">
+                            <input type="tel" id="id_phone" class="form-control" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits">
                         </div>
 
                         <div class="mb-3">
@@ -282,56 +57,23 @@
                             <input type="password" id="id_confirm_password" class="form-control" name="confirm_password" required minlength="6">
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-                        <div id="g_id_onload"
-                        data-client_id="405338712266-kkhi8e673dht6tevk2doacm85k13f332.apps.googleusercontent.com"
-                        data-context="signin"
-                        data-ux_mode="popup"
-                        data-login_uri="http://localhost:8000/auth-receiver"
-                        data-auto_prompt="false">
-                   </div>
-                   
-                   <div class="g_id_signin"
-                        data-type="standard"
-                        data-shape="pill"
-                        data-theme="filled_black"
-                        data-text="signin_with"
-                        data-size="large"
-                        data-logo_alignment="left">
-                   </div>                                 
+                        <button type="submit" class="btn btn-primary w-100 mb-3">Create Account</button>
 
+                        <div class="text-center">
+                            <button class="btn btn-outline-secondary w-100">
+                                <img src="{% static 'path/to/google-icon.png' %}" alt="Google" style="height: 20px;"> Continue with Google
+                            </button>
+                        </div>
                     </form>
-                                          
+
+                    <p class="text-center mt-3">
+                        Already have an account? <a href="{% url 'login_view' %}">Sign in</a>
+                    </p>
                 </div>
-                
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            {% if messages %}
-                const messages = [
-                    {% for message in messages %}
-                        {
-                            level: "{{ message.tags }}",
-                            text: "{{ message }}"
-                        },
-                    {% endfor %}
-                ];
-                messages.forEach(message => {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-right',
-                        icon: message.level === 'success' ? 'success' : 'error',
-                        title: message.text,
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                });
-            {% endif %}
-        });
-    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

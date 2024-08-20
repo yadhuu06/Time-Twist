@@ -88,8 +88,8 @@ def resend_otp(request):
     current_time = timezone.now()
     time_difference = current_time - timezone.make_aware(otp_generation_time)
     if time_difference.total_seconds() < 900:
-        messages.error(request, 'You can request a new OTP after 1 minute.')
-        return render(request, 'UserSide/otp.html')
+        messages.error(request, 'You can request a new OTP after 5 minute.')
+        return render(request, 'UserSide/user-login/otp.html')
 
     otp = random.randint(100000, 999999)
     print(otp)
@@ -121,7 +121,7 @@ def resend_otp(request):
     request.session['otp'] = str(otp)
     request.session['time'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    return render(request, 'UserSide/parent/user-login/otp.html')
+    return render(request,'UserSide/user-login/otp.html')
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< verify the otp >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
 
@@ -139,7 +139,7 @@ def verify_otp(request):
         current_time = timezone.now()
         time_difference = current_time - otp_generation_time
 
-        if time_difference <= timedelta(seconds=60):
+        if time_difference <= timedelta(seconds=900):
             validation_on_time = True
         else:
             validation_on_time = False
@@ -183,11 +183,14 @@ from .forms import EmailAuthenticationForm
 
 def login_view(request):
     if request.method == 'POST':
-        form = EmailAuthenticationForm(request, data=request.POST)
+        print('view')
+        form = EmailAuthenticationForm(request, data=request.POST) 
+
         if form.is_valid():
-            user = form.get_user()  # get_user() relies on self.user_cache set in the clean method
+            user = form.get_user()
+            
             if user and user.is_active and not user.is_blocked:
-                login(request, user)
+                login(request, user) 
                 messages.success(request, f"Welcome, {user.first_name}! You have successfully logged in.")
                 return redirect('home_view')
             else:
@@ -196,8 +199,9 @@ def login_view(request):
             messages.error(request, "Invalid email or password. Please try again.")
     else:
         form = EmailAuthenticationForm()
-    
+
     return render(request, 'UserSide/user-login/login.html', {'form': form})
+
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  user loggin success>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
 
