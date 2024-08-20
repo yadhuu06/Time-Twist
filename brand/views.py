@@ -4,12 +4,15 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
 from utils.decorators import admin_required
+from django.views.decorators.cache import never_cache
 import re
 
 def Brands_list(request):
     brands=Brand.objects.all().order_by('id')
     return render(request,'AdminSide/brands_.html',{'brands':brands})
 
+
+@never_cache
 @admin_required
 def add_brand(request):
     if request.method == "POST":
@@ -41,6 +44,9 @@ def add_brand(request):
     
     return render(request, 'AdminSide/add_brand.html')
 
+
+
+@never_cache
 @admin_required
 def edit_brand(request, brand_id):
     brand = get_object_or_404(Brand, pk=brand_id)

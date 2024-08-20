@@ -9,6 +9,9 @@ from django.db.models import Q
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 from cart.models import CartItem
+from django.views.decorators.cache import never_cache
+
+
 
 @login_required
 def add_address(request):
