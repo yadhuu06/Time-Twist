@@ -4,31 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .confirmation-box {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .confirmation-icon {
+            font-size: 50px;
+            color: green;
+        }
+        .order-id {
+            font-weight: bold;
+        }
+        .btn-check-orders, .btn-continue-shopping {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+        }
+        .btn-check-orders {
+            color: #ffc107;
+            text-decoration: none;
+        }
+        .btn-continue-shopping {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-    <div class="container text-center mt-5">
-        <div class="card mx-auto" style="max-width: 600px;">
-            <div class="card-body">
-                <div class="display-3 text-success">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h1 class="card-title mt-3">Order Confirmed</h1>
-                <p class="lead">Thank you for your order! Your order has been confirmed.</p>
-                <p class="text-muted">Order ID: <strong>5674657456</strong></p>
-                <p class="text-muted">Your order will be delivered within 7 days.</p>
-                <a href="#" class="btn btn-warning btn-lg mt-3">View Order</a>
-                <a href="#" class="btn btn-primary btn-lg mt-3">Continue Shopping</a>
-            </div>
-        </div>
-    </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Font Awesome (for the check icon) -->
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<div class="container">
+    <div class="confirmation-box">
+        <div class="confirmation-icon">
+            <img src="https://img.icons8.com/ios-filled/50/26e07f/checkmark.png" alt="Confirmation Icon" />
+        </div>
+        <h2 class="my-4">ORDER CONFIRMED</h2>
+        <p>Thank you for the order. Your order has been confirmed!</p>
+        <p>The order ID is: <span class="order-id">{order.order_id}</span>, the order will be delivered within 7 days.</p>
+        <a href="{% url 'order_management:my_orders' %}" class="btn btn-outline-warning btn-check-orders">Check Orders</a>
+        <button class="btn btn-continue-shopping"href="{% url 'shop_view' %}">Continue Shopping</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if messages %}
+        const messages = [
+            {% for message in messages %}
+                { level: "{{ message.tags|default_if_none:'info' }}", text: "{{ message|escapejs }}" },
+            {% endfor %}
+        ];
+        messages.forEach(function(message) {
+            Swal.fire({
+                toast: true,
+                position: 'center',
+                icon: message.level,
+                title: message.text,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    {% endif %}
+});
+</script>
+
 </body>
 </html>

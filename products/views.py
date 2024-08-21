@@ -114,9 +114,7 @@ def add_productVarient(request, Products_id):
 @admin_required
 def edit_productVariant(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id)
-    
-    if request.method == "POST":
-        
+    if request.method == "POST":  
         variant.variant_name = request.POST.get('variant_name')
         variant.price = request.POST.get('price')
         variant.variant_stock = request.POST.get('variant_stock')
@@ -160,7 +158,6 @@ def list_productVarient(request, Products_id):
     }
     
     return render(request, 'AdminSide/varient_list.html', context)
-
 
 @admin_required
 def edit_product(request, product_id):

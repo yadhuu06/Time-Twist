@@ -7,12 +7,13 @@ from products.models import ProductVariantImages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
+from django.views.decorators.cache import never_cache
 import json
 
 
 
 
-
+@never_cache
 @login_required
 def cart_view(request):
     cart = get_object_or_404(Cart, user=request.user)
@@ -22,11 +23,7 @@ def cart_view(request):
     for item in cart_items:
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
         
-   
-    # for item in cart_items:
-    #        payable_total=cart.items.variant.price
-    #        print(payable_total)
-                
+
     def cart_total(cart_item):
         for item in cart_items:
             cart_total += item.sub_total()

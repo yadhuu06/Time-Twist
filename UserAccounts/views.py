@@ -191,7 +191,7 @@ def login_view(request):
             
             if user and user.is_active and not user.is_blocked:
                 login(request, user) 
-                messages.success(request, f"Welcome, {user.first_name}! You have successfully logged in.")
+                messages.success(request, f"Welcome, {user.first_name} {user.lastname} You have successfully logged in.")
                 return redirect('home_view')
             else:
                 messages.error(request, "This account is inactive or blocked. Please contact support.")
@@ -203,7 +203,7 @@ def login_view(request):
     return render(request, 'UserSide/user-login/login.html', {'form': form})
 
 
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  user loggin success>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  user loggin success   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
 
 
 @login_required

@@ -2,6 +2,7 @@ from django.db import models
 from UserAccounts.models import User
 from user_pannel.models import UserAddress
 from products.models import ProductVariant
+import uuid
 
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
@@ -22,14 +23,16 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.ForeignKey(UserAddress, on_delete=models.SET_NULL, null=True)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True)
+    order_id = models.CharField(max_length=36, unique=True, default=uuid.uuid4, editable=False)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default='Pending')  
+    status = models.CharField(max_length=20, default='Pending')
+      
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
 
-# OrderItem Model (if you want to track individual items within an order)
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)

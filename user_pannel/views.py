@@ -12,7 +12,7 @@ from cart.models import CartItem
 from django.views.decorators.cache import never_cache
 
 
-
+@never_cache
 @login_required
 def add_address(request):
     if request.method == 'POST':
@@ -47,6 +47,7 @@ def add_address(request):
     return redirect('user_profile')
 
 @login_required
+@never_cache
 def edit_address(request, address_id):
     address = get_object_or_404(UserAddress, id=address_id, user=request.user)
 
@@ -81,6 +82,7 @@ def delete_address(request, address_id):
     return render(request, 'UserSide/user-login/confirm_delete.html', {'address': address})
 
 @login_required
+@never_cache
 def user_profile(request):
     current_user = request.user
     addresses = UserAddress.objects.filter(user_id=current_user.id)
@@ -92,41 +94,56 @@ def user_profile(request):
 
     return render(request, 'UserSide/user-login/user_profile.html', context)
 
+@never_cache
+@login_required
 def shop_view(request):
     if request.user.is_authenticated:
+        # Get filter and sort parameters
         category_filter = request.GET.get('category')
         brand_filter = request.GET.get('brand')
         price_sort = request.GET.get('priceSort')
+        name_sort = request.GET.get('nameSort')
 
+        # Get the base query set
         products = Products.objects.filter(is_active=True)
-     
+
+        # Apply category filter
         if category_filter:
             products = products.filter(product_category=category_filter)
-        
+
+        # Apply brand filter
         if brand_filter:
-            products = products.filter(product_brand=brand_filter)     
-        
+            products = products.filter(product_brand=brand_filter)
+
+        # Apply price sort
         if price_sort == 'low-to-high':
             products = products.order_by('offer_price')
         elif price_sort == 'high-to-low':
             products = products.order_by('-offer_price')
 
- 
-        query = request.GET.get('search_input', '')  
+        # Apply name sort
+        if name_sort == 'aA-zZ':
+            products = products.order_by('product_name')
+        elif name_sort == 'zZaA':
+            products = products.order_by('-product_name')
+
+        # Search functionality
+        query = request.GET.get('search_input', '')
         if query:
             products = products.filter(
                 Q(product_name__icontains=query) | Q(product_brand__brand_name__icontains=query)
             )
-  
+
+        # Prefetch related objects
         products = products.prefetch_related('variants__images')
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             product_html = render_to_string('UserSide/product_list.html', {'products': products})
             return JsonResponse({'product_html': product_html})
-        
+
         brands = Brand.objects.filter(status=True)
         categories = Category.objects.all()
-        
+
         user_details = {
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
@@ -134,8 +151,9 @@ def shop_view(request):
             'phone_number': request.user.phone_number
         }
 
+        # Render the response
         response = render(request, 'UserSide/shop.html', {
-            'products': products, 
+            'products': products,
             'user_details': user_details,
             'brands': brands,
             'categories': categories,
@@ -143,9 +161,8 @@ def shop_view(request):
         response['Cache-Control'] = 'no-store'
         return response
     else:
-        return redirect('login') 
-    
-      
+        return redirect('login')
+@never_cache     
 @login_required
 def product_detail_user(request, id):
     try:
@@ -194,7 +211,7 @@ def checkout(request):
             
 
     if out_of_stock:
-        return redirect('cart')  
+        return redirect('cart:cart_view')  
     
     for item in cart_items:
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()

@@ -29,15 +29,34 @@
                 <div class="sidebar-categories">
                     <div class="head">Browse Categories</div>
                     <ul class="main-categories">
-                        <li class="main-nav-list">
-                            <a data-toggle="collapse" href="#fruitsVegetable" aria-expanded="false" aria-controls="fruitsVegetable">
-                                <span class="lnr lnr-arrow-right"></span><span class="number"></span>
-                            </a>
-                            <ul class="collapse" id="fruitsVegetable" data-toggle="collapse" aria-expanded="false" aria-controls="fruitsVegetable">
-                                
-                            </ul>
-                        </li>
-                        <!-- Add other categories similarly -->
+						<form id="categoryFilterForm" method="get" action="{% url 'shop_view' %}">
+							<ul>
+								<li class="filter-list">
+									<input 
+										class="pixel-radio" 
+										type="radio" 
+										id="category_all" 
+										name="category" 
+										value="" <!-- No value to reset filter -->
+										
+									
+									<label for="category_all">All Watches<span></span></label>
+								</li>
+								{% for cat in categories %}
+								<li class="filter-list">
+									<input 
+										class="pixel-radio" 
+										type="radio" 
+										id="category_{{ cat.id }}" 
+										name="category" 
+										value="{{ cat.id }}"
+										{% if request.GET.category == cat.id|stringformat:"s" %}checked{% endif %}
+									>
+									<label for="category_{{ cat.id }}">{{ cat.category_name }}<span></span></label>
+								</li>
+								{% endfor %}
+							</ul>
+						</form>
                     </ul>
                 </div>
 
@@ -95,43 +114,73 @@
 									<label for="brand_{{ brand.id }}">{{ brand.brand_name }}<span></span></label>
 								</li>
 								{% endfor %}
+								<div class="common-filter">
+									<div class="head"><b>Price</b></div>
+									<form id="priceFilterForm" method="get" action="{% url 'shop_view' %}">
+										<li class="filter-list no-margin">
+											<input 
+												class="pixel-radio" 
+												type="radio" 
+												id="priceLowToHigh" 
+												name="priceSort" 
+												value="low-to-high"
+												{% if request.GET.priceSort == "low-to-high" %}checked{% endif %}
+											>
+											<label for="priceLowToHigh">Low to High<span></span></label>
+										</li>
+										<li class="filter-list no-margin">
+											<input 
+												class="pixel-radio" 
+												type="radio" 
+												id="priceHighToLow" 
+												name="priceSort" 
+												value="high-to-low"
+												{% if request.GET.priceSort == "high-to-low" %}checked{% endif %}
+											>
+											<label for="priceHighToLow">High to Low<span></span></label>
+										</li>
+									</form>
+								</div>
+								
+								<!-- Name Sort -->
+								<div class="common-filter">
+									<div class="head"><b>by Name</b></div>
+									<form id="nameFilterForm" method="get" action="{% url 'shop_view' %}">
+										<li class="filter-list no-margin">
+											<input 
+												class="pixel-radio" 
+												type="radio" 
+												id="nameAsc" 
+												name="nameSort" 
+												value="aA-zZ"
+												{% if request.GET.nameSort == "aA-zZ" %}checked{% endif %}
+											>
+											<label for="nameAsc">A-Z<span></span></label>
+										</li>
+										<li class="filter-list no-margin">
+											<input 
+												class="pixel-radio" 
+												type="radio" 
+												id="nameDesc" 
+												name="nameSort" 
+												value="zZaA"
+												{% if request.GET.nameSort == "zZaA" %}checked{% endif %}
+											>
+											<label for="nameDesc">Z-A<span></span></label>
+										</li>
+									</form>
+								</div>
+
+
+
 							</ul>
 						</form>
 					</div>
 					
 				
-					<div class="common-filter">
-						<div class="head"><b>Price</b></div>
-						<form id="priceFilterForm" method="get" action="{% url 'shop_view' %}">
-							<ul class="filter-list sort-options mt-3">
-								<li class="filter-list no-margin">
-									<input 
-										class="pixel-radio" 
-										type="radio" 
-										id="priceLowToHigh" 
-										name="priceSort" 
-										value="low-to-high"
-										{% if request.GET.priceSort == "low-to-high" %}checked{% endif %}
-									>
-									<label for="priceLowToHigh">Low to High<span></span></label>
-								</li>
-								<li class="filter-list no-margin">
-									<input 
-										class="pixel-radio" 
-										type="radio" 
-										id="priceHighToLow" 
-										name="priceSort" 
-										value="high-to-low"
-										{% if request.GET.priceSort == "high-to-low" %}checked{% endif %}
-									>
-									<label for="priceHighToLow">High to Low<span></span></label>
-								</li>
-							</ul>
-						</form>
-					</div>					
+									
 				</div>
-				
-				
+	
             </div>
 <STYle>.no-margin {
     margin-left: 0 !important; 
@@ -186,30 +235,31 @@
 						</div>
 	
 	
+
 	<script>
-		function handleFormSubmission(formId) {
-			const form = document.getElementById(formId);
-			const formData = new FormData(form);
-			const queryString = new URLSearchParams(formData).toString();
-	
-			fetch(`${form.action}?${queryString}`, {
-				headers: {
-					'X-Requested-With': 'XMLHttpRequest'
-				}
-			})
-			.then(response => response.json())
-			.then(data => {
-				// Replace the product list with the new HTML
-				document.getElementById('product-container').innerHTML = data.product_html;
-			})
-			.catch(error => console.error('Error:', error));
-		}
-	
-		// Attach event listeners to all forms
-		document.querySelectorAll('form[id$="FilterForm"]').forEach(form => {
-			form.addEventListener('change', () => handleFormSubmission(form.id));
-		});
-	</script>
+    function handleFormSubmission(formId) {
+        const form = document.getElementById(formId);
+        const formData = new FormData(form);
+        const queryString = new URLSearchParams(formData).toString();
+
+        fetch(`${form.action}?${queryString}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('product-container').innerHTML = data.product_html;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Attach event listeners to all forms
+    document.querySelectorAll('form[id$="FilterForm"]').forEach(form => {
+        form.addEventListener('change', () => handleFormSubmission(form.id));
+    });
+</script>
+
 	
 	
 {% endblock %}

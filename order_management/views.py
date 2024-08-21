@@ -6,7 +6,7 @@ from user_pannel.models import UserAddress
 from products.models import ProductVariant
 from order_management.models import Order, Payment, OrderItem 
 from django.http import HttpResponse
-
+import uuid
 
 @login_required
 def place_order(request):
@@ -46,10 +46,11 @@ def place_order(request):
                 return redirect('checkout')
 
         payment = Payment.objects.create(method=payment_method, user=request.user, amount=total_price)
-
+        order_id = str(uuid.uuid4())
         order = Order.objects.create(
             user=request.user,
             address=selected_address,
+            order_id=order_id,
             payment=payment,
             total_price=total_price
         )
@@ -66,8 +67,9 @@ def place_order(request):
             product_variant.save()
             item.delete()  
 
-        messages.success(request, 'Your order has been placed successfully!')
-        return redirect('checkout')
+        messages.success(request, 'Order placed successfully!')
+        
+        return render(request,'UserSide/order_placed.html',{'order':order})
 
     return redirect('checkout')
 
@@ -75,6 +77,7 @@ def calculate_cart_total(user):
     cart_items = CartItem.objects.filter(cart__user=user, is_active=True)
     return sum(item.variant.price * item.quantity for item in cart_items)
     
+@login_required
 def my_orders(request):
-    return render(request,'UserSide/my_orders.html')
-    
+    orders = Order.objects.filter(user=request.user).prefetch_related('items__product_variant').order_by('-id')
+    return render(request, 'UserSide/my_orders.html', {'orders': orders})

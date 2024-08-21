@@ -2,66 +2,65 @@
 {% load static %}
 
 {% block content %}
+<div class="sp"style=margin-top: 60px;></div>
 <div class="container mt-5">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3 mb-4">
-            <div class="card">
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card shadow-sm">
                 <div class="card-body text-center">
-                    <img src="https://via.placeholder.com/150" class="rounded-circle mb-3 img-fluid" alt="Profile Picture">
+                    <img src="{% static 'UserSide/img/user.png' %}" class="rounded-circle mb-3 img-fluid" alt="Profile Picture">
+
                     <h5 class="card-title">{{ user.first_name }} {{ user.last_name }}</h5>
                     <p class="card-text text-muted">{{ user.email }}</p>
-                    <p class="card-text"><small class="text-muted">{{ user.created_at }}</small></p>
-                    <a href="#" class="genric-btn primary-border small">Logout</a>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-primary btn-sm">Logout</a>
                 </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <a class="nav-link" href="#orders">
-                            <i class="bi bi-bag"></i> My Orders
-                        </a>
-                    </li>
-                    <li class="list-group-item">
-                        <a class="nav-link" href="#add-address">
-                            <i class="bi bi-geo-alt"></i> Add Address
-                        </a>
-                    </li>
-                </ul>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="col-md-9">
+        <div class="col-lg-9 col-md-8">
             <!-- User Info -->
-            <div class="card mb-4">
+            <div class="card mb-4 shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">User Details</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-sm-3"><strong>Name:</strong></div>
-                        <div class="col-sm-9">{{ user.first_name }} {{ user.last_name }}</div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-3"><strong>Email:</strong></div>
-                        <div class="col-sm-9">{{ user.email }}</div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-3"><strong>Date Joined:</strong></div>
-                        <div class="col-sm-9">{{ user.date_joined }}</div>
-                    </div>
+                    {% comment %} <form id="edit-profile-form" method="post" action="{% url 'edit_profile' %}">
+                        {% csrf_token %} {% endcomment %}
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><strong>Full Name:</strong></label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="full_name" value="{{ user.first_name }} {{ user.last_name }}" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><strong>Email:</strong></label>
+                            <div class="col-sm-9">
+                                <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label"><strong>Mobile:</strong></label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" value="{{ user.phone_number }}" readonly>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
             <!-- Add New Address -->
-            <button class="genric-btn info-border circle arrow btn-primary mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#add-address-form" aria-expanded="false" aria-controls="add-address-form">
-                Add New Address <span class="lnr lnr-arrow-right"></span>
+            <button class="btn btn-info mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#add-address-form" aria-expanded="false" aria-controls="add-address-form">
+                Add New Address
             </button>
 
-            <!-- Collapsible form -->
+            <!-- Collapsible Address Form -->
             <div class="collapse" id="add-address-form">
-                <div class="card mb-4">
+                <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">Add New Address</h5>
                     </div>
@@ -95,16 +94,14 @@
                                     <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" required>
                                 </div>
                             </div>
-                            <button type="submit" class="genric-btn success-border circle">
-                                Add New Address
-                            </button>
+                            <button type="submit" class="btn btn-success">Add New Address</button>
                         </form>
                     </div>
                 </div>
             </div>
 
             <!-- Address List -->
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Your Addresses</h5>
                 </div>
@@ -131,34 +128,7 @@
                                         <label for="name-{{ a.id }}">Name</label>
                                         <input type="text" class="form-control" name="name" id="name-{{ a.id }}" value="{{ a.name }}" required>
                                     </div>
-                                    <div class="form-group mb-3">
-                                        <label for="house_name-{{ a.id }}">House Name</label>
-                                        <input type="text" class="form-control" name="house_name" id="house_name-{{ a.id }}" value="{{ a.house_name }}" required>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="street_name-{{ a.id }}">Street Name</label>
-                                        <input type="text" class="form-control" name="street_name" id="street_name-{{ a.id }}" value="{{ a.street_name }}" required>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="pin_number-{{ a.id }}">Pin Number</label>
-                                        <input type="text" class="form-control" name="pin_number" id="pin_number-{{ a.id }}" value="{{ a.pin_number }}" required>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="district-{{ a.id }}">District</label>
-                                        <input type="text" class="form-control" name="district" id="district-{{ a.id }}" value="{{ a.district }}" required>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="state-{{ a.id }}">State</label>
-                                        <input type="text" class="form-control" name="state" id="state-{{ a.id }}" value="{{ a.state }}" required>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="phone_number-{{ a.id }}">Phone Number</label>
-                                        <input type="text" class="form-control" name="phone_number" id="phone_number-{{ a.id }}" value="{{ a.phone_number }}" required>
-                                    </div>
-                                    <div class="form-check mb-3">
-                                        <input type="checkbox" class="form-check-input" name="set_as_primary" id="set_as_primary-{{ a.id }}" {% if a.status %}checked{% endif %}>
-                                        <label for="set_as_primary-{{ a.id }}" class="form-check-label">Set as Primary Address</label>
-                                    </div>
+                                    <!-- More input fields for house_name, street_name, etc. -->
                                     <button type="submit" class="btn btn-primary">Save Changes</button>
                                 </form>
                             </div>
@@ -167,10 +137,8 @@
                 </div>
             </div>
 
-            <!-- Bootstrap JS Bundle with Popper.js -->
+            <!-- Bootstrap JS and SweetAlert for notifications -->
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-            <!-- SweetAlert for messages -->
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', (event) => {
