@@ -98,43 +98,33 @@ def user_profile(request):
 @login_required
 def shop_view(request):
     if request.user.is_authenticated:
-        # Get filter and sort parameters
         category_filter = request.GET.get('category')
         brand_filter = request.GET.get('brand')
         price_sort = request.GET.get('priceSort')
         name_sort = request.GET.get('nameSort')
-
-        # Get the base query set
         products = Products.objects.filter(is_active=True)
 
-        # Apply category filter
         if category_filter:
             products = products.filter(product_category=category_filter)
 
-        # Apply brand filter
         if brand_filter:
             products = products.filter(product_brand=brand_filter)
 
-        # Apply price sort
         if price_sort == 'low-to-high':
             products = products.order_by('offer_price')
         elif price_sort == 'high-to-low':
             products = products.order_by('-offer_price')
 
-        # Apply name sort
         if name_sort == 'aA-zZ':
             products = products.order_by('product_name')
         elif name_sort == 'zZaA':
             products = products.order_by('-product_name')
-
-        # Search functionality
+            
         query = request.GET.get('search_input', '')
         if query:
             products = products.filter(
                 Q(product_name__icontains=query) | Q(product_brand__brand_name__icontains=query)
             )
-
-        # Prefetch related objects
         products = products.prefetch_related('variants__images')
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -151,7 +141,7 @@ def shop_view(request):
             'phone_number': request.user.phone_number
         }
 
-        # Render the response
+     
         response = render(request, 'UserSide/shop.html', {
             'products': products,
             'user_details': user_details,

@@ -23,7 +23,7 @@ def is_admin(user):
 @admin_required
 def add_products(request):
     if request.method == 'POST':
-        product_name = request.POST.get('product_name')
+        product_name = request.POST.get('product_name').strip()
         product_description = request.POST.get('product_description')
         product_category_id = request.POST.get('product_category')
         product_brand_id = request.POST.get('product_brand')
@@ -38,7 +38,7 @@ def add_products(request):
             messages.warning(request, 'Product already exists.')
         else:
             if offer_price is not None and float(offer_price) > float(price):
-                messages.warning(request, 'Offer price must be less than the original price.')
+                messages.warning(request, 'Offer price must be less than the original price.Min price ')
             else:
                 product = Products(
                     product_name=product_name,
@@ -60,17 +60,45 @@ def add_products(request):
     brands = Brand.objects.all()
     return render(request, 'AdminSide/add_Products.html', {'categories': categories, 'brands': brands})
 
-
 @admin_required
 def add_productVarient(request, Products_id):
     if request.method == "POST":
         product_id = request.POST.get('product')
-        variant_name = request.POST.get('variant_name')
+        variant_name = request.POST.get('variant_name').strip()
         price = request.POST.get('price')
         variant_stock = request.POST.get('variant_stock')
         colour_code = request.POST.get('colour_code')
         is_active = request.POST.get('is_active') == 'true'
         images = request.FILES.getlist('images')
+
+        if not variant_name:
+            messages.error(request, 'Variant name cannot be empty or just spaces.')
+            return render(request, 'AdminSide/productVarient.html', {
+                'Products_id': Products_id,
+                'categories': Category.objects.all(),
+                'brands': Brand.objects.all(),
+                'products': Products.objects.all(),
+                'variant_name': variant_name,
+                'price': price,
+                'variant_stock': variant_stock,
+                'colour_code': colour_code,
+                'is_active': is_active,
+            })
+
+        if float(price) < 100:
+            messages.error(request, 'Price must be at least 100.')
+            return render(request, 'AdminSide/productVarient.html', {
+                'Products_id': Products_id,
+                'categories': Category.objects.all(),
+                'brands': Brand.objects.all(),
+                'products': Products.objects.all(),
+                'variant_name': variant_name,
+                'price': price,
+                'variant_stock': variant_stock,
+                'colour_code': colour_code,
+                'is_active': is_active,
+            })
+
         if ProductVariant.objects.filter(product_id=product_id, variant_name=variant_name).exists():
             messages.error(request, 'This product variant already exists.')
             return render(request, 'AdminSide/productVarient.html', {
@@ -84,6 +112,7 @@ def add_productVarient(request, Products_id):
                 'colour_code': colour_code,
                 'is_active': is_active,
             })
+
         product_variant = ProductVariant.objects.create(
             product_id=product_id,
             variant_name=variant_name,
@@ -92,6 +121,7 @@ def add_productVarient(request, Products_id):
             colour_code=colour_code,
             is_active=is_active,
         )
+
         for image in images:
             ProductVariantImages.objects.create(
                 product_variant=product_variant,
@@ -110,20 +140,34 @@ def add_productVarient(request, Products_id):
         'brands': brands,
         'products': products
     })
-
 @admin_required
 def edit_productVariant(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id)
-    if request.method == "POST":  
-        variant.variant_name = request.POST.get('variant_name')
-        variant.price = request.POST.get('price')
+    if request.method == "POST":
+        variant_name = request.POST.get('variant_name').strip()
+        price = request.POST.get('price')
+
+        # Validation
+        if not variant_name:
+            messages.error(request, 'Variant name cannot be empty or just spaces.')
+            return render(request, 'AdminSide/editProductVariant.html', {
+                'variant': variant
+            })
+
+        if float(price) < 100:
+            messages.error(request, 'Price must be at least 100.')
+            return render(request, 'AdminSide/editProductVariant.html', {
+                'variant': variant
+            })
+
+        variant.variant_name = variant_name
+        variant.price = price
         variant.variant_stock = request.POST.get('variant_stock')
         variant.colour_code = request.POST.get('colour_code')
         variant.is_active = request.POST.get('is_active') == 'true'
         
         images = request.FILES.getlist('images')
         if images:
-            
             ProductVariantImages.objects.filter(product_variant=variant).delete()
             for image in images:
                 ProductVariantImages.objects.create(
@@ -133,7 +177,7 @@ def edit_productVariant(request, variant_id):
 
         variant.save()
         messages.success(request, 'Product variant updated successfully.')
-        return redirect('products:list_productVarient', Products_id=variant.product.id)  # Updated URL name
+        return redirect('products:list_productVarient', Products_id=variant.product.id)
  
     return render(request, 'AdminSide/editProductVariant.html', {
         'variant': variant
@@ -170,6 +214,7 @@ def edit_product(request, product_id):
         price = request.POST.get('price')
         offer_price = request.POST.get('offer_price')
         is_active = request.POST.get('is_active') == 'on'
+        featured = request.POST.get('featured') == 'on'  
 
         product_category = Category.objects.get(id=product_category_id) if product_category_id else None
         product_brand = Brand.objects.get(id=product_brand_id) if product_brand_id else None
@@ -180,6 +225,7 @@ def edit_product(request, product_id):
         product.price = price
         product.offer_price = offer_price
         product.is_active = is_active
+        product.featured = featured 
         product.updated_at = timezone.now()
         product.save()
 
@@ -189,6 +235,5 @@ def edit_product(request, product_id):
     categories = Category.objects.all()
     brands = Brand.objects.all()
     return render(request, 'AdminSide/edit_product.html', {'product': product, 'categories': categories, 'brands': brands})
-
 
 

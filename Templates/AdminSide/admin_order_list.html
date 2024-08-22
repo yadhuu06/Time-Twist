@@ -2,61 +2,63 @@
 {% block title %}Order List{% endblock %}
 
 {% block content %}
-<div class="container-fluid my-5">
-    <h1 class="mb-4">Order Management</h1>
-    
-    <div class="card shadow">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Status</th>
-                            <th>Products</th>
-                            <th>Total</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for order in orders %}
-                        <tr>
-                            <td>{{ order.id }}</td>
-                            <td>{{ order.user.first_name }} {{ order.user.last_name }}</td>
-                            <td>
-                                <span class="badge {% if order.status == 'Delivered' %}badge-success{% elif order.status == 'Rejected' %}badge-danger{% elif order.status == 'Pending' %}badge-warning{% else %}badge-info{% endif %}">
-                                    {{ order.status }}
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" type="button" data-toggle="collapse" data-target="#products{{ order.id }}" aria-expanded="false" aria-controls="products{{ order.id }}">
-                                    View Products
-                                </button>
-                                <div class="collapse mt-2" id="products{{ order.id }}">
-                                    <ul class="list-unstyled">
-                                        {% for item in order.items.all %}
-                                        <li>{{ item.product_variant.product_name }} (x{{ item.quantity }}) - Rs. {{ item.price }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </td>
-                            <td>Rs. {{ order.total_price }}</td>
-                            <td>{{ order.created_at|date:"M d, Y" }}</td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <form method="post" action="{% url 'change_order_status' order.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" name="status" value="Delivered" class="btn btn-success btn-sm">Deliver</button>
-                                        <button type="submit" name="status" value="Rejected" class="btn btn-danger btn-sm">Reject</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="row ">
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Order Management</h4>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="form-check form-check-muted m-0">
+                                        <label class="form-check-label">
+                                            <input type="checkbox" class="form-check-input">
+                                        </label>
+                                    </div>
+                                </th>
+                               
+                                <th> Order No </th>
+                                <th> Product Cost </th>
+                                <th> Payment Mode </th>
+                               
+                                <th> Payment Status </th>
+                                <th> Actions </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>
+                                    <div class="form-check form-check-muted m-0">
+                                        <label class="form-check-label">
+                                            <input type="checkbox" class="form-check-input">
+                                        </label>
+                                    </div>
+                                </td>
+                                
+                                <td> {{ order.order_id }} </td>
+                                <td> Rs. {{ order.total_price }} </td>
+                                <td> {{ order.payment.get_method_display }} </td>
+                                
+                                <td>
+                                    <div class="badge badge-outline-{% if order.status == 'Delivered' %}success
+                                        {% elif order.status == 'Pending' %}warning
+                                        {% elif order.status == 'Rejected' %}danger
+                                        {% else %}info{% endif %}">
+                                        {{ order.status }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{% url 'order_management:order_details-admin' order.order_id %}" class="btn btn-outline-info btn-fw">details</a>
+
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

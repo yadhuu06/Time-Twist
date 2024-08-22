@@ -27,32 +27,31 @@ def admin_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-
-        user = authenticate(request, email=email, password=password)
-        
-        if user is not None:
-            
+        user = authenticate(request, email=email, password=password)       
+        if user is not None:    
             if user.is_admin:
              
                 login(request, user)
-                return render(request,'AdminSide/admin-dashboard.html')
-                
+                return render(request,'AdminSide/admin-dashboard.html')              
             else:
                 messages.error(request, 'You are not authorized to access this page.')
         else:
             messages.error(request, 'Invalid email or password.')
-
     return render(request, 'AdminSide/admin_login.html')
+
+
 
 @user_passes_test(is_admin)
 def users_list(request):
      users = User.objects.all() 
      return render(request, 'AdminSide/user_list.html', {'users': users})
     
+   
     
 @user_passes_test(is_admin)    
 def documentaion(request):
     return render(request,'AdminSide/documentation.html')
+
 
 @never_cache
 @user_passes_test(is_admin)
@@ -68,17 +67,16 @@ def Block_user(request):
     user.save()
     return redirect('users_list')
 
-@user_passes_test(is_admin)
 def admin_order_list(request):
     orders = Order.objects.all()
     return render(request, 'AdminSide/admin_order_list.html', {'orders': orders})
 
-@user_passes_test(is_admin)    
+@user_passes_test(lambda user: user.is_superuser)
 def change_order_status(request, order_id):
     if request.method == 'POST':
         order = get_object_or_404(Order, id=order_id)
         status = request.POST.get('status')
-        if status in ['Delivered', 'Rejected']:
+        if status in ['Pending', 'Delivered', 'Accepted', 'Rejected']:
             order.status = status
             order.save()
         return redirect('admin_order_list')

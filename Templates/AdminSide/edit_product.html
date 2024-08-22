@@ -3,66 +3,87 @@
 {% block title %}Edit Product{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Edit Product: {{ product.product_name }}</h2>
-    
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="product_name">Product Name</label>
-            <input type="text" name="product_name" id="product_name" value="{{ product.product_name }}" class="form-control" required>
+<div class="container mt-">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card shadow-m">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Edit Product: {{ product.product_name }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <!-- Left Column (6-columns) -->
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="product_name">Product Name</label>
+                                    <input type="text" name="product_name" id="product_name" value="{{ product.product_name }}" class="form-control" required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="product_description">Product Description</label>
+                                    <textarea name="product_description" id="product_description" class="form-control" rows="5" required>{{ product.product_description }}</textarea>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="product_category">Product Category</label>
+                                    <select name="product_category" id="product_category" class="form-control" required>
+                                        {% for category in categories %}
+                                            <option value="{{ category.id }}" {% if product.product_category and product.product_category.id == category.id %}selected{% endif %}>
+                                                {{ category.category_name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group mb-6">
+                                    <label for="price" class="form-label">New Price</label>
+                                    <input type="number" name="price" id="price" value="{{ product.price }}" class="form-control" min="0" placeholder="Enter the new price" required>
+                                </div>
+                            </div>
+
+                            <!-- Right Column (6-columns) -->
+                            <div class="col-md-6">
+                                <div class="form-group mb-6">
+                                    <label for="product_brand">Product Brand</label>
+                                    <select name="product_brand" id="product_brand" class="form-control" required>
+                                        {% for brand in brands %}
+                                            <option value="{{ brand.id }}" {% if product.product_brand and product.product_brand.id == brand.id %}selected{% endif %}>
+                                                {{ brand.brand_name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="offer_price" class="form-label">Offer Price</label>
+                                    <input type="number" name="offer_price" id="offer_price" value="{{ product.offer_price }}" class="form-control">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="featured" class="form-label">Featured Product</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="featured" id="featured_yes" value="True" {% if product.featured %}checked{% endif %}>
+                                        <label class="form-check-label" for="featured_yes">Yes</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="featured" id="featured_no" value="False" {% if not product.featured %}checked{% endif %}>
+                                        <label class="form-check-label" for="featured_no">No</label>
+                                    </div>
+                                </div>
+                                <div class="form-group form-check mb-3">
+                                    <input type="checkbox" name="is_active" id="is_active" class="form-check-input" {% if product.is_active %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_active">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-success">Save Changes</button>
+                            <a href="{% url 'products:products_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="product_description">Product Description</label>
-            <textarea name="product_description" id="product_description" class="form-control" required>{{ product.product_description }}</textarea>
-        </div>
-        <div class="form-group">
-            <label for="product_category">Product Category</label>
-            <select name="product_category" id="product_category" class="form-control" required>
-                {% for category in categories %}
-                    <option value="{{ category.id }}" {% if product.product_category and product.product_category.id == category.id %}selected{% endif %}>
-                        {{ category.category_name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="product_brand">Product Brand</label>
-            <select name="product_brand" id="product_brand" class="form-control" required>
-                {% for brand in brands %}
-                    <option value="{{ brand.id }}" {% if product.product_brand and product.product_brand.id == brand.id %}selected{% endif %}>
-                        {{ brand.brand_name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="price" class="form-label">New Price</label>
-            <input 
-                type="number" 
-                name="price" 
-                id="price" 
-                value="{{ product.price }}" 
-                class="form-control" 
-                min="0"
-                placeholder="Enter the new price" 
-                required 
-            >
-        </div>
-        
-        </div>
-        <div class="form-group">
-            <label for="offer_price">Offer Price</label>
-            <input type="number" name="offer_price" id="offer_price" value="{{ product.offer_price }}"  class="form-control">
-        </div>
-        <div class="form-group form-check">
-            <input type="checkbox" name="is_active" id="is_active" class="form-check-input" {% if product.is_active %}checked{% endif %}>
-            <label class="form-check-label" for="is_active">Active</label>
-        </div>
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a href="{% url 'products:products_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+    </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {

@@ -68,7 +68,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="alert alert-info text-center" role="alert">
+    <div class="alert alert-info d-flex justify-content-center align-items-center text-center" role="alert" style="height:550px;">
             You haven't placed any orders yet. <a href="{% url 'shop_view' %}" class="alert-link">Start shopping now!</a>
         </div>
     {% endif %}

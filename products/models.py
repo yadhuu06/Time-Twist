@@ -12,8 +12,10 @@ class Products(models.Model):
     offer_price = models.DecimalField(max_digits=8, decimal_places=2)
     is_active = models.BooleanField(default=False)
     featured = models.BooleanField(default=False)
+   
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
     
     
     def offer_price_percentage(self):

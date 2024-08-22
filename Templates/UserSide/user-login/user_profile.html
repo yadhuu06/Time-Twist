@@ -2,32 +2,60 @@
 {% load static %}
 
 {% block content %}
-<div class="sp"style=margin-top: 60px;></div>
-<div class="container mt-5">
+<div class="sp"style=margin-top: 300px;></div>
+<div class="container-fluid">
+    
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-lg-3 col-md-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
-                    <img src="{% static 'UserSide/img/user.png' %}" class="rounded-circle mb-3 img-fluid" alt="Profile Picture">
-
-                    <h5 class="card-title">{{ user.first_name }} {{ user.last_name }}</h5>
-                    <p class="card-text text-muted">{{ user.email }}</p>
-                    <a href="{% url 'logout' %}" class="btn btn-outline-primary btn-sm">Logout</a>
+        <div class="col-md-3 col-lg-2 sidebar bg-primary text-white py-4">
+            <div class="d-flex flex-column align-items-start">
+                <div class="d-flex align-items-center mb-4 px-4">
+                    <img src="{% static 'UserSide/img/user.png' %}" class="rounded-circle me-2" width="32" height="32" alt="Profile Picture">
+                    <span class="fs-5 fw-bold">{{ user.first_name }} {{ user.last_name }}</span>
                 </div>
+                <nav class="nav nav-pills flex-column w-100">
+                    <a href="#" class="nav-link text-white active" aria-current="page" data-bs-target="#user-details" data-bs-toggle="collapse">
+                        <i class="bi bi-person-circle me-2"></i>
+                        User Details
+                    </a>
+                    <a href="#" class="nav-link text-white" data-bs-target="#add-address" data-bs-toggle="collapse">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Add Address
+                    </a>
+                    <a href="#" class="nav-link text-white" data-bs-target="#addresses" data-bs-toggle="collapse">
+                        <i class="bi bi-geo-alt-fill me-2"></i>
+                        Addresses
+                    </a>
+                    <a href="{% url 'logout' %}" class="nav-link text-white">
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        Logout
+                    </a>
+                </nav>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="col-lg-9 col-md-8">
+        <div class="col-md-9 col-lg-10">
+            <header class="bg-primary text-white py-3 mb-4">
+                <div class="container">
+                    <div class="d-flex align-items-center">
+                        <img src="{% static 'UserSide/img/user.png' %}" class="rounded-circle me-3" width="40" height="40" alt="Profile Picture">
+                        <div>
+                            <h5 class="mb-0">{{ user.first_name }} {{ user.last_name }}</h5>
+                            <p class="mb-0 text-muted">{{ user.email }}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
             <!-- User Info -->
-            <div class="card mb-4 shadow-sm">
+            <div class="card mb-4 shadow-sm collapse show" id="user-details">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">User Details</h5>
                 </div>
                 <div class="card-body">
-                    {% comment %} <form id="edit-profile-form" method="post" action="{% url 'edit_profile' %}">
-                        {% csrf_token %} {% endcomment %}
+                    <form id="edit-profile-form" method="post" action="">
+                        {% csrf_token %}
                         <div class="row mb-3">
                             <label class="col-sm-3 col-form-label"><strong>Full Name:</strong></label>
                             <div class="col-sm-9">
@@ -54,54 +82,47 @@
             </div>
 
             <!-- Add New Address -->
-            <button class="btn btn-info mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#add-address-form" aria-expanded="false" aria-controls="add-address-form">
-                Add New Address
-            </button>
-
-            <!-- Collapsible Address Form -->
-            <div class="collapse" id="add-address-form">
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Add New Address</h5>
-                    </div>
-                    <div class="card-body">
-                        <form action="{% url 'add_address' %}" method="post">
-                            {% csrf_token %}
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <input type="text" name="name" class="form-control" placeholder="Full Name" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="text" name="house_name" class="form-control" placeholder="House Name" required>
-                                </div>
+            <div class="card mb-4 shadow-sm collapse" id="add-address">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Add New Address</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'add_address' %}" method="post">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <input type="text" name="name" class="form-control" placeholder="Full Name" required>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <input type="text" name="street_name" class="form-control" placeholder="Street Address" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="text" name="district" class="form-control" placeholder="District" required>
-                                </div>
+                            <div class="col-md-6">
+                                <input type="text" name="house_name" class="form-control" placeholder="House Name" required>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <input type="text" name="state" class="form-control" placeholder="State/Province" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="text" name="pin_number" class="form-control" placeholder="Zip/Postal Code" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" required>
-                                </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <input type="text" name="street_name" class="form-control" placeholder="Street Address" required>
                             </div>
-                            <button type="submit" class="btn btn-success">Add New Address</button>
-                        </form>
-                    </div>
+                            <div class="col-md-6">
+                                <input type="text" name="district" class="form-control" placeholder="District" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <input type="text" name="state" class="form-control" placeholder="State/Province" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="pin_number" class="form-control" placeholder="Zip/Postal Code" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add New Address</button>
+                    </form>
                 </div>
             </div>
 
             <!-- Address List -->
-            <div class="card shadow-sm">
+            <div class="card shadow-sm collapse" id="addresses">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Your Addresses</h5>
                 </div>
@@ -136,40 +157,58 @@
                     {% endfor %}
                 </div>
             </div>
-
-            <!-- Bootstrap JS and SweetAlert for notifications -->
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', (event) => {
-                    {% if messages %}
-                        const messages = [
-                            {% for message in messages %}
-                                {
-                                    level: "{{ message.tags }}",
-                                    text: "{{ message }}"
-                                },
-                            {% endfor %}
-                        ];
-                        messages.forEach(message => {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-right',
-                                icon: message.level === 'success' ? 'success' : 'error',
-                                title: message.text,
-                                showConfirmButton: false,
-                                timer: 3000
-                            });
-                        });
-                    {% endif %}
-                });
-
-                function toggleEditForm(addressId) {
-                    var form = document.getElementById('edit-form-' + addressId);
-                    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-                }
-            </script>
         </div>
     </div>
 </div>
+
+<!-- Bootstrap JS and SweetAlert for notifications -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+
+        // Collapse handling
+        const collapsibleItems = document.querySelectorAll('[data-bs-target]');
+        collapsibleItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const targetId = item.getAttribute('data-bs-target');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement.classList.contains('show')) {
+                    targetElement.classList.remove('show');
+                } else {
+                    const collapsibleContents = document.querySelectorAll('.collapse.show');
+                    collapsibleContents.forEach(content => {
+                        content.classList.remove('show');
+                    });
+                    targetElement.classList.add('show');
+                }
+            });
+        });
+    });
+
+    function toggleEditForm(addressId) {
+        var form = document.getElementById('edit-form-' + addressId);
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
 {% endblock %}

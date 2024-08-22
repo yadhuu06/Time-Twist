@@ -183,15 +183,16 @@ from .forms import EmailAuthenticationForm
 
 def login_view(request):
     if request.method == 'POST':
-        print('view')
+   
         form = EmailAuthenticationForm(request, data=request.POST) 
 
         if form.is_valid():
+            print("hai")
             user = form.get_user()
             
             if user and user.is_active and not user.is_blocked:
                 login(request, user) 
-                messages.success(request, f"Welcome, {user.first_name} {user.lastname} You have successfully logged in.")
+                messages.success(request, f"Welcome, {user.first_name} {user.last_name} You have successfully logged in.")
                 return redirect('home_view')
             else:
                 messages.error(request, "This account is inactive or blocked. Please contact support.")

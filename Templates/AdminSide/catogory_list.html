@@ -39,8 +39,9 @@
                                         <form method="" action="{% url 'catogory:edit_category' c.id %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="brand_name" value="{{ brand.brand_name }}">
-                                            <button type="submit" class="btn btn-sm btn-primary">Edit</button>
+                                            <button type="submit" class="btn btn-dark btn-icon-text">Edit</button>
                                         </form>
+                                        
                                     </td>
                                 </tr>
                                 {% endfor %}

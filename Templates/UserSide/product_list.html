@@ -2,6 +2,7 @@
 <div class="row">
     <!-- Start of the for loop -->
     {% for product in products %}
+    
     <div class="col-lg-3 col-md-6">
         <div class="single-product">
             <!-- Product Image with violet background -->
@@ -40,7 +41,7 @@
                         <span class="ti-bag"></span>
                         <p class="hover-text">Add to Cart</p>
                     </a>
-                    <a href="" class="social-info">
+                    <a href="{% url 'cart:add_to_wishlist' product.id %}" class="social-info">
                         <span class="lnr lnr-heart"></span>
                         <p class="hover-text">Wishlist</p>
                     </a>

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from cart.models import Cart, CartItem
@@ -81,3 +81,9 @@ def calculate_cart_total(user):
 def my_orders(request):
     orders = Order.objects.filter(user=request.user).prefetch_related('items__product_variant').order_by('-id')
     return render(request, 'UserSide/my_orders.html', {'orders': orders})
+
+
+
+def order_details_admin(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id)
+    return render(request, 'AdminSide/order_details.html', {'order': order})

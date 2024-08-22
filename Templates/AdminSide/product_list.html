@@ -34,9 +34,9 @@
                             <td class="high-visibility-cell">{{ p.product_name }}</td>
                             <td class="high-visibility-cell">${{ p.price }}</td>
                             <td class="high-visibility-cell">{{ p.product_brand.brand_name }}</td>
-                            <td>{{ p.is_active|yesno:"Active,Inactive" }}</td> <!-- Conditional yes/no filter for status -->
+                            <td>{{ p.is_active|yesno:"Active,Inactive" }}</td> 
                             <td>
-                                <a href="{% url 'products:edit_product' p.id %}" class="btn btn-sm btn-primary">Edit</a>
+                                <a href="{% url 'products:edit_product' p.id %}" class="btn btn-dark btn-icon-text">Edit</a>
                             </td>
                             <td>
                                 <form method="get" action="{% url 'products:list_productVarient' p.id %}">

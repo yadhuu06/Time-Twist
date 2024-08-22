@@ -32,7 +32,7 @@ def add_catogory(request):
 
 
 def edit_category(request, category_id):
-    category = get_object_or_404(Category, id=catogory_id)
+    category = get_object_or_404(Category, id=category_id)
     
     if request.method == 'POST':
         category_name = request.POST.get('category_name').strip()  
@@ -41,12 +41,12 @@ def edit_category(request, category_id):
 
         if not category_name:  
             messages.error(request, "Category name cannot be empty or whitespace.")
-            return render(request, 'AdminSide/edit_category.html', {'category': categories})
+            return render(request, 'AdminSide/edit_catogory.html', {'category': category})
         
  
         if Category.objects.filter(catogory_name=category_name).exclude(id=category_id).exists():
             messages.error(request, "A category with this name already exists.")
-            return render(request, 'AdminSide/edit_category.html')
+            return render(request, 'AdminSide/edit_catogory.html')
         
         category.category_name = category_name
         category.category_description = description
@@ -55,7 +55,7 @@ def edit_category(request, category_id):
         messages.success(request, 'Category updated successfully!')
         return redirect('category:category_list')
 
-    return render(request, 'AdminSide/edit_category.html', {'category': category})
+    return render(request, 'AdminSide/edit_catogory.html', {'category': category})
 
 
 def varient_list(request):

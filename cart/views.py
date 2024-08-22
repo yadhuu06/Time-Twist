@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
+from.models import Wishlist
 import json
 
 
@@ -96,11 +97,59 @@ def update_cart_quantity(request):
     except (ValueError, TypeError) as e:
         return JsonResponse({'success': False, 'error': str(e)})
     
+
+
 def wishlist_view(request):
-    wishlist_items = Wishlist.objects.filter(user=request.user)
-    return render(request, 'wishlist.html', {'wishlist_items': wishlist_items})
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    
+    wishlist_data = []
+    for item in wishlist_items:
+        product = item.product
+        variant = product.variants.filter(is_active=True).first()
+        stock_status = "Out of Stock"
+        stock_class = "out-of-stock"
+
+        if variant:
+            if variant.variant_stock > 10:
+                stock_status = "In Stock"
+                stock_class = "in-stock"
+            elif 0 < variant.variant_stock <= 10:
+                stock_status = "Limited Stock"
+                stock_class = "limited-stock"
+
+            image = variant.images.first().image if variant.images.exists() else "static/UserSide/img/No_Images_available.png"
+        else:
+            image = "static/UserSide/img/No_Images_available.png"
+
+        wishlist_data.append({
+            'product': product,
+            'variant': variant,
+            'stock_status': stock_status,
+            'stock_class': stock_class, 
+            'image': image,
+        })
+
+    return render(request, 'UserSide/wishlist.html', {'wishlist_data': wishlist_data})
+
+
+
+
+def add_to_wishlist(request, product_id):
+   
+    product = get_object_or_404(Products, id=product_id)
+    
+    wishlist, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+    
+    if not created:
+        messages.info(request, 'This item is already in your wishlist.')
+    else:
+        messages.success(request, 'Item added to your wishlist.')
+    return redirect('cart:wishlist')
 
 def remove_from_wishlist(request, item_id):
+    print(item_id) 
+    
     wishlist_item = get_object_or_404(Wishlist, id=item_id, user=request.user)
+    print(wishlist_item.product)  
     wishlist_item.delete()
-    return redirect('wishlist')
+    return redirect('cart:wishlist')
