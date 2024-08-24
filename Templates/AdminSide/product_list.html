@@ -32,7 +32,7 @@
                         {% for p in products %}
                         <tr>
                             <td class="high-visibility-cell">{{ p.product_name }}</td>
-                            <td class="high-visibility-cell">${{ p.price }}</td>
+                            <td class="high-visibility-cell">Rs: {{ p.price }}</td>
                             <td class="high-visibility-cell">{{ p.product_brand.brand_name }}</td>
                             <td>{{ p.is_active|yesno:"Active,Inactive" }}</td> 
                             <td>

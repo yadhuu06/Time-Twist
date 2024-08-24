@@ -53,8 +53,9 @@
                 <h1 class="product-name">{{ product.product_name }}</h1>
                 
                 <div class="pricing">
-                    <span class="original-price">₹<span id="original-price">{{ product.price }}</span></span>
-                    <span class="current-price">₹<span id="current-price">{{ product.offer_price }}</span></span>
+                    <span class="original-price">Original Price: ₹<span id="original-price">{{ product.price }}</span></span>
+                    <br>
+                    <span class="offer-price">Offer Price: Rs<span id="offer-price">{{ variants.offer_price }}</span></span>
                 </div>
                 
                 <div class="product-description">
@@ -70,6 +71,7 @@
                             <button type="button" class="btn btn-outline-secondary mr-2 mb-2 color-button" 
                                     data-variant="{{ variant.id }}" 
                                     data-price="{{ variant.price }}"
+                                    data-offer-price="{{ variant.offer_price }}"
                                     data-images="{{ variant.images|join:', ' }}"
                                     style="width: 40px; height: 40px; border-radius: 50%; background-color: {{ variant.colour_code }};">
                             </button>
@@ -101,7 +103,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const colorButtons = document.querySelectorAll('.color-button');
         const originalPrice = document.querySelector('#original-price');
-        const currentPrice = document.querySelector('#current-price');
+        const offerPrice = document.querySelector('#offer-price');
         const selectedVariantInput = document.querySelector('#selected-variant-id');
         const addToCartBtn = document.querySelector('#add-to-cart-btn');
         const carouselInner = document.querySelector('.carousel-inner');
@@ -110,11 +112,13 @@
             button.addEventListener('click', function() {
                 const variantId = this.dataset.variant;
                 const price = this.dataset.price;
+                const offerPriceValue = this.dataset.offerPrice;
+                console.log(offerPriceValue)
                 const images = this.dataset.images.split(', ');
 
-                // Update price based on selected variant
+                // Update prices based on selected variant
                 originalPrice.textContent = price;
-                currentPrice.textContent = price;
+                offerPrice.textContent = offerPriceValue;
                 selectedVariantInput.value = variantId;
                 addToCartBtn.href = `{% url 'cart:add_cart' product.id %}?variant_id=${variantId}`;
 

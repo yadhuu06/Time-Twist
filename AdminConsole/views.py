@@ -16,6 +16,7 @@ def is_admin(user):
 
 
 @user_passes_test(is_admin)
+@never_cache
 def admin_page(request):
     return render(request,'AdminSide/admin-dashboard.html')
     
@@ -68,7 +69,7 @@ def Block_user(request):
     return redirect('users_list')
 
 def admin_order_list(request):
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by('-created_at')
     return render(request, 'AdminSide/admin_order_list.html', {'orders': orders})
 
 @user_passes_test(lambda user: user.is_superuser)

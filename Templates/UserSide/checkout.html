@@ -164,7 +164,7 @@
                             {% for item in cart_items %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 {{ item.variant.product_name }} x {{ item.quantity }}
-                                <span>Total Rs: {{ item.variant.price }}</span>
+                                <span>Total Rs: {{ item.variant.offer_price }}</span>
                             </li>
                             {% endfor %}
                         </ul>

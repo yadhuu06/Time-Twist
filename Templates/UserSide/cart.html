@@ -48,7 +48,7 @@
                                                 {% endfor %}
                                             </select>
                                         </td>
-                                        <td class="text-end" style="min-width: 100px;">₹<span id="subtotal-{{ item.id }}">{{ item.variant.price }}</span></td>
+                                        <td class="text-end" style="min-width: 100px;">₹<span id="subtotal-{{ item.id }}">{{ item.variant.offer_price }}</span></td>
                                         <td class="text-end">
                                             <a href="{% url 'cart:remove_cart_item' item.id %}" class="btn btn-sm btn-outline-danger" title="Remove item">
                                                 <i class="fa fa-trash"></i>
@@ -110,6 +110,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    // Function to update the quantity of a cart item
     function updateQuantity(itemId, newQuantity) {
         const url = '{% url "cart:update_cart_quantity" %}';
         
@@ -127,7 +128,12 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                document.getElementById(`subtotal-${itemId}`).innerText = data.subtotal;
+                // Update the subtotal for the item on the page
+                const subtotalElement = document.getElementById(`subtotal-${itemId}`);
+                const newSubtotal = data.subtotal;
+                subtotalElement.innerText = newSubtotal;
+
+                // Recalculate the total cart value
                 updateCartTotal();
             } else {
                 Swal.fire({
@@ -139,21 +145,30 @@
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'An error occurred. Please try again.',
+            });
         });
     }
 
+    // Function to update the total cart value
     function updateCartTotal() {
-        var subtotals = document.querySelectorAll('[id^="subtotal-"]');
-        var total = 0;
-        subtotals.forEach(function(subtotal) {
-            total += parseFloat(subtotal.innerText);
+        let total = 0;
+
+        // Sum up all the subtotals
+        const subtotals = document.querySelectorAll('[id^="subtotal-"]');
+        subtotals.forEach(function(subtotalElement) {
+            total += parseFloat(subtotalElement.innerText);
         });
 
+        // Update the total and final total on the page
         document.getElementById('cart-total').innerText = total.toFixed(2);
         document.getElementById('cart-total-final').innerText = total.toFixed(2);
     }
 
+    // Function to get the CSRF token for making POST requests
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -169,7 +184,7 @@
         return cookieValue;
     }
 
-    // Call updateCartTotal() on page load
+    // Call updateCartTotal() on page load to ensure totals are correct
     document.addEventListener('DOMContentLoaded', function() {
         updateCartTotal();
     });

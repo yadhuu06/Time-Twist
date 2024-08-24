@@ -167,6 +167,7 @@ def product_detail_user(request, id):
                 'id': variant.id,
                 'name': variant.variant_name,
                 'price': str(variant.price),
+                'offer_price': str(variant.offer_price),
                 'colour_code': variant.colour_code,
                 'images': [image.image.url for image in variant.images.all()],
                 'in_cart': variant_in_cart

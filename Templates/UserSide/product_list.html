@@ -25,8 +25,9 @@
 
             <!-- Product Details -->
             <div class="product-details">
-                <h5>{{ product.product_name }}</h5>
                 <h6 style="color:blue;">{{ product.product_brand.brand_name }}</h6>
+                <h5>{{ product.product_name }}</h5>
+                
 
                 <div class="price">
                     {% if product.offer_price %}
