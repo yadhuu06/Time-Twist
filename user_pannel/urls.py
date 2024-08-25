@@ -11,6 +11,4 @@ urlpatterns = [
     path('user_profile',views.user_profile,name='user_profile'),
     path('checkout',views.checkout,name='checkout'),
   
-   
-  
 ]

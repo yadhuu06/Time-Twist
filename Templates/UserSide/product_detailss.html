@@ -53,16 +53,18 @@
                 <h1 class="product-name">{{ product.product_name }}</h1>
                 
                 <div class="pricing">
-                    <span class="original-price">Original Price: ₹<span id="original-price">{{ product.price }}</span></span>
+                    <span class="offer-price">Offer Price: Rs<span id="offer-price"style="color: green;"><b><strong><h3>{{ variants.offer_price }}<h3></b></strong></span></span>
+                    
                     <br>
-                    <span class="offer-price">Offer Price: Rs<span id="offer-price">{{ variants.offer_price }}</span></span>
+                    <span class="original-price">Original Price: ₹<span id="original-price">{{ product.price }}</span></span>
+                
                 </div>
                 
                 <div class="product-description">
                     <p>{{ product.product_description }}</p>
                 </div>
-                <div class="product-STOCK">
-                    <p>{{ product.ProductVariant.variant_stock }}</p>
+                <div class="product-STOCK">Stock: 
+                    <p>{{ variants.variant_stock }}</p>
                 </div>
                 <div class="mb-4">
                     <h5>Select Color:</h5>

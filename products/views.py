@@ -402,7 +402,6 @@ def product_detail(request,Products_id):
     products = get_object_or_404(Products, id=Products_id) 
     images = ProductVariantImages.objects.filter(product_variant__product=products)
     variants = ProductVariant.objects.filter(product=products.id)
-
     return render(request, 'AdminSide/product_details.html', {'products': products, 'images': images , 'variants':variants})
 
 def list_productVarient(request, Products_id):

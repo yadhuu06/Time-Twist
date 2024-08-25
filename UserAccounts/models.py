@@ -32,7 +32,6 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)  
     is_blocked = models.BooleanField(default=False)  
     date_joined = models.DateTimeField(default=timezone.now) 
-
     objects = UserManager()
 
     USERNAME_FIELD = 'email'

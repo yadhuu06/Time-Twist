@@ -223,11 +223,15 @@ def home_view(request):
     else:
         return redirect('Register')  
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. LOG OUT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.              LOG OUT             <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def logout_view(request):
     logout(request)
     messages.success(request, "Logout successful")  
     return redirect('login_view')   
 
+def forgot_password(request):
+    print("hello")
+    return render(request,'UserSide/user-login/forgot_password.html')
 
+ 

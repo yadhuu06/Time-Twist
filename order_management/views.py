@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404,redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from cart.models import Cart, CartItem
@@ -7,6 +7,11 @@ from products.models import ProductVariant
 from order_management.models import Order, Payment, OrderItem 
 from django.http import HttpResponse
 import uuid
+from django.views.decorators.http import require_POST
+from django.db import transaction
+
+
+
 
 @login_required
 def place_order(request):
@@ -61,7 +66,7 @@ def place_order(request):
                 order=order,
                 product_variant=product_variant,
                 quantity=item.quantity,
-                price=product_variant.price
+                price=product_variant.offer_price
             )
             product_variant.variant_stock -= item.quantity
             product_variant.save()
@@ -87,3 +92,28 @@ def my_orders(request):
 def order_details_admin(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
     return render(request, 'AdminSide/order_details.html', {'order': order})
+
+
+@require_POST
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id)
+
+    if order.status != 'Pending':
+        messages.error(request, "Order cannot be canceled.")
+        return redirect('order_management:order_detail', order_id=order_id)
+
+    try:
+        with transaction.atomic():
+            for item in order.items.all():
+                product_variant = item.product_variant
+                product_variant.variant_stock += item.quantity
+                product_variant.save()
+
+            order.status = 'Canceled'
+            order.save()
+
+        messages.success(request, "Order canceled successfully.")
+    except Exception as e:
+        messages.error(request, f"An error occurred while canceling the order: {str(e)}")
+    
+    return redirect('order_management:my_orders')

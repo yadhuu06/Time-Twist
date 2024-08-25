@@ -27,21 +27,17 @@
                                             <div class="col-md-2 text-md-end">
                                                 <p class="card-text">
                                                     <strong>Price:</strong> ₹{{ item.price|floatformat:2 }}<br>
-                                                   
                                                 </p>
                                             </div>
                                             <div class="col-md-2 text-md-end">
                                                 <p class="card-text">
-                                                   
                                                     <strong>Quantity</strong><br> {{ item.quantity }}<br>
-                                                    
                                                 </p>
                                             </div>
                                             <div class="col-md-2 text-md-end">
                                                 <p class="card-text">
-                                                    
                                                     <strong>Status:</strong> 
-                                                    <span class="{% if order.status == 'Delivered' %}text-success{% elif order.status == 'Pending' %}text-warning{% elif order.status == 'Returned' or order.status == 'Refund Completed' %}text-danger{% else %}text-secondary{% endif %}">
+                                                    <span class="{% if order.status == 'Delivered' %}text-success{% elif order.status == 'Canceled' %}text-danger{% elif order.status == 'Pending' %}text-warning{% elif order.status == 'Returned' or order.status == 'Refund Completed' %}text-danger{% else %}text-secondary{% endif %}">
                                                         {{ order.status }}
                                                     </span>
                                                 </p>
@@ -53,9 +49,12 @@
                                                     {% if order.status == 'Dispatched' and order.payment.method != 'cashOnDelivery' %}
                                                         <button class="genric-btn danger-border">Return</button>
                                                     {% elif order.status != 'Delivered' %}
-                                                        <button class="genric-btn danger-border">Cancel </button>
-                                                    {% endif %}
-                                                    <a href="#" class="genric-btn info-border">View</a>
+                                                        <form action="{% url 'order_management:cancel_order' order_id=order.order_id %}" method="POST" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="genric-btn danger-border cancel-order-btn">Cancel</button>
+                                                        </form>
+                                                    {% endif %} 
+                                                    {% comment %} <a href="#" class="genric-btn info-border">View</a> {% endcomment %}
                                                 </div>
                                             </div>
                                         </div>
@@ -68,39 +67,98 @@
             {% endfor %}
         </div>
     {% else %}
-    <div class="alert alert-info d-flex justify-content-center align-items-center text-center" role="alert" style="height:550px;">
+        <div class="alert alert-info d-flex justify-content-center align-items-center text-center" role="alert" style="height:550px;">
             You haven't placed any orders yet. <a href="{% url 'shop_view' %}" class="alert-link">Start shopping now!</a>
         </div>
     {% endif %}
 </div>
-<style>.order-card {
+
+<!-- Add CSS for order card styles -->
+<style>
+.order-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-radius: 10px;
 }
-
 .order-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
-
 .order-card img {
     max-height: 150px;
     width: 100%;
     object-fit: cover;
     border-radius: 5px;
 }
-
 .card-title {
     font-size: 1.25rem;
     margin-bottom: 0.5rem;
 }
-
 .card-text {
     font-size: 0.9rem;
 }
-
 .action-buttons .btn {
     font-size: 0.85rem;
 }
 </style>
+
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<!-- SweetAlert2 JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Add JavaScript for SweetAlert confirmation dialog -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const cancelButtons = document.querySelectorAll('.cancel-order-btn');
+
+        cancelButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent the form from submitting immediately
+                
+                // Use SweetAlert2 for confirmation
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to cancel this order?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, cancel it!',
+                    cancelButtonText: 'No, keep it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.closest('form').submit(); // Submit the form if confirmed
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+<!-- Add JavaScript for SweetAlert notifications for messages -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
 {% endblock %}

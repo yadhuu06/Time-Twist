@@ -10,6 +10,8 @@ from django.template.loader import render_to_string
 from django.http import JsonResponse
 from cart.models import CartItem
 from django.views.decorators.cache import never_cache
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
 
 
 @never_cache
@@ -127,8 +129,18 @@ def shop_view(request):
             )
         products = products.prefetch_related('variants__images')
 
+        #  paginator setted
+        paginator = Paginator(products, 12)  
+        page_number = request.GET.get('page')
+        try:
+            products_page = paginator.page(page_number)
+        except PageNotAnInteger:
+            products_page = paginator.page(1)
+        except EmptyPage:
+            products_page = paginator.page(paginator.num_pages)
+
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            product_html = render_to_string('UserSide/product_list.html', {'products': products})
+            product_html = render_to_string('UserSide/product_list.html', {'products': products_page})
             return JsonResponse({'product_html': product_html})
 
         brands = Brand.objects.filter(status=True)
@@ -141,9 +153,8 @@ def shop_view(request):
             'phone_number': request.user.phone_number
         }
 
-     
         response = render(request, 'UserSide/shop.html', {
-            'products': products,
+            'products': products_page,
             'user_details': user_details,
             'brands': brands,
             'categories': categories,
@@ -152,12 +163,15 @@ def shop_view(request):
         return response
     else:
         return redirect('login')
-@never_cache     
+
+
+
+@never_cache  
 @login_required
 def product_detail_user(request, id):
     try:
         product = Products.objects.get(id=id)
-        variants = product.variants.all().prefetch_related('images')
+        variants = product.variants.filter(is_active=True).prefetch_related('images')
         cart_items = CartItem.objects.filter(cart__user=request.user, product=product)
 
         variant_data = []
