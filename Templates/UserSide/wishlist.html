@@ -7,6 +7,9 @@
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -86,7 +89,7 @@
                     <th scope="col">PRODUCT</th>
                     <th scope="col">PRICE</th>
                     <th scope="col">STOCK DETAIL</th>
-                    <th scope="col">ACTIONS</th>
+            
                 </tr>
             </thead>
             <tbody>
@@ -107,7 +110,10 @@
                         </span>
                     </td>
                     <td>
-                        <a href="{% url 'product_detail_user' item.product.id %}" class="btn btn-primary">Details</a>
+                        <a href="{% url 'product_detail_user' item.product.id %}"">
+                            <i class="fas fa-info-circle "></i> 
+                        </a>
+                        
 
                     </td>
                     <td>
@@ -128,6 +134,30 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><!-- Add JavaScript for SweetAlert notifications for messages -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
 </body>
 </html>

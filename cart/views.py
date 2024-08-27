@@ -148,8 +148,12 @@ def add_to_wishlist(request, product_id):
 
 def remove_from_wishlist(request, item_id):
     print(item_id) 
+   
+    item_id=item_id
+    wishlist_item = get_object_or_404(Wishlist, product_id=item_id, user=request.user)
     
-    wishlist_item = get_object_or_404(Wishlist, id=item_id, user=request.user)
-    print(wishlist_item.product)  
+  
     wishlist_item.delete()
+   
+    messages.success(request,"item removed from wishlist")
     return redirect('cart:wishlist')

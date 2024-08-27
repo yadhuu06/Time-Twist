@@ -141,15 +141,27 @@
 							  </li>
 							
 						  </ul>
-						  <ul class="nav navbar-nav navbar-right">
-							  <li class="nav-item"><a href="{% url 'cart:cart_view' %}" class="cart"><span class="ti-bag"></span></a></li>
-							  
-							  <li class="nav-item">
-								  <button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
-							  </li>
-						  </ul>
-						  <ul class="nav navbar-nav navbar-right">
-							  
+		<ul class="nav navbar-nav navbar-right">
+    <li class="nav-item">
+        <a href="{% url 'cart:cart_view' %}" class="cart">
+            <span class="ti-bag"></span>
+        </a>
+    </li>
+    <li class="nav-item">
+     <a href="{% url 'cart:wishlist' %}" class="wishlist">
+    <svg class="heart-icon" viewBox="0 0 32 32" width="18" height="18">
+        <path d="M16,28.261c0,0-14-7.926-14-17.046c0-9.356,13.159-10.399,14-0.454c1.011-9.938,14-8.903,14,0.454
+        C30,20.335,16,28.261,16,28.261z" />
+    </svg>
+</a>
+    </li>
+    <li class="nav-item">
+        <button class="search">
+            <span class="lnr lnr-magnifier" id="search"></span>
+        </button>
+    </li>
+</ul>
+  
 							
 							<li class="nav-item">
 								
@@ -168,5 +180,26 @@
 				</form>
 			</div>
 		</div>
+		<style>.wishlist {
+			display: inline-block;
+			padding: 5px;
+			margin-top: 22px;
+			transition: transform 0.2s ease;
+		}
 		
+		.heart-icon {
+			fill: none;
+			stroke: #000;
+			stroke-width: 2;
+			transition: fill 0.2s ease, stroke 0.2s ease;
+		}
+		
+		.wishlist:hover {
+			transform: scale(1.1);
+		}
+		
+		.wishlist:hover .heart-icon {
+			fill: #ff4136;
+			stroke: #ff4136;
+		}</style>
 	  </header> 
