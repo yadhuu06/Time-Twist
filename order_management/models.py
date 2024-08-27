@@ -26,7 +26,7 @@ class Order(models.Model):
     order_id = models.CharField(max_length=36, unique=True, default=uuid.uuid4, editable=False)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default='Pending')
+    status = models.CharField(max_length=20, default='Pending') 
       
 
     def __str__(self):

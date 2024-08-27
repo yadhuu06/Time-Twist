@@ -34,16 +34,16 @@
 
             <h4>
                 {% if products.offer_price %}
-                    <span class="text-success">${{ products.offer_price }}</span>
-                    <del class="text-muted">${{ products.price }}</del>
+                    <span class="text-success">Price Rs {{ products.offer_price }}</span>
+                    <del class="text-muted">Rs{{ products.price }}</del>
                 {% else %}
-                    <span class="text-primary">${{ products.price }}</span>
+                    <span class="text-primary">Rs{{ products.price }}</span><br>
                 {% endif %}
             </h4>
             
             {% if products.offer_price %}
             <p class="text-success">
-                <strong>Discount:</strong> {{ products.offer_price_percentage|floatformat:2 }}% OFF
+                <strong>Discount:</strong> {{ products.offer_percentage}}% OFF
             </p>
             {% endif %}
 
@@ -52,7 +52,14 @@
             <ul class="list-group">
                 {% for variant in products.variants.all %}
                 <li class="list-group-item">
-                    <strong>{{ variant.variant_name }}</strong> - ${{ variant.price }}
+                    <strong>{{ variant.variant_name }}</strong> - Rs{{ variant.price }} 
+                <strong>Status:</strong> 
+                    {% if variant.is_active %}
+                        <span style="color: green;">Active</span>
+                    {% else %}
+                        <span style="color: red;">Inactive</span>
+                    {% endif %}
+                    
                 </li>
                 {% endfor %}
             </ul>

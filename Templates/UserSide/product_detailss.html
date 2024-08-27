@@ -53,19 +53,23 @@
                 <h1 class="product-name">{{ product.product_name }}</h1>
                 
                 <div class="pricing">
-                    <span class="offer-price">Offer Price: Rs<span id="offer-price"style="color: green;"><b><strong><h3>{{ variants.offer_price }}<h3></b></strong></span></span>
-                    
+                    <span class="offer-price">
+                        Offer Price: Rs <span id="offer-price"><h3>{{ variants.0.offer_price }}</h3></span>
+                    </span>
                     <br>
-                    <span class="original-price">Original Price: ₹<span id="original-price">{{ product.price }}</span></span>
-                
+                    <span class="original-price">
+                        Original Price: ₹<span id="original-price">{{ product.price }}</span>
+                    </span>
                 </div>
                 
                 <div class="product-description">
                     <p>{{ product.product_description }}</p>
                 </div>
-                <div class="product-STOCK">Stock: 
-                    <p>{{ variants.variant_stock }}</p>
+                
+                <div class="product-STOCK" id="stock-display">
+                    Stock: <span id="stock-value"></span>
                 </div>
+                
                 <div class="mb-4">
                     <h5>Select Color:</h5>
                     <div class="d-flex flex-wrap">
@@ -73,6 +77,7 @@
                             <button type="button" class="btn btn-outline-secondary mr-2 mb-2 color-button" 
                                     data-variant="{{ variant.id }}" 
                                     data-price="{{ variant.price }}"
+                                    data-stock="{{ variant.stock }}"
                                     data-offer-price="{{ variant.offer_price }}"
                                     data-images="{{ variant.images|join:', ' }}"
                                     style="width: 40px; height: 40px; border-radius: 50%; background-color: {{ variant.colour_code }};">
@@ -85,7 +90,8 @@
                 <a href="{% url 'cart:add_cart' product.id %}" id="add-to-cart-btn" class="genric-btn info-border circle arrow btn-primary mb-4">
                     Add to Cart<span class="lnr lnr-arrow-right"></span>
                 </a>
-                
+                <p id="out-of-stock-message" style="display: none; color: red;">Item out of stock</p>
+            
                 <div>
                     <h5>Product Details:</h5>
                     <ul class="list-unstyled">
@@ -99,6 +105,31 @@
 </div>
 <!-- End Product Information -->
 
+<style>
+.pricing .offer-price {
+    color: green;
+    font-weight: bold;
+}
+
+.pricing .offer-price h3 {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    font-size: 1.5em;
+    
+}
+
+.pricing .original-price {
+    color: black;
+    text-decoration: line-through;
+    font-size: 0.4em;
+}
+
+#offer-price h3 {
+    font-weight: bold;
+}
+</style>
+
 <!-- JavaScript to handle price and image updates -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -109,27 +140,47 @@
         const selectedVariantInput = document.querySelector('#selected-variant-id');
         const addToCartBtn = document.querySelector('#add-to-cart-btn');
         const carouselInner = document.querySelector('.carousel-inner');
+        const stockDisplay = document.querySelector('#stock-display');
+        const stockValue = document.querySelector('#stock-value');
+        const outOfStockMessage = document.querySelector('#out-of-stock-message');
+
+        function updateStock(stock) {
+            stockValue.textContent = stock;
+            if (stock == 0) {
+                stockDisplay.style.color = 'red';
+                addToCartBtn.style.display = 'none';
+                outOfStockMessage.style.display = 'block';
+            } else if (stock < 5) {
+                stockDisplay.style.color = 'red';
+                addToCartBtn.style.display = 'inline-block';
+                outOfStockMessage.style.display = 'none';
+            } else {
+                stockDisplay.style.color = 'green';
+                addToCartBtn.style.display = 'inline-block';
+                outOfStockMessage.style.display = 'none';
+            }
+        }
 
         colorButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const variantId = this.dataset.variant;
                 const price = this.dataset.price;
                 const offerPriceValue = this.dataset.offerPrice;
-                console.log(offerPriceValue)
+                const stock = this.dataset.stock;
                 const images = this.dataset.images.split(', ');
 
-                // Update prices based on selected variant
                 originalPrice.textContent = price;
-                offerPrice.textContent = offerPriceValue;
+                offerPrice.innerHTML = `<h3>${offerPriceValue}</h3>`;
                 selectedVariantInput.value = variantId;
                 addToCartBtn.href = `{% url 'cart:add_cart' product.id %}?variant_id=${variantId}`;
 
-                // Update carousel images
-                carouselInner.innerHTML = ''; // Clear existing images
+                updateStock(stock);
+
+                carouselInner.innerHTML = '';
                 images.forEach((imageUrl, index) => {
                     const carouselItem = document.createElement('div');
                     carouselItem.className = 'carousel-item';
-                    if (index === 0) carouselItem.classList.add('active'); // Make the first image active
+                    if (index === 0) carouselItem.classList.add('active');
 
                     const img = document.createElement('img');
                     img.src = imageUrl;
@@ -142,7 +193,6 @@
                     carouselInner.appendChild(carouselItem);
                 });
 
-                // Update active class on color buttons
                 colorButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
             });
@@ -157,6 +207,7 @@
         });
     });
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {

@@ -18,9 +18,16 @@ from django.views.decorators.cache import cache_control
 from UserAccounts.models import User
 from django.contrib.auth.decorators import login_required
 from user_pannel.models import UserAddress
-
-
-
+from .forms import PasswordResetRequestForm
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from django.contrib.auth.forms import PasswordResetForm,SetPasswordForm
+from django.contrib.auth import update_session_auth_hash
+from django.utils.translation import gettext as _
 
 
 
@@ -101,7 +108,7 @@ def resend_otp(request):
     html_content = f'''
         <html>
             <body>
-                <h1>Welcome to GlowGear!</h1>
+                <h1>Welcome to TimeTwist!</h1>
                 <h5>The Right Time TO Purchase</h5>
                 <h4>Your new OTP Code is: <strong>{otp}</strong></h4>
                 <h4>Thank You For Choosing Us</h4>
@@ -223,7 +230,7 @@ def home_view(request):
     else:
         return redirect('Register')  
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.              LOG OUT             <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. LOG OUT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def logout_view(request):
     logout(request)
@@ -234,4 +241,65 @@ def forgot_password(request):
     print("hello")
     return render(request,'UserSide/user-login/forgot_password.html')
 
- 
+
+def password_reset_request(request):
+    if request.method == "POST":
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            associated_users = User.objects.filter(email=email)
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "UserSide/user-login/password_reset_email.html"
+                    context = {
+                        "email": user.email,
+                        "domain": get_current_site(request).domain,
+                        "site_name": "Your Site Name",
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "user": user,
+                        "token": default_token_generator.make_token(user),
+                        "protocol": "https" if request.is_secure() else "http",
+                    }
+                    email_body = render_to_string(email_template_name, context)
+                    send_mail(subject, email_body, "noreply@yourdomain.com", [user.email], fail_silently=False)
+                messages.success(request, "A link to reset your password has been sent to your email.")
+                return redirect('password_reset_done')
+            else:
+                messages.error(request, "No registered user found with this email address.")
+    else:
+        form = PasswordResetForm()
+
+    return render(request, 'UserSide/user-login/password_reset.html', {'form': form})
+
+def password_change_view(request, uidb64, token):
+    print(f"uidb64: {uidb64}, token: {token}")
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, _('Your password has been reset successfully. You can now log in.'))
+                return redirect('login_view')
+        else:
+            form = SetPasswordForm(user)
+        return render(request, 'UserSide/user-login/set_new_password.html', {
+            'form': form,
+            'uidb64': uidb64,
+            'token': token,
+        })
+    else:
+        messages.error(request, _('The reset link is invalid or has expired.'))
+        return redirect('password_reset_request')
+
+
+    
+def password_reset_done(request):
+    return render(request, 'UserSide/user-login/password_reset_done.html')

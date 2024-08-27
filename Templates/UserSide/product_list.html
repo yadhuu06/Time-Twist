@@ -6,6 +6,7 @@
     <div class="col-lg-3 col-md-6">
         <div class="single-product">
             <!-- Product Image with violet background -->
+            <a href="{% url 'product_detail_user' product.id %}" class="single-product-link">
             <div class="violet-bg">
                 {% if product.variants.exists %}
                     {% with product.variants.first as first_variant %}
@@ -75,6 +76,7 @@
                 <a href="?page={{ products.next_page_number }}">next</a>
                 <a href="?page={{ products.paginator.num_pages }}">last &raquo;</a>
             {% endif %}
+        </a>
         </span>
     </div>
 </div>

@@ -209,6 +209,7 @@ def edit_product(request, product_id):
     
 @never_cache  
 @admin_required
+
 def add_productVarient(request, Products_id):
     if request.method == "POST":
         variant_name = request.POST.get('variant_name', '').strip()
@@ -347,7 +348,8 @@ def add_productVarient(request, Products_id):
         'categories': categories,
         'brands': brands,
         'products': products
-    }) 
+    })
+
     
     
 @never_cache     
@@ -356,8 +358,7 @@ def edit_productVariant(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id)
     
     if request.method == "POST":
-        variant_name = request.POST.get('variant_name').strip()
-      
+        variant_name = request.POST.get('variant_name', '').strip()
         price = request.POST.get('price')
         variant_stock = request.POST.get('variant_stock')
         colour_code = request.POST.get('colour_code')
@@ -369,20 +370,31 @@ def edit_productVariant(request, variant_id):
             return render(request, 'AdminSide/editProductVariant.html', {'variant': variant})
 
         try:
-            if float(price) < 100:
+            price = Decimal(price)
+            if price < Decimal('100'):
                 raise ValueError('Price must be at least 100.')
         except ValueError as e:
             messages.error(request, str(e))
+            return render(request, 'AdminSide/editProductVariant.html', {'variant': variant})
+
+        try:
+            variant_stock = int(variant_stock)
+            if variant_stock < 0:
+                raise ValueError('Stock must be a non-negative integer.')
+        except ValueError as e:
+            messages.error(request, str(e))
+            return render(request, 'AdminSide/editProductVariant.html', {'variant': variant})
+
+        if not colour_code:
+            messages.error(request, 'Colour code cannot be empty.')
             return render(request, 'AdminSide/editProductVariant.html', {'variant': variant})
 
         variant.variant_name = variant_name
         variant.variant_stock = variant_stock
         variant.colour_code = colour_code
         variant.is_active = is_active
-        variant.price = float(price)
-        from decimal import Decimal
-        variant.offer_price = Decimal(variant.price) - (Decimal(variant.price) * variant.product.offer_percentage / Decimal(100))
-
+        variant.price = price
+        variant.offer_price = price - (price * Decimal(variant.product.offer_percentage) / Decimal(100))
 
         if images:
             ProductVariantImages.objects.filter(product_variant=variant).delete()
@@ -396,13 +408,14 @@ def edit_productVariant(request, variant_id):
 
     return render(request, 'AdminSide/editProductVariant.html', {'variant': variant})
 
+
 @never_cache
 @admin_required
-def product_detail(request,Products_id):
-    products = get_object_or_404(Products, id=Products_id) 
+def product_detail(request, id):
+    products = get_object_or_404(Products, id=id)
     images = ProductVariantImages.objects.filter(product_variant__product=products)
     variants = ProductVariant.objects.filter(product=products.id)
-    return render(request, 'AdminSide/product_details.html', {'products': products, 'images': images , 'variants':variants})
+    return render(request, 'AdminSide/product_details.html', {'products': products, 'images': images, 'variants': variants})
 
 def list_productVarient(request, Products_id):
     product = get_object_or_404(Products, id=Products_id)

@@ -6,12 +6,14 @@ from products.models import Category, Brand, Products, ProductVariant, ProductVa
 from brand.models import Brand
 from cart.models import Cart
 from django.db.models import Q
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 from cart.models import CartItem
 from django.views.decorators.cache import never_cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-
+from UserAccounts.models import User
 
 
 @never_cache
@@ -47,6 +49,42 @@ def add_address(request):
 
     messages.error(request, "Failed to add address.")
     return redirect('user_profile')
+def edit_profile(request):
+    if request.method == 'POST':
+   
+        user = request.user
+        
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        phone_number = request.POST.get('phone_number', '').strip()
+
+        if not first_name or not last_name:
+            messages.error(request, "First name and last name cannot be empty.")
+            return redirect('edit-profile')
+
+        if any(char.isspace() for char in first_name) or any(char.isspace() for char in last_name):
+            messages.error(request, "First name and last name cannot contain only spaces.")
+            return redirect('edit-profile')
+
+        if not phone_number.isdigit() or len(phone_number) != 10:
+            messages.error(request, "Phone number must be a 10-digit number.")
+            return redirect('edit-profile')
+
+        try:
+            user.first_name = first_name
+            user.last_name = last_name
+            user.phone_number = phone_number
+            user.save()
+            messages.success(request, "Profile updated successfully.")
+        except Exception as e:
+            messages.error(request, f"Error updating profile: {e}")
+        
+        return redirect('edit-profile')
+
+    else:
+        return render(request, 'UserSide/user-login/user_profile.html')
+    
+
 
 @login_required
 @never_cache
@@ -104,13 +142,19 @@ def shop_view(request):
         brand_filter = request.GET.get('brand')
         price_sort = request.GET.get('priceSort')
         name_sort = request.GET.get('nameSort')
+        featured = request.GET.get('featured')
         products = Products.objects.filter(is_active=True)
+        
 
         if category_filter:
             products = products.filter(product_category=category_filter)
 
         if brand_filter:
             products = products.filter(product_brand=brand_filter)
+            
+        if featured == 'true':
+             products = products.filter(featured=True)
+
 
         if price_sort == 'low-to-high':
             products = products.order_by('offer_price')
@@ -182,6 +226,7 @@ def product_detail_user(request, id):
                 'name': variant.variant_name,
                 'price': str(variant.price),
                 'offer_price': str(variant.offer_price),
+                'stock': str(variant.variant_stock),
                 'colour_code': variant.colour_code,
                 'images': [image.image.url for image in variant.images.all()],
                 'in_cart': variant_in_cart

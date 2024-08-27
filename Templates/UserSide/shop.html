@@ -1,248 +1,169 @@
 {% extends "UserSide/base.html" %}
 {% load static %}
 
-{%block content%}
-
-
-	<!-- End Header Area -->
-
-	<!-- Start Banner Area -->
-	<section class="banner-area organic-breadcrumb">
-		<div class="container">
-			<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
-				<div class="col-first">
-					<h1>Shop page</h1>
-					<nav class="d-flex align-items-center">
-						<a href="#">Home<span class="lnr lnr-arrow-right"></span></a>
-						<a href="#">Shop<span class="lnr lnr-arrow-right"></span></a>
-						<a href=""></a>
-					</nav>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- End Banner Area -->
-	<div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar Categories -->
-            <div class="col-3">
-                <div class="sidebar-categories">
-                    <div class="head">Browse Categories</div>
-                    <ul class="main-categories">
-						<form id="categoryFilterForm" method="get" action="{% url 'shop_view' %}">
-							<ul>
-								<li class="filter-list">
-									<input 
-										class="pixel-radio" 
-										type="radio" 
-										id="category_all" 
-										name="category" 
-										value="" <!-- No value to reset filter -->
-										
-									
-									<label for="category_all">All Watches<span></span></label>
-								</li>
-								{% for cat in categories %}
-								<li class="filter-list">
-									<input 
-										class="pixel-radio" 
-										type="radio" 
-										id="category_{{ cat.id }}" 
-										name="category" 
-										value="{{ cat.id }}"
-										{% if request.GET.category == cat.id|stringformat:"s" %}checked{% endif %}
-									>
-									<label for="category_{{ cat.id }}">{{ cat.category_name }}<span></span></label>
-								</li>
-								{% endfor %}
-							</ul>
-						</form>
-                    </ul>
-                </div>
-
-                <!-- Sidebar Filters -->
-                <div class="sidebar-filter mt-50">
-					<div class="top-filter-head">Product Filters</div>
-				
-					<div class="common-filter">
-						<div class="head">Category</div>
-						<form id="categoryFilterForm" method="get" action="{% url 'shop_view' %}">
-							<ul>
-								<li class="filter-list">
-									<input 
-										class="pixel-radio" 
-										type="radio" 
-										id="category_all" 
-										name="category" 
-										value="" <!-- No value to reset filter -->
-										
-									
-									<label for="category_all">All Watches<span></span></label>
-								</li>
-								{% for cat in categories %}
-								<li class="filter-list">
-									<input 
-										class="pixel-radio" 
-										type="radio" 
-										id="category_{{ cat.id }}" 
-										name="category" 
-										value="{{ cat.id }}"
-										{% if request.GET.category == cat.id|stringformat:"s" %}checked{% endif %}
-									>
-									<label for="category_{{ cat.id }}">{{ cat.category_name }}<span></span></label>
-								</li>
-								{% endfor %}
-							</ul>
-						</form>
-					</div>
-					
-				
-					<div class="common-filter">
-						<div class="head">Brands</div>
-						<form id="brandFilterForm" method="get" action="{% url 'shop_view' %}">
-							<ul>
-								{% for brand in brands %}
-								<li class="filter-list">
-									<input 
-										class="pixel-radio" 
-										type="radio" 
-										id="brand_{{ brand.id }}" 
-										name="brand" 
-										value="{{ brand.id }}"
-										{% if request.GET.brand == brand.id|stringformat:"s" %}checked{% endif %}
-									>
-									<label for="brand_{{ brand.id }}">{{ brand.brand_name }}<span></span></label>
-								</li>
-								{% endfor %}
-								<div class="common-filter">
-									<div class="head"><b>Price</b></div>
-									<form id="priceFilterForm" method="get" action="{% url 'shop_view' %}">
-										<li class="filter-list no-margin">
-											<input 
-												class="pixel-radio" 
-												type="radio" 
-												id="priceLowToHigh" 
-												name="priceSort" 
-												value="low-to-high"
-												{% if request.GET.priceSort == "low-to-high" %}checked{% endif %}
-											>
-											<label for="priceLowToHigh">Low to High<span></span></label>
-										</li>
-										<li class="filter-list no-margin">
-											<input 
-												class="pixel-radio" 
-												type="radio" 
-												id="priceHighToLow" 
-												name="priceSort" 
-												value="high-to-low"
-												{% if request.GET.priceSort == "high-to-low" %}checked{% endif %}
-											>
-											<label for="priceHighToLow">High to Low<span></span></label>
-										</li>
-									</form>
-								</div>
-								
-								<!-- Name Sort -->
-								<div class="common-filter">
-									<div class="head"><b>by Name</b></div>
-									<form id="nameFilterForm" method="get" action="{% url 'shop_view' %}">
-										<li class="filter-list no-margin">
-											<input 
-												class="pixel-radio" 
-												type="radio" 
-												id="nameAsc" 
-												name="nameSort" 
-												value="aA-zZ"
-												{% if request.GET.nameSort == "aA-zZ" %}checked{% endif %}
-											>
-											<label for="nameAsc">A-Z<span></span></label>
-										</li>
-										<li class="filter-list no-margin">
-											<input 
-												class="pixel-radio" 
-												type="radio" 
-												id="nameDesc" 
-												name="nameSort" 
-												value="zZaA"
-												{% if request.GET.nameSort == "zZaA" %}checked{% endif %}
-											>
-											<label for="nameDesc">Z-A<span></span></label>
-										</li>
-									</form>
-								</div>
-
-
-
-							</ul>
-						</form>
-					</div>
-					
-				
-									
-				</div>
-	
+{% block content %}
+<!-- Banner Area -->
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Shop page</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="#">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="#">Shop<span class="lnr lnr-arrow-right"></span></a>
+                    <a href=""></a>
+                </nav>
             </div>
-<STYle>.no-margin {
-    margin-left: 0 !important; 
-}
-</STYle>
-            <!-- Main Content -->
-            <div class="col-9">
-                <!-- Start Filter Bar -->
-                <div class="filter-bar d-flex flex-wrap align-items-center">
-                    <div class="sorting"style="background-color: white;>
-                        
-                    </div>
-                   
-             <div class="pagination" style="background-color: white; height: -10px;">
-
-                   
-                    </div>
-                </div>
-                <!-- End Filter Bar -->
-				<div class="SPACE" style="margin-top: -0px;"></div>
-				<div id="product-container">
-					{% include 'UserSide/product_list.html' %}
-				</div>
-                <!-- Product Grid -->
-		
+        </div>
     </div>
+</section>
 
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Categories -->
+        <div class="col-3">
+            <div class="sidebar-categories">
+                <div class="head">Browse Categories</div>
+                <ul class="main-categories">
+                    <form id="categoryFilterForm" method="get" action="{% url 'shop_view' %}">
+                        <ul>
+                            <li class="filter-list">
+                                <input class="pixel-radio" type="radio" id="category_all" name="category" value="">
+                                <label for="category_all">All Watches<span></span></label>
+                            </li>
+                            {% for cat in categories %}
+                            <li class="filter-list">
+                                <input class="pixel-radio" type="radio" id="category_{{ cat.id }}" name="category" value="{{ cat.id }}"
+                                    {% if request.GET.category == cat.id|stringformat:"s" %}checked{% endif %}>
+                                <label for="category_{{ cat.id }}">{{ cat.category_name }}<span></span></label>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </form>
+                </ul>
+            </div>
 
-	
+            <!-- Sidebar Filters -->
+            <div class="sidebar-filter mt-50">
+                <div class="top-filter-head">Product Filters</div>
 
-	<!-- Modal Quick Product View -->
-	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="container relative">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-				<div class="product-quick-view">
-					<div class="row align-items-center">
-						<div class="col-lg-6">
-							<div class="quick-view-carousel">
-								<div class="item" style="background: url(img/organic-food/q1.jpg);">
+                <div class="common-filter">
+                    <div class="head">Sort By</div>
+                    <form id="featuredFilterForm" method="get" action="{% url 'shop_view' %}">
+                        <ul>
+                            <li class="filter-list">
+                                <input class="pixel-radio" type="radio" id="featured" name="featured" value="true"
+                                    {% if request.GET.featured == 'true' %}checked{% endif %}>
+                                <label for="featured">Featured<span></span></label>
+                            </li>
+                            <li class="filter-list">
+                                <input class="pixel-radio" type="radio" id="clear_featured" name="featured" value="">
+                                <label for="clear_featured">Clear Featured<span></span></label>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
 
-								</div>
-								<div class="item" style="background: url(img/organic-food/q1.jpg);">
+                <div class="common-filter">
+                    <div class="head">Brands</div>
+                    <form id="brandFilterForm" method="get" action="{% url 'shop_view' %}">
+                        <ul>
+                            {% for brand in brands %}
+                            <li class="filter-list">
+                                <input class="pixel-radio" type="radio" id="brand_{{ brand.id }}" name="brand" value="{{ brand.id }}"
+                                    {% if request.GET.brand == brand.id|stringformat:"s" %}checked{% endif %}>
+                                <label for="brand_{{ brand.id }}">{{ brand.brand_name }}<span></span></label>
+                            </li>
+                            {% endfor %}
+                            <li class="filter-list">
+                                <input class="pixel-radio" type="radio" id="clear_brand" name="brand" value="">
+                                <label for="clear_brand">Clear Brand<span></span></label>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
 
-								</div>
-								<div class="item" style="background: url(img/organic-food/q1.jpg);">
+                <div class="common-filter">
+                    <div class="head"><b>Price</b></div>
+                    <form id="priceFilterForm" method="get" action="{% url 'shop_view' %}">
+                        <li class="filter-list no-margin">
+                            <input class="pixel-radio" type="radio" id="priceLowToHigh" name="priceSort" value="low-to-high"
+                                {% if request.GET.priceSort == "low-to-high" %}checked{% endif %}>
+                            <label for="priceLowToHigh">Low to High<span></span></label>
+                        </li>
+                        <li class="filter-list no-margin">
+                            <input class="pixel-radio" type="radio" id="priceHighToLow" name="priceSort" value="high-to-low"
+                                {% if request.GET.priceSort == "high-to-low" %}checked{% endif %}>
+                            <label for="priceHighToLow">High to Low<span></span></label>
+                        </li>
+                        <li class="filter-list no-margin">
+                            <input class="pixel-radio" type="radio" id="clear_price" name="priceSort" value="">
+                            <label for="clear_price">Clear Price Sort<span></span></label>
+                        </li>
+                    </form>
+                </div>
 
-								</div>
-							</div>
-						</div>
-	
-	
+                <div class="common-filter">
+                    <div class="head"><b>by Name</b></div>
+                    <form id="nameFilterForm" method="get" action="{% url 'shop_view' %}">
+                        <li class="filter-list no-margin">
+                            <input class="pixel-radio" type="radio" id="nameAsc" name="nameSort" value="aA-zZ"
+                                {% if request.GET.nameSort == "aA-zZ" %}checked{% endif %}>
+                            <label for="nameAsc">A-Z<span></span></label>
+                        </li>
+                        <li class="filter-list no-margin">
+                            <input class="pixel-radio" type="radio" id="nameDesc" name="nameSort" value="zZaA"
+                                {% if request.GET.nameSort == "zZaA" %}checked{% endif %}>
+                            <label for="nameDesc">Z-A<span></span></label>
+                        </li>
+                        <li class="filter-list no-margin">
+                            <input class="pixel-radio" type="radio" id="clear_name" name="nameSort" value="">
+                            <label for="clear_name">Clear Name Sort<span></span></label>
+                        </li>
+                    </form>
+                </div>
+            </div>
+        </div>
 
-	<script>
-    function handleFormSubmission(formId) {
-        const form = document.getElementById(formId);
-        const formData = new FormData(form);
-        const queryString = new URLSearchParams(formData).toString();
+        <!-- Main Content -->
+        <div class="col-9">
+            <!-- Filter Bar -->
+            <div class="filter-bar d-flex flex-wrap align-items-center">
+                <div class="sorting" style="background-color: white;"></div>
+                <div class="pagination" style="background-color: white; height: -10px;"></div>
+            </div>
+            
+            <div class="SPACE" style="margin-top: -0px;"></div>
+            <div id="product-container">
+                {% include 'UserSide/product_list.html' %}
+            </div>
+        </div>
+    </div>
+</div>
 
-        fetch(`${form.action}?${queryString}`, {
+<style>
+    .no-margin {
+        margin-left: 0 !important;
+    }
+</style>
+
+<script>
+    function handleFormSubmission() {
+        const forms = document.querySelectorAll('form[id$="FilterForm"]');
+        let combinedFormData = new FormData();
+
+        forms.forEach(form => {
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                if (value) {
+                    combinedFormData.append(key, value);
+                }
+            }
+        });
+
+        const queryString = new URLSearchParams(combinedFormData).toString();
+
+        fetch(`${window.location.pathname}?${queryString}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
@@ -254,13 +175,31 @@
         .catch(error => console.error('Error:', error));
     }
 
+    function clearOtherSorts(currentSortName) {
+        const sortForms = ['priceSort', 'nameSort'];
+        sortForms.forEach(formName => {
+            if (formName !== currentSortName) {
+                document.querySelectorAll(`input[name="${formName}"]`).forEach(input => {
+                    input.checked = false;
+                });
+            }
+        });
+    }
+
     // Attach event listeners to all forms
     document.querySelectorAll('form[id$="FilterForm"]').forEach(form => {
-        form.addEventListener('change', () => handleFormSubmission(form.id));
+        form.addEventListener('change', handleFormSubmission);
+    });
+
+    // Special handling for sort options
+    document.querySelectorAll('input[name="priceSort"], input[name="nameSort"]').forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.checked && this.value !== "") {
+                clearOtherSorts(this.name);
+            }
+            handleFormSubmission();
+        });
     });
 </script>
 
-
-	
 {% endblock %}
-
