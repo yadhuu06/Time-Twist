@@ -146,7 +146,7 @@ def verify_otp(request):
         current_time = timezone.now()
         time_difference = current_time - otp_generation_time
 
-        if time_difference <= timedelta(seconds=900):
+        if time_difference <= timedelta(seconds=600):
             validation_on_time = True
         else:
             validation_on_time = False
@@ -299,7 +299,5 @@ def password_change_view(request, uidb64, token):
         messages.error(request, _('The reset link is invalid or has expired.'))
         return redirect('password_reset_request')
 
-
-    
 def password_reset_done(request):
     return render(request, 'UserSide/user-login/password_reset_done.html')
