@@ -9,7 +9,7 @@ from django.http import HttpResponse
 import uuid
 from django.views.decorators.http import require_POST
 from django.db import transaction
-
+from coupon.models import Coupon,UserCoupon
 
 
 

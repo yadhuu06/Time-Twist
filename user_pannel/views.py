@@ -14,7 +14,7 @@ from cart.models import CartItem
 from django.views.decorators.cache import never_cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from UserAccounts.models import User
-
+from coupon.models import Coupon,UserCoupon
 
 @never_cache
 @login_required
@@ -266,12 +266,16 @@ def checkout(request):
     for item in cart_items:
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
         total_price += item.sub_total()
-    
+    coupons = Coupon.objects.filter( status=True)
+    print(coupons)
+    print("h       o")
+
     context = {
         'cart': cart,
         'cart_items': cart_items,
         'user_address': user_address,
         'total_price': total_price,
+        'coupons':coupons,
     }
     return render(request, 'UserSide/checkout.html', context)
 
