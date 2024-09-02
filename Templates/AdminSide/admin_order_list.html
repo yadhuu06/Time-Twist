@@ -43,13 +43,16 @@
                                 <td> {{ order.payment.get_method_display }} </td>
                                 
                                 <td>
-                                    <div class="badge badge-outline-{% if order.status == 'Delivered' %}success
-                                        {% elif order.status == 'Pending' %}warning
-                                        {% elif order.status == 'Rejected' %}danger
-                                        {% else %}info{% endif %}">
+                                    <div class="badge badge-pill {% if order.status == 'Delivered' %}badge-success
+                                        {% elif order.status == 'Shipped' %}badge-primary
+                                        {% elif order.status == 'Rejected' %}badge-danger
+                                        {% elif order.status == 'Canceled' %}badge-danger
+                                        {% elif order.status == 'Processing' %}badge-warning
+                                        {% else %}badge-info{% endif %}">
                                         {{ order.status }}
                                     </div>
                                 </td>
+                                
                                 <td>
                                     <a href="{% url 'order_management:order_details-admin' order.order_id %}" class="btn btn-outline-info btn-fw">details</a>
 

@@ -6,41 +6,6 @@
     <title>Admin - Order Details</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
-    <style>
-        .order-summary {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #eaeaea;
-        }
-        .order-summary-img {
-            max-width: 60px;
-            max-height: 60px;
-            margin-right: 15px;
-        }
-        .order-summary-info {
-            flex: 1;
-        }
-        .order-summary-title {
-            margin-bottom: 5px;
-        }
-        .order-summary-subtitle {
-            color: #6c757d;
-        }
-        .order-status {
-            margin-top: 20px;
-            text-align: right;
-        }
-        .status-select {
-            max-width: 200px;
-            margin-right: 10px;
-        }
-        .order-items-table img {
-            max-width: 60px;
-            max-height: 60px;
-        }
-    </style>
 </head>
 <body>
     <div class="container my-5">
@@ -49,23 +14,23 @@
                 <h3 class="mb-0">Order Details</h3>
             </div>
             <div class="card-body">
-                <div class="order-summary">
-                    <img src="{{ order.items.first.product_variant.images.first.image.url }}" alt="Product Image" class="order-summary-img rounded">
-                    <div class="order-summary-info">
-                        <h5 class="order-summary-title">{{ order.user.first_name }} {{ order.user.last_name }}</h5>
-                        <p>Order Status: <span id="currentStatus" class="badge badge-info">{{ order.status }}</span></p>
-                        <small class="order-summary-subtitle"><i class="far fa-calendar-alt"></i> Order Date: {{ order.created_at|date:"M d, Y" }}</small>
+                <div class="row">
+                    <div class="col-md-3 d-flex align-items-center">
+                        <img src="{{ order.items.first.product_variant.images.first.image.url }}" alt="Product Image"
+                            class="img-fluid rounded">
                     </div>
-                    <div class="text-right">
-                        <h5 class="order-summary-title">Order #{{ order.order_id }}</h5>
-                        <small class="order-summary-subtitle"><i class="fas fa-rupee-sign"></i> Total Price: {{ order.total_price }}</small>
+                    <div class="col-md-9">
+                        <h5 class="card-title">{{ order.user.first_name }} {{ order.user.last_name }}</h5>
+                        <p class="card-text">Order Status: <span id="currentStatus" class="badge badge-info">{{ order.status }}</span></p>
+                        <p class="card-text"><i class="far fa-calendar-alt"></i> Order Date: {{ order.created_at|date:"M d, Y" }}</p>
+                        <p class="card-text"><i class="fas fa-rupee-sign"></i> Total Price: {{ order.total_price }}</p>
                     </div>
                 </div>
 
                 <div class="mt-4">
                     <h5><i class="fas fa-box-open"></i> Items</h5>
                     <div class="table-responsive">
-                        <table class="table table-striped order-items-table">
+                        <table class="table table-striped">
                             <thead class="thead-light">
                                 <tr>
                                     <th>Image</th>
@@ -78,7 +43,7 @@
                             <tbody>
                                 {% for item in order.items.all %}
                                 <tr>
-                                    <td><img src="{{ item.product_variant.images.first.image.url }}" alt="Variant Image" class="img-thumbnail"></td>
+                                    <td><img src="{{ item.product_variant.images.first.image.url }}" alt="Variant Image" class="img-thumbnail" style="width: 60px;"></td>
                                     <td>{{ item.product_variant.product.product_name }}</td>
                                     <td>{{ item.product_variant.variant_name }}</td>
                                     <td>{{ item.quantity }}</td>
@@ -90,17 +55,21 @@
                     </div>
                 </div>
 
-                <div id="statusSection" class="order-status">
-                    <select id="statusSelect" class="custom-select status-select">
-                        <option value="Processing">Processing</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Rejected">Rejected</option>
-                    </select>
-                    <button id="statusButton" class="btn btn-primary">
-                        <i class="fas fa-sync-alt"></i> Change Status
-                    </button>
-                </div>
-            </div>
+                <div class="mt-4">
+                    <h5><i class="fas fa-tachometer-alt"></i> Change Status</h5>
+                    <div class="form-group">
+                        <select id="statusSelect" class="custom-select">
+                            <option value="Processing">Processing</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Delivered">Delivered</option>
+                        </select>
+                        <button id="statusButton" class="btn btn-primary mt-3" onclick="changeOrderStatus({{ order.id }})">
+                            <i class="fas fa-sync-alt"></i> Change Status
+                        </button>
+                    </div>
+                </div>                                                                                             
+            </div>                                                      
         </div>
     </div>
 
@@ -108,50 +77,71 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        $(document).ready(function() {
-            $('#statusButton').click(function() {
-                const selectedStatus = $('#statusSelect').val();
-                updateOrderStatus(selectedStatus);
-            });
+        function changeOrderStatus(orderId) {
+            const status = document.getElementById('statusSelect').value;
+            const url = `{% url 'order_management:change_status' order_id=order.id %}`;
 
-            function updateOrderStatus(status) {
-                $.ajax({
-                    url: '/change_order_status/',
-                    method: 'POST',
-                    data: {
-                        order_id: '{{ order.order_id }}',
-                        status: status,
-                        csrfmiddlewaretoken: '{{ csrf_token }}'
-                    },
-                    success: function(response) {
-                        console.log('Order status updated to:', status);
-                        $('#currentStatus').text(status);
-                        
-                        // Update button and select based on new status
-                        if (status === 'Processing') {
-                            $('#statusButton').html('<i class="fas fa-sync-alt"></i> Change Status')
-                                .removeClass('btn-warning btn-success btn-danger')
-                                .addClass('btn-primary');
-                        } else if (status === 'Delivered') {
-                            $('#statusButton').html('<i class="fas fa-check"></i> Delivered')
-                                .removeClass('btn-primary btn-warning btn-danger')
-                                .addClass('btn-success');
-                        } else if (status === 'Rejected') {
-                            $('#statusButton').html('<i class="fas fa-times"></i> Rejected')
-                                .removeClass('btn-primary btn-warning btn-success')
-                                .addClass('btn-danger');
-                        }
-                        
-                        // Update select to match current status
-                        $('#statusSelect').val(status);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error updating order status:', error);
-                        alert('Failed to update order status. Please try again.');
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Status updated to ' + data.status);
+                    document.getElementById('currentStatus').textContent = data.status;
+
+                    const statusButton = document.getElementById('statusButton');
+                    if (status === 'Delivered') {
+                        statusButton.innerHTML = '<i class="fas fa-check"></i> Delivered';
+                        statusButton.classList.remove('btn-primary', 'btn-warning', 'btn-danger');
+                        statusButton.classList.add('btn-success');
+                    } else if (status === 'Rejected') {
+                        statusButton.innerHTML = '<i class="fas fa-times"></i> Rejected';
+                        statusButton.classList.remove('btn-primary', 'btn-warning', 'btn-success');
+                        statusButton.classList.add('btn-danger');
+                    } else {
+                        statusButton.innerHTML = '<i class="fas fa-sync-alt"></i> Change Status';
+                        statusButton.classList.remove('btn-success', 'btn-danger');
+                        statusButton.classList.add('btn-primary');
                     }
-                });
-            }
-        });
+
+                    document.getElementById('statusSelect').value = status;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
 </body>
 </html>

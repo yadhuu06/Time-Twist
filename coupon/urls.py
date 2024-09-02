@@ -1,10 +1,10 @@
 from django.urls import path
-from .views import CouponListView, CouponCreateView, CouponUpdateView, CouponDeleteView, GenerateCouponCodeView
+from .views import CouponListView, CouponCreateView, CouponUpdateView, CouponDeleteView, apply_coupon
 
 urlpatterns = [
-    path('coupons/', CouponListView.as_view(), name='coupon_list'),
-    path('coupons/create/', CouponCreateView.as_view(), name='coupon_create'),
-    path('coupons/<int:pk>/update/', CouponUpdateView.as_view(), name='coupon_update'),
-    path('coupons/<int:pk>/delete/', CouponDeleteView.as_view(), name='coupon_delete'),
-    path('coupons/generate-code/', GenerateCouponCodeView.as_view(), name='generate_coupon_code'),
+    path('list/', CouponListView.as_view(), name='coupon_list'),
+    path('create/', CouponCreateView.as_view(), name='coupon_create'),
+    path('update/<int:pk>/', CouponUpdateView.as_view(), name='coupon_update'),
+    path('delete/<int:pk>/', CouponDeleteView.as_view(), name='coupon_delete'),
+    path('apply-coupon/', apply_coupon, name='apply_coupon'),  # Make sure 'apply_coupon' is defined in views.py
 ]

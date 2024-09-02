@@ -10,11 +10,14 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.template.loader import render_to_string
 from django.http import JsonResponse
-from cart.models import CartItem
-from django.views.decorators.cache import never_cache
+from cart.models import CartItem  
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from UserAccounts.models import User
-from coupon.models import Coupon,UserCoupon
+from coupon .models import Coupon,UserCoupon
+import datetime
+from django.views.decorators.cache import never_cache
+
+
 
 @never_cache
 @login_required
@@ -53,7 +56,6 @@ def edit_profile(request):
     if request.method == 'POST':
    
         user = request.user
-        
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
         phone_number = request.POST.get('phone_number', '').strip()
@@ -247,37 +249,47 @@ def checkout(request):
     cart = get_object_or_404(Cart, user=request.user)
     cart_items = cart.items.filter(is_active=True)
     user_address = UserAddress.objects.filter(user=request.user)
-    
-    
+
+    # Check for out-of-stock items
     out_of_stock = False
     total_price = 0
-    for i in cart_items:
-        print(i.variant.price)
-    
     for item in cart_items:
         if item.quantity > item.variant.variant_stock:
             out_of_stock = True
-            messages.error(request, f"Insufficient stock for {item.product.product_name} - {item.variant.variant_name}. Available stock is {item.variant.variant_stock}.")
-            
+            messages.error(request, f"Insufficient stock for {item.variant.product.product_name} - {item.variant.variant_name}. Available stock is {item.variant.variant_stock}.")
+            return redirect('cart:cart_view')
 
-    if out_of_stock:
-        return redirect('cart:cart_view')  
-    
     for item in cart_items:
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
         total_price += item.sub_total()
-    coupons = Coupon.objects.filter( status=True)
-    print(coupons)
-    print("h       o")
+
+    # Get eligible coupons
+    coupons = Coupon.objects.filter(status=True, expiry_date__gte=datetime.date.today())
+    user_used_coupons = UserCoupon.objects.filter(user=request.user, used=True).values_list('coupon_id', flat=True)
+    available_coupons = coupons.exclude(id__in=user_used_coupons)
+
+    # Apply coupon if selected
+    applied_coupon_code = request.GET.get('coupon')
+    discount_amount = 0
+    if applied_coupon_code:
+        try:
+            coupon = Coupon.objects.get(coupon_code=applied_coupon_code, status=True, expiry_date__gte=datetime.date.today())
+            if total_price >= coupon.minimum_amount:
+                discount_amount = min((total_price * coupon.discount) / 100, coupon.maximum_amount)
+                total_price -= discount_amount
+            else:
+                messages.error(request, f"Minimum purchase amount for this coupon is Rs {coupon.minimum_amount}.")
+        except Coupon.DoesNotExist:
+            messages.error(request, "Invalid coupon code.")
 
     context = {
         'cart': cart,
         'cart_items': cart_items,
         'user_address': user_address,
         'total_price': total_price,
-        'coupons':coupons,
+        'coupons': available_coupons,
+        'discount_amount': discount_amount,
     }
     return render(request, 'UserSide/checkout.html', context)
-
     
     

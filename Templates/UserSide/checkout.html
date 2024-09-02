@@ -1,0 +1,214 @@
+{% extends 'UserSide/base.html' %}
+
+{% block content %}
+<div class="container my-5 pt-5">
+    <h1 class="mb-4 text-center">Checkout</h1>
+
+    <form id="checkoutForm" action="{% url 'order_management:place_order' %}" method="POST">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Delivery Address Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Delivery Address</h5>
+
+                        <!-- Existing Addresses -->
+                        {% for a in user_address %}
+                        <div class="card mb-3 {{ a.is_primary|yesno:'border-primary bg-light,shadow-sm' }}">
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="address" id="address{{ a.id }}" value="{{ a.id }}" required {% if a.is_primary %}checked{% endif %}>
+                                    <label class="form-check-label w-100" for="address{{ a.id }}">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <strong>{{ a.name }}</strong> - {{ a.phone_number }}<br>
+                                                {{ a.house_name }}, {{ a.street_name }}, {{ a.district }}, {{ a.state }} - {{ a.pin_number }}
+                                            </div>
+                                            <a href="#" class="text-decoration-none" data-bs-toggle="collapse" data-bs-target="#editAddressForm{{ a.id }}">Edit</a>
+                                        </div>
+                                    </label>
+                                </div>
+                                {% if a.is_primary %}
+                                <button type="button" class="btn btn-primary mt-3 w-100">Deliver Here</button>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Collapsible Edit Address Form -->
+                        <div class="collapse" id="editAddressForm{{ a.id }}">
+                            <!-- (Edit address form content) -->
+                        </div>
+                        {% endfor %}
+
+                        <!-- Add New Address Button -->
+                        <div class="text-center mb-3">
+                            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addAddressForm">
+                                + Add New Address
+                            </button>
+                        </div>
+
+                        <!-- Collapsible Add Address Form -->
+                        <div class="collapse" id="addAddressForm">
+                            <!-- (Add address form content) -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Payment Method</h5>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="creditCard" required>
+                                <label class="form-check-label" for="creditCard">Credit Card</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="razopay" value="paypal" required>
+                                <label class="form-check-label" for="paypal">Razopay</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="cashOnDelivery" value="cashOnDelivery" required>
+                                <label class="form-check-label" for="cashOnDelivery">Cash on Delivery</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary Section -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4" style="color: darkblue;">Order Summary</h5>
+                        <ul class="list-group list-group-flush">
+                            {% for item in cart_items %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ item.variant.product.product_name }} - {{ item.variant.variant_name }} x {{ item.quantity }}
+                                <span>Rs{{ item.sub_total }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <hr>
+                        <h6 class="d-flex justify-content-between">
+                            <span>Subtotal</span>
+                            <strong id="subtotalAmount">Rs{{ total_price }}</strong>
+                        </h6>
+                        <h6 class="d-flex justify-content-between" id="discountSection" style="display:none;">
+                            <span>Discount</span>
+                            <strong id="discountAmount">Rs0</strong>
+                        </h6>
+                        <h6 class="d-flex justify-content-between">
+                            <span>Payable</span>
+                            <strong id="payableAmount">Rs{{ total_price }}</strong>
+                        </h6>
+                        <div id="couponDetails" style="display:none;" class="d-flex justify-content-between align-items-center">
+                            <span id="appliedCouponDetails"></span>
+                            <button type="button" class="btn btn-link text-danger p-0" id="removeCouponBtn">&times;</button>
+                        </div>
+                        <input type="hidden" name="applied_coupon" id="appliedCoupon" value="">
+                        <button type="button" class="btn btn-primary mt-3 w-100" id="applyCouponBtn">Apply Coupon</button>
+                        <button type="submit" class="btn btn-success mt-3 w-100">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Available Coupons Modal -->
+    <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="couponModalLabel">Select a Coupon</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        {% for coupon in coupons %}
+                        <div class="col-12 mb-3">
+                            <div class="card coupon-card" data-coupon-id="{{ coupon.id }}" data-coupon-code="{{ coupon.coupon_code }}" data-coupon-discount="{{ coupon.discount }}">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title">{{ coupon.coupon_name }}</h5>
+                                        <p class="card-text mb-0">
+                                            <strong>Code:</strong> {{ coupon.coupon_code }}<br>
+                                            <strong>Discount:</strong> {{ coupon.discount }}% off on purchase between Rs {{ coupon.minimum_amount }} - Rs {{ coupon.maximum_amount }}<br>
+                                            <strong>Valid until:</strong> {{ coupon.expiry_date }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const applyCouponBtn = document.getElementById('applyCouponBtn');
+    const couponCards = document.querySelectorAll('.coupon-card');
+    const subtotalElement = document.getElementById('subtotalAmount');
+    const discountAmountElement = document.getElementById('discountAmount');
+    const payableAmountElement = document.getElementById('payableAmount');
+    const appliedCouponInput = document.getElementById('appliedCoupon');
+    const couponDetails = document.getElementById('couponDetails');
+    const appliedCouponDetails = document.getElementById('appliedCouponDetails');
+    const discountSection = document.getElementById('discountSection');
+    const removeCouponBtn = document.getElementById('removeCouponBtn');
+
+    applyCouponBtn.addEventListener('click', function() {
+        // Open the modal to select a coupon
+        var couponModal = new bootstrap.Modal(document.getElementById('couponModal'));
+        couponModal.show();
+    });
+
+    couponCards.forEach(function(card) {
+        card.addEventListener('click', function() {
+            const couponCode = card.getAttribute('data-coupon-code');
+            const couponId = card.getAttribute('data-coupon-id');
+            const couponDiscount = parseFloat(card.getAttribute('data-coupon-discount'));
+            const subtotal = parseFloat(subtotalElement.textContent.replace('Rs', ''));
+
+            // Calculate the discount and new total
+            const discountAmount = (subtotal * couponDiscount) / 100;
+            const newTotal = subtotal - discountAmount;
+
+            // Update the order summary
+            discountAmountElement.textContent = `Rs${discountAmount.toFixed(2)}`;
+            payableAmountElement.textContent = `Rs${newTotal.toFixed(2)}`;
+            appliedCouponInput.value = couponId;
+            appliedCouponDetails.textContent = `Coupon "${couponCode}" applied`;
+            discountSection.style.display = 'flex';
+            couponDetails.style.display = 'flex';
+
+            // Close the modal
+            var couponModal = bootstrap.Modal.getInstance(document.getElementById('couponModal'));
+            couponModal.hide();
+
+            // Hide the apply coupon button
+            applyCouponBtn.style.display = 'none';
+        });
+    });
+
+    removeCouponBtn.addEventListener('click', function() {
+        // Reset the coupon-related fields
+        appliedCouponInput.value = '';
+        discountAmountElement.textContent = 'Rs0';
+        payableAmountElement.textContent = subtotalElement.textContent;
+        appliedCouponDetails.textContent = '';
+        couponDetails.style.display = 'none';
+        discountSection.style.display = 'none';
+
+        applyCouponBtn.style.display = 'block';
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

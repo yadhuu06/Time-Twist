@@ -1,5 +1,5 @@
-{% load static %}
 
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +26,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: row;
-            height:500px;
+            height: 500px;
         }
         .image-section {
             width: 50%;
@@ -63,7 +63,7 @@
             text-decoration: none;
             text-align: center;
             border: none;
-            background: none; /* Removed background */
+            background: none;
             font-weight: bold;
         }
         .form-section .resend-otp:disabled {
@@ -89,7 +89,6 @@
         
         <!-- Right Form Section -->
         <div class="form-section">
-            
             <h2><strong>OTP Verification</strong></h2>
             {% if messages %}
             <ul class="messages">
@@ -97,13 +96,13 @@
                     <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                 {% endfor %}
             </ul>
-                {% endif %}
+            {% endif %}
             <form action="{% url 'verify_otp' %}" method="post">
                 {% csrf_token %}
                 <input type="text" name="otp" class="form-control" maxlength="6" pattern="\d{6}" placeholder="Enter 6-digit OTP" required>
                 <button type="submit" class="btn btn-primary">Validate OTP</button>
             </form>
-            <p id="otp-timer" class="text-center">Valid for: <span id="timer">5:00</span> minutes</p>
+            <p id="otp-timer" class="text-center">Resend OTP: <span id="timer">5:00</span> minutes</p>
             <button id="resend-otp-btn" class="resend-otp" disabled>Resend OTP</button>
         </div>
     </div>
@@ -111,7 +110,7 @@
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let timeLeft = 300;
+        let timeLeft = 60; // Countdown for 1 minute
         const timerElement = document.getElementById('timer');
         const resendOtpBtn = document.getElementById('resend-otp-btn');
 
@@ -132,11 +131,22 @@
 
         resendOtpBtn.addEventListener('click', function() {
             resendOtpBtn.disabled = true;
-            timeLeft = 300;
+            timeLeft = 60; // Reset countdown for 1 minute
             clearInterval(timer);
             countdown();
+            // Optionally, you can trigger a form submission to resend the OTP
+            fetch("{% url 'resend_otp' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                credentials: 'same-origin'
+            }).then(response => response.json()).then(data => {
+                // Handle response if needed
+            }).catch(error => {
+                console.error('Error:', error);
+            });
         });
-        
     </script>
 </body>
 </html>
