@@ -95,8 +95,16 @@
                 <div>
                     <h5>Product Details:</h5>
                     <ul class="list-unstyled">
-                        <li><strong>Brand:</strong> {{ product.product_brand.brand_name }}</li>
-                        <li><strong>Category:</strong> {{ product.product_category.category_name }}</li>
+                        <li>
+                            <h6 style="display: inline; margin: 0;">Brand: </h6>
+                            <span style="display: inline;">{{ product.product_brand.brand_name }}</span>
+                        </li>
+                        
+                        <li>
+                            <span style="display: inline; font-weight: bold;">Category: </span>
+                            <span style="display: inline;">{{ product.product_category.category_name }}</span>
+                        </li>
+                        
                     </ul>
                 </div>
             </div>
@@ -233,4 +241,19 @@
         {% endif %}
     });
 </script>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Apply the Oswald font to h1 and h2 and make them bold */
+        h1,  {
+            font-family: 'Oswald', sans-serif;
+            font-size: 42px;
+            font-weight: 700; /* Makes the font bold */
+        }
+    </style>
+<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
+<style>
+p {
+    font-family: 'Alegreya';font-size: 22px;
+}
+</style>
 {% endblock %}

@@ -30,7 +30,7 @@ def save_user_details(backend, user, response, request, *args, **kwargs):
         # Check if the user is active
         if not user.is_active:
             messages.error(request, "This account is inactive.")
-            return redirect(reverse('login'))  # Replace 'login' with the appropriate view name
+            return redirect(reverse(''))  # Replace 'login' with the appropriate view name
 
         # Authenticate the user
         user = authenticate(email=email)

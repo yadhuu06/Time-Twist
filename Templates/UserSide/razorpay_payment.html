@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        /* Add your custom styles here */
+    </style>
+</head>
+<body>
+    <h1>Complete Your Payment</h1>
+    <p>Total Amount: ₹{{ amount }}</p>
+
+    <!-- Form to handle Razorpay payment -->
+    <form id="razorpay-form" action="{% url 'order_management:payment_verify' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="razorpay_order_id" value="{{ razorpay_order_id }}">
+        <input type="hidden" name="amount" value="{{ amount }}">
+        <input type="hidden" name="address_id" value="{{ address_id }}">
+        <input type="hidden" name="payment_method" value="razorpay">
+
+        <button type="button" id="pay-btn">Pay Now</button>
+    </form>
+
+    <script>
+        var options = {
+            "key": "{{ razorpay_key_id }}", // Your Razorpay key id
+            "amount": {{ amount|floatformat:2|safe }} * 100, // Amount in paise
+            "currency": "INR",
+            "name": "Your Company Name",
+            "description": "Order Payment",
+            "order_id": "{{ razorpay_order_id }}", // Razorpay order ID
+            "handler": function (response){
+                // Handle the successful payment here
+                document.getElementById('razorpay-form').submit();
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+
+        document.getElementById('pay-btn').onclick = function(e) {
+            var rzp = new Razorpay(options);
+            rzp.open();
+        };
+    </script>
+</body>
+</html>

@@ -46,15 +46,16 @@
                                         <div class="row mt-3">
                                             <div class="col-md-12 text-end">
                                                 <div class="action-buttons">
+                                                    
                                                     {% if order.status == 'Dispatched' and order.payment.method != 'cashOnDelivery' %}
                                                         <button class="genric-btn danger-border">Return</button>
+                                                        
                                                     {% elif order.status != 'Delivered' %}
                                                         <form action="{% url 'order_management:cancel_order' order_id=order.order_id %}" method="POST" class="d-inline">
                                                             {% csrf_token %}
                                                             <button type="submit" class="genric-btn danger-border cancel-order-btn">Cancel</button>
                                                         </form>
-                                                       <a href="#" class="genric-btn info-border">View</a>  {% endif %} 
-                                                 
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                         </div>
@@ -161,4 +162,10 @@
         {% endif %}
     });
 </script>
+<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
+<style>
+body {
+    font-family: 'Alegreya';font-size: 22px;
+}
+</style>
 {% endblock %}

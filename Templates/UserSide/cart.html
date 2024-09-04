@@ -1,4 +1,7 @@
 {% extends 'UserSide/base.html' %}
+{% load static %}
+
+
 
 {% block content %}
 <div class="sp"style=margin-top: 60px;></div>
@@ -94,16 +97,18 @@
                 </div>
             </div>
         </div>
-    {% else %}
-    <div class="alert alert-info text-center" role="alert" style="height: 400px; justify-content: center;">
-        <h4 class="mb-3" style="margin-top: 150px;">
-            Your cart is currently empty.
-        </h4>
-        
-            <a href="{% url 'shop_view' %}" class="genric-btn primary">Start Shopping Now</a>
+        {% endif %}
+        {% if cart_items %}
+        {% else %}
+        <div class="alert alert-info text-center" role="alert" style="height: 500px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; color: white; z-index: -1;">
+            <div class="background-image" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('{% static 'UserSide/img/empty-cart.png' %}'); background-size: contain; background-position: center; background-repeat: no-repeat; ">
+            </div>
+            <div class="cart-content" style="position: relative; z-index: 1; text-align: center; padding: 20px;margin-top: 100px;">
+                <h2 class="mb-6"><strong>Your cart is currently empty.</strong></h2>
+                <a href="{% url 'shop_view' %}" class="genric-btn primary"style=margin-top: 150px;>Start Shopping Now</a>
+            </div>
         </div>
     {% endif %}
-</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -212,4 +217,6 @@
         {% endif %}
     });
 </script>
+<div class="space" style="margin-top: 200px;"></div>
+
 {% endblock %}
