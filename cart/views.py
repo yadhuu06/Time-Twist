@@ -13,28 +13,29 @@ import json
 
 
 
-
 @never_cache
 @login_required
 def cart_view(request):
-    cart = get_object_or_404(Cart, user=request.user)
-    cart_items = cart.items.filter(is_active=True)
-    
+    cart, created = Cart.objects.get_or_create(user=request.user)
 
+    cart_items = cart.items.filter(is_active=True)
+ 
     for item in cart_items:
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
-        
 
-    def cart_total(cart_item):
-        for item in cart_items:
-            cart_total += item.sub_total()
-            return str(cart_total)
+
+    cart_total = sum(item.sub_total() for item in cart_items)
     
     context = {
         'cart': cart,
         'cart_items': cart_items,
+        'cart_total': cart_total, 
     }
+    
     return render(request, 'UserSide/cart.html', context)
+
+
+
 
 @login_required
 def add_cart(request, id):
@@ -158,3 +159,4 @@ def remove_from_wishlist(request, item_id):
    
     messages.success(request,"item removed from wishlist")
     return redirect('cart:wishlist')
+

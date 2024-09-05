@@ -52,7 +52,8 @@
         <p>Thank you for the order. Your order has been confirmed!</p>
         <p>The order ID is: <span class="order-id">{{order.order_id}}</span>, the order will be delivered within 7 days.</p>
         <a href="{% url 'order_management:my_orders' %}" class="btn btn-outline-warning btn-check-orders">Check Orders</a>
-        {% comment %} <a href="{% url 'order_management:' %}" class="btn btn-outline-success btn-check-orders">View Detais</a> {% endcomment %}
+        <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-outline-success btn-check-orders">View sUMMARY</a>
+
         <button class="btn btn-continue-shopping"href="{% url 'shop_view' %}">Continue Shopping</button>
     </div>
 </div>

@@ -32,16 +32,18 @@
                     <td>{{ coupon.minimum_amount }}</td>
                     <td>{{ coupon.maximum_amount }}</td>
                     <td>{{ coupon.expiry_date|date:"Y-m-d" }}</td>
-                    <td>{{ coupon.status|yesno:"Active,Inactive" }}</td>
                     <td>
-                       
-                        <button class="btn btn-sm btn-danger delete-coupon" data-id="{{ coupon.id }}">Delete</button>
+                        <span class="badge {% if coupon.status %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ coupon.status|yesno:"Active,Inactive" }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary edit-coupon" data-id="{{ coupon.id }}">Edit</button>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-       
     </div>
 
     <!-- Coupon Form (for both Add and Edit) -->
@@ -52,12 +54,12 @@
             <input type="hidden" id="couponId" name="couponId">
             <div class="mb-3">
                 <label for="coupon_name" class="form-label">Coupon Name</label>
-                <input type="text" class="form-control" id="coupon_name" name="coupon_name" required>
+                <input type="text" class="form-control" id="coupon_name" name="coupon_name" required pattern="^\S.*$">
             </div>
             <div class="mb-3">
                 <label for="coupon_code" class="form-label">Coupon Code</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" id="coupon_code" name="coupon_code" required>
+                    <input type="text" class="form-control" id="coupon_code" name="coupon_code" required pattern="^\S.*$">
                     <button class="btn btn-outline-secondary" type="button" id="generateCouponCode">Generate</button>
                 </div>
             </div>
@@ -71,7 +73,7 @@
             </div>
             <div class="mb-3">
                 <label for="maximum_amount" class="form-label">Maximum Amount</label>
-                <input type="number" class="form-control" id="maximum_amount" name="maximum_amount" required min="0">
+                <input type="number" class="form-control" id="maximum_amount" name="maximum_amount" required min="501">
             </div>
             <div class="mb-3">
                 <label for="expiry_date" class="form-label">Expiry Date</label>
@@ -90,6 +92,14 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
+    // Set min date for expiry_date to today's date
+    function setMinDate() {
+        var today = new Date().toISOString().split('T')[0];
+        $('#expiry_date').attr('min', today);
+    }
+
+    setMinDate();
+
     // Show add coupon form
     $('#showAddCouponForm').click(function() {
         $('#formTitle').text('Add New Coupon');
@@ -124,7 +134,7 @@ $(document).ready(function() {
         e.preventDefault();
         var formData = $(this).serialize();
         var couponId = $('#couponId').val();
-        var url = couponId ? `/coupons/${couponId}/update/` : '{% url "coupon_create" %}';
+        var url = couponId ? `{% url 'coupon_update' 0 %}`.replace('0', couponId) : '{% url "coupon_create" %}';
 
         $.ajax({
             url: url,
@@ -150,36 +160,16 @@ $(document).ready(function() {
         var couponId = $(this).data('id');
         var row = $(`#coupon-${couponId}`);
         $('#couponId').val(couponId);
-        $('#coupon_name').val(row.find('td:eq(1)').text());
-        $('#coupon_code').val(row.find('td:eq(0)').text());
+        $('#coupon_name').val(row.find('td:eq(1)').text().trim());
+        $('#coupon_code').val(row.find('td:eq(0)').text().trim());
         $('#discount').val(parseFloat(row.find('td:eq(2)').text()));
-        $('#minimum_amount').val(row.find('td:eq(3)').text());
-        $('#maximum_amount').val(row.find('td:eq(4)').text());
-        $('#expiry_date').val(row.find('td:eq(5)').text());
-        $('#status').prop('checked', row.find('td:eq(6)').text() === 'Active');
+        $('#minimum_amount').val(row.find('td:eq(3)').text().trim());
+        $('#maximum_amount').val(row.find('td:eq(4)').text().trim());
+        $('#expiry_date').val(row.find('td:eq(5)').text().trim());
+        $('#status').prop('checked', row.find('td:eq(6)').text().trim() === 'Active');
         $('#formTitle').text('Edit Coupon');
         $('#couponList').hide();
         $('#couponForm').show();
-    });
-
-    // Delete coupon
-    $(document).on('click', '.delete-coupon', function() {
-        if (confirm('Are you sure you want to delete this coupon?')) {
-            var couponId = $(this).data('id');
-            $.ajax({
-                url: `/coupons/${couponId}/delete/`,
-                type: 'POST',
-                data: {
-                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                },
-                success: function() {
-                    $(`#coupon-${couponId}`).remove();
-                },
-                error: function() {
-                    alert('Error deleting coupon');
-                }
-            });
-        }
     });
 
     function addCouponRow(coupon) {
@@ -191,10 +181,13 @@ $(document).ready(function() {
                 <td>${coupon.minimum_amount}</td>
                 <td>${coupon.maximum_amount}</td>
                 <td>${coupon.expiry_date}</td>
-                <td>${coupon.status ? 'Active' : 'Inactive'}</td>
+                <td>
+                    <span class="badge ${coupon.status ? 'bg-success' : 'bg-danger'}">
+                        ${coupon.status ? 'Active' : 'Inactive'}
+                    </span>
+                </td>
                 <td>
                     <button class="btn btn-sm btn-primary edit-coupon" data-id="${coupon.id}">Edit</button>
-                    <button class="btn btn-sm btn-danger delete-coupon" data-id="${coupon.id}">Delete</button>
                 </td>
             </tr>
         `;
@@ -209,14 +202,20 @@ $(document).ready(function() {
         row.find('td:eq(3)').text(coupon.minimum_amount);
         row.find('td:eq(4)').text(coupon.maximum_amount);
         row.find('td:eq(5)').text(coupon.expiry_date);
-        row.find('td:eq(6)').text(coupon.status ? 'Active' : 'Inactive');
+        row.find('td:eq(6)').html(`
+            <span class="badge ${coupon.status ? 'bg-success' : 'bg-danger'}">
+                ${coupon.status ? 'Active' : 'Inactive'}
+            </span>
+        `);
     }
 });
 </script>
+
 <link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
 <style>
 body {
-    font-family: 'Alegreya';font-size: 22px;
+    font-family: 'Alegreya';
+    font-size: 22px;
 }
 </style>
 {% endblock %}

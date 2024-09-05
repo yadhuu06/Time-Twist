@@ -20,50 +20,23 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="address" id="address{{ a.id }}" value="{{ a.id }}" required {% if a.is_primary %}checked{% endif %}>
                                     <label class="form-check-label w-100" for="address{{ a.id }}">
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <strong>{{ a.name }}</strong> - {{ a.phone_number }}<br>
                                                 {{ a.house_name }}, {{ a.street_name }}, {{ a.district }}, {{ a.state }} - {{ a.pin_number }}
                                             </div>
-                                            <a href="#" class="text-decoration-none" data-bs-toggle="collapse" data-bs-target="#editAddressForm{{ a.id }}">Edit</a>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editAddressModal{{ a.id }}">Edit</button>
                                         </div>
                                     </label>
                                 </div>
-                                {% if a.is_primary %}
-                                <button type="button" class="btn btn-primary mt-3 w-100">Deliver Here</button>
-                                {% endif %}
                             </div>
-                        </div>
-
-                        <!-- Collapsible Edit Address Form -->
-                        <div class="collapse" id="editAddressForm{{ a.id }}">
-                            <!-- (Edit address form content) -->
                         </div>
                         {% endfor %}
 
                         <!-- Add New Address Button -->
-                        
-                    </div>
-                </div>
-
-                <!-- Payment Method Section -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4">Payment Method</h5>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="creditCard" required>
-                                <label class="form-check-label" for="creditCard">Credit Card</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay" value="razorpay" required>
-                                <label class="form-check-label" for="paypal">Razopay</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="cashOnDelivery" value="cashOnDelivery" required>
-                                <label class="form-check-label" for="cashOnDelivery">Cash on Delivery</label>
-                            </div>
-                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                            Add New Address
+                        </button>
                     </div>
                 </div>
             </div>
@@ -96,11 +69,22 @@
                         </h6>
                         <div id="couponDetails" style="display:none;" class="d-flex justify-content-between align-items-center">
                             <span id="appliedCouponDetails"></span>
-                            <button type="button" class="btn btn-link text-danger p-0" id="removeCouponBtn">&times;</button>
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0" id="removeCouponBtn">&times;</button>
                         </div>
                         <input type="hidden" name="applied_coupon" id="appliedCoupon" value="">
-                        <button type="button" class="btn btn-primary mt-3 w-100" id="applyCouponBtn">Apply Coupon</button>
-                        <button type="submit" class="btn btn-success mt-3 w-100">Place Order</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2 w-100" id="applyCouponBtn">Apply Coupon</button>
+                        
+                        <!-- Payment Method Dropdown -->
+                        <div class="mt-3">
+                            <label for="paymentMethod" class="form-label">Payment Method</label>
+                            <select class="form-select form-select-sm" id="paymentMethod" name="paymentMethod" required>
+                                <option value="">Select payment method</option>
+                                <option value="razorpay">Razorpay</option>
+                                <option value="cashOnDelivery">Cash on Delivery</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-sm btn-success mt-3 w-100">Place Order</button>
                     </div>
                 </div>
             </div>
@@ -119,7 +103,7 @@
                     <div class="row">
                         {% for coupon in coupons %}
                         <div class="col-12 mb-3">
-                            <div class="card coupon-card" data-coupon-id="{{ coupon.id }}" data-coupon-code="{{ coupon.coupon_code }}" data-coupon-discount="{{ coupon.discount }}">
+                            <div class="card coupon-card" data-coupon-id="{{ coupon.id }}" data-coupon-code="{{ coupon.coupon_code }}" data-coupon-discount="{{ coupon.discount }}" data-coupon-min="{{ coupon.minimum_amount }}" data-coupon-max="{{ coupon.maximum_amount }}">
                                 <div class="card-body d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <h5 class="card-title">{{ coupon.coupon_name }}</h5>
@@ -129,6 +113,7 @@
                                             <strong>Valid until:</strong> {{ coupon.expiry_date }}
                                         </p>
                                     </div>
+                                    <button class="btn btn-sm btn-outline-primary apply-coupon-btn">Apply</button>
                                 </div>
                             </div>
                         </div>
@@ -138,93 +123,149 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Address Modal -->
+    {% for a in user_address %}
+    <div class="modal fade" id="editAddressModal{{ a.id }}" tabindex="-1" aria-labelledby="editAddressModalLabel{{ a.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAddressModalLabel{{ a.id }}">Edit Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'edit_address' a.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" name="name" class="form-control" placeholder="Full Name" value="{{ a.name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="house_name" class="form-control" placeholder="House Name" value="{{ a.house_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="street_name" class="form-control" placeholder="Street Address" value="{{ a.street_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="district" class="form-control" placeholder="District" value="{{ a.district }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="state" class="form-control" placeholder="State/Province" value="{{ a.state }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="pin_number" class="form-control" placeholder="Zip/Postal Code" value="{{ a.pin_number }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" value="{{ a.phone_number }}" required>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-sm btn-primary mt-2">Save Changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Add Address Modal -->
+    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'add_address' %}" method="post">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="house_name" class="form-control" placeholder="House Name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="street_name" class="form-control" placeholder="Street Address" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="district" class="form-control" placeholder="District" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="state" class="form-control" placeholder="State/Province" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="pin_number" class="form-control" placeholder="Zip/Postal Code" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" required>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-sm btn-primary mt-2">Add Address</button>
+                            </div>
+                        </div>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-{% block extra_scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const applyCouponBtn = document.getElementById('applyCouponBtn');
-    const couponCards = document.querySelectorAll('.coupon-card');
-    const subtotalElement = document.getElementById('subtotalAmount');
-    const discountAmountElement = document.getElementById('discountAmount');
-    const payableAmountElement = document.getElementById('payableAmount');
-    const appliedCouponInput = document.getElementById('appliedCoupon');
-    const couponDetails = document.getElementById('couponDetails');
-    const appliedCouponDetails = document.getElementById('appliedCouponDetails');
-    const discountSection = document.getElementById('discountSection');
-    const removeCouponBtn = document.getElementById('removeCouponBtn');
+// Apply Coupon Button Click Handler
+document.getElementById('applyCouponBtn').addEventListener('click', function () {
+    var couponModal = new bootstrap.Modal(document.getElementById('couponModal'));
+    couponModal.show();
+});
 
-    applyCouponBtn.addEventListener('click', function() {
-        // Open the modal to select a coupon
-        var couponModal = new bootstrap.Modal(document.getElementById('couponModal'));
-        couponModal.show();
-    });
-
-    couponCards.forEach(function(card) {
-        card.addEventListener('click', function() {
-            const couponCode = card.getAttribute('data-coupon-code');
-            const couponId = card.getAttribute('data-coupon-id');
-            const couponDiscount = parseFloat(card.getAttribute('data-coupon-discount'));
-            const subtotal = parseFloat(subtotalElement.textContent.replace('Rs', ''));
-
-            // Calculate the discount and new total
-            const discountAmount = (subtotal * couponDiscount) / 100;
-            const newTotal = subtotal - discountAmount;
-
-            // Update the order summary
-            discountAmountElement.textContent = `Rs${discountAmount.toFixed(2)}`;
-            payableAmountElement.textContent = `Rs${newTotal.toFixed(2)}`;
-            appliedCouponInput.value = couponId;
-            appliedCouponDetails.textContent = `Coupon "${couponCode}" applied`;
-            discountSection.style.display = 'flex';
-            couponDetails.style.display = 'flex';
-
-            // Close the modal
-            var couponModal = bootstrap.Modal.getInstance(document.getElementById('couponModal'));
+// Apply Coupon from Modal
+document.querySelectorAll('.apply-coupon-btn').forEach(function (button) {
+    button.addEventListener('click', function () {
+        var card = button.closest('.card');
+        var couponId = card.getAttribute('data-coupon-id');
+        var couponCode = card.getAttribute('data-coupon-code');
+        var couponDiscount = parseFloat(card.getAttribute('data-coupon-discount'));
+        var couponMin = parseFloat(card.getAttribute('data-coupon-min'));
+        var couponMax = parseFloat(card.getAttribute('data-coupon-max'));
+        var subtotal = parseFloat(document.getElementById('subtotalAmount').textContent.replace('Rs', ''));
+        
+        // Validate coupon conditions
+        if (subtotal >= couponMin && subtotal <= couponMax) {
+            var discountAmount = subtotal * (couponDiscount / 100);
+            var payableAmount = subtotal - discountAmount;
+            
+            document.getElementById('discountAmount').textContent = 'Rs' + discountAmount.toFixed(2);
+            document.getElementById('payableAmount').textContent = 'Rs' + payableAmount.toFixed(2);
+            
+            // Update the form with applied coupon details
+            document.getElementById('appliedCoupon').value = couponId;
+            document.getElementById('appliedCouponDetails').textContent = couponCode + ' - Rs' + discountAmount.toFixed(2) + ' off';
+            
+            // Show/Hide relevant sections
+            document.getElementById('discountSection').style.display = 'flex';
+            document.getElementById('couponDetails').style.display = 'flex';
             couponModal.hide();
-
-            // Hide the apply coupon button
-            applyCouponBtn.style.display = 'none';
-        });
-    });
-
-    removeCouponBtn.addEventListener('click', function() {
-        // Reset the coupon-related fields
-        appliedCouponInput.value = '';
-        discountAmountElement.textContent = 'Rs0';
-        payableAmountElement.textContent = subtotalElement.textContent;
-        appliedCouponDetails.textContent = '';
-        couponDetails.style.display = 'none';
-        discountSection.style.display = 'none';
-
-        applyCouponBtn.style.display = 'block';
+        } else {
+            alert('Coupon not applicable for the current order total.');
+        }
     });
 });
+
+// Remove Coupon Button Click Handler
+document.getElementById('removeCouponBtn').addEventListener('click', function () {
+    var subtotal = parseFloat(document.getElementById('subtotalAmount').textContent.replace('Rs', ''));
+    document.getElementById('discountAmount').textContent = 'Rs0';
+    document.getElementById('payableAmount').textContent = 'Rs' + subtotal.toFixed(2);
+    
+    // Clear applied coupon
+    document.getElementById('appliedCoupon').value = '';
+    document.getElementById('appliedCouponDetails').textContent = '';
+    
+    // Hide/Show relevant sections
+    document.getElementById('discountSection').style.display = 'none';
+    document.getElementById('couponDetails').style.display = 'none';
+});
 </script>
-</div><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        {% if messages %}
-            const messages = [
-                {% for message in messages %}
-                    {
-                        level: "{{ message.tags }}",
-                        text: "{{ message }}"
-                    },
-                {% endfor %}
-            ];
-            messages.forEach(message => {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-right',
-                    icon: message.level === 'success' ? 'success' : 'error',
-                    title: message.text,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            });
-        {% endif %}
-    });
-</script>
-{% endblock %}
 {% endblock %}

@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import  Coupon, UserCoupon
 from products.models import ProductVariantImages
-from cart.models import Cart, CartItem 
+from cart.models import Cart, CartItem
 from user_pannel.models import UserAddress
 from  order_management.models import Order, OrderItem, Payment
 from decimal import Decimal
@@ -79,19 +79,7 @@ class CouponCreateView(View):
             })
         return JsonResponse({'errors': form.errors}, status=400)
 
-class CouponDetailView(View):
-    def get(self, request, pk):
-        coupon = get_object_or_404(Coupon, pk=pk)
-        return JsonResponse({
-            'id': coupon.id,
-            'coupon_name': coupon.coupon_name,
-            'coupon_code': coupon.coupon_code,
-            'discount': coupon.discount,
-            'minimum_amount': coupon.minimum_amount,
-            'maximum_amount': coupon.maximum_amount,
-            'expiry_date': coupon.expiry_date.strftime('%Y-%m-%d'),
-            'status': coupon.status,
-        })
+
 
 class CouponUpdateView(View):
     def post(self, request, pk):
@@ -112,7 +100,7 @@ class CouponUpdateView(View):
         return JsonResponse({'errors': form.errors}, status=400)
 
 class CouponDeleteView(View):
-    print()
+  
     def post(self, request, pk):
         coupon = get_object_or_404(Coupon, pk=pk)
         coupon.status = False

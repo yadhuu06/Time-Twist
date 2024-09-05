@@ -37,6 +37,8 @@
                                             <div class="col-md-2 text-md-end">
                                                 <p class="card-text">
                                                     <strong>Status:</strong> 
+                                                    <p>Order ID: {{ order_id }}</p>
+
                                                     <span class="{% if order.status == 'Delivered' %}text-success{% elif order.status == 'Canceled' %}text-danger{% elif order.status == 'Pending' %}text-warning{% elif order.status == 'Returned' or order.status == 'Refund Completed' %}text-danger{% else %}text-secondary{% endif %}">
                                                         {{ order.status }}
                                                     </span>
@@ -46,6 +48,8 @@
                                         <div class="row mt-3">
                                             <div class="col-md-12 text-end">
                                                 <div class="action-buttons">
+                                                    <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-outline-success btn-check-orders">View Details</a>
+
                                                     
                                                     {% if order.status == 'Dispatched' and order.payment.method != 'cashOnDelivery' %}
                                                         <button class="genric-btn danger-border">Return</button>

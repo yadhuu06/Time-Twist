@@ -44,7 +44,7 @@ def admin_login(request):
 
 @user_passes_test(is_admin)
 def users_list(request):
-     users = User.objects.all() 
+     users = User.objects.filter(is_admin=False) 
      return render(request, 'AdminSide/user_list.html', {'users': users})
     
    

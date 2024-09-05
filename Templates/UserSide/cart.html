@@ -1,12 +1,10 @@
 {% extends 'UserSide/base.html' %}
 {% load static %}
 
-
-
 {% block content %}
-<div class="sp"style=margin-top: 60px;></div>
+<div class="sp" style="margin-top: 60px;"></div>
 <div class="container my-5 pt-5">
-    <h1 class="mb-4 text-center"><b><stromg>Your Shopping Cart</strong></b></h1>
+    <h1 class="mb-4 text-center"><b><strong>Your Shopping Cart</strong></b></h1>
     
     {% if cart_items %}
         <div class="row g-4">
@@ -38,18 +36,16 @@
                                                     <strong>{{ item.product.product_name }}</strong><br>
                                                     <small class="text-muted">{{ item.variant.variant_name }}</small>
                                                     <br>
-                                                    <small class="text-muted">Stock left: <span class="text-success">{{ item.variant.variant_stock }}</span></small>
+                                                    <small class="text-muted">Stock left: <span class="text-success" id="stock-{{ item.id }}">{{ item.variant.variant_stock }}</span></small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <select class="form-select form-select-sm" style="width: 70px; margin: auto;" onchange="updateQuantity({{ item.id }}, this.value)">
-                                                {% for i in "12345"|make_list %}
-                                                    <option value="{{ forloop.counter }}" {% if item.quantity == forloop.counter %}selected{% endif %}>
-                                                        {{ forloop.counter }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
+                                            <div class="input-group" style="width: 120px; margin: auto;">
+                                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity({{ item.id }}, -1)">-</button>
+                                                <input type="text" class="form-control form-control-sm text-center" id="quantity-{{ item.id }}" value="{{ item.quantity }}" readonly>
+                                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity({{ item.id }}, 1)">+</button>
+                                            </div>
                                         </td>
                                         <td class="text-end" style="min-width: 100px;">₹<span id="subtotal-{{ item.id }}">{{ item.variant.offer_price }}</span></td>
                                         <td class="text-end">
@@ -97,23 +93,38 @@
                 </div>
             </div>
         </div>
-        {% endif %}
-        {% if cart_items %}
-        {% else %}
+    {% else %}
         <div class="alert alert-info text-center" role="alert" style="height: 500px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; color: white; z-index: -1;">
             <div class="background-image" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('{% static 'UserSide/img/empty-cart.png' %}'); background-size: contain; background-position: center; background-repeat: no-repeat; ">
             </div>
             <div class="cart-content" style="position: relative; z-index: 1; text-align: center; padding: 20px;margin-top: 100px;">
                 <h2 class="mb-6"><strong>Your cart is currently empty.</strong></h2>
-                <a href="{% url 'shop_view' %}" class="genric-btn primary"style=margin-top: 150px;>Start Shopping Now</a>
+                <a href="{% url 'shop_view' %}" class="genric-btn primary" style="margin-top: 150px;">Start Shopping Now</a>
             </div>
         </div>
     {% endif %}
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Function to update the quantity of a cart item
-    function updateQuantity(itemId, newQuantity) {
+    function updateQuantity(itemId, change) {
+        const quantityInput = document.getElementById(`quantity-${itemId}`);
+        const stockSpan = document.getElementById(`stock-${itemId}`);
+        let newQuantity = parseInt(quantityInput.value) + change;
+        const availableStock = parseInt(stockSpan.innerText);
+
+        if (newQuantity < 1) {
+            newQuantity = 1;
+        } else if (newQuantity > availableStock) {
+            newQuantity = availableStock;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Stock Limit Reached',
+                text: `Only ${availableStock} items are available in stock.`,
+            });
+        }
+
         const url = '{% url "cart:update_cart_quantity" %}';
         
         fetch(url, {
@@ -130,12 +141,8 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update the subtotal for the item on the page
-                const subtotalElement = document.getElementById(`subtotal-${itemId}`);
-                const newSubtotal = data.subtotal;
-                subtotalElement.innerText = newSubtotal;
-
-                // Recalculate the total cart value
+                quantityInput.value = newQuantity;
+                document.getElementById(`subtotal-${itemId}`).innerText = data.subtotal;
                 updateCartTotal();
             } else {
                 Swal.fire({
@@ -192,7 +199,6 @@
     });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
         {% if messages %}
@@ -218,5 +224,4 @@
     });
 </script>
 <div class="space" style="margin-top: 200px;"></div>
-
 {% endblock %}
