@@ -1,0 +1,116 @@
+{% extends "AdminSide/base.html" %}
+{% block title %}Returns List{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <h1 class="mb-4">Return Orders</h1>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">All Return Requests</h5>
+        </div>
+        <div class="card-body">
+            {% if return_item %}
+                <div class="table">
+                    <table class="table ">
+                        <thead>
+                            <tr>
+                                <th>Return ID</th>
+                                <th>Order ID</th>
+                                <th>User</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Return Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for return in return_item %}
+                                <tr>
+                                    <td>{{ return.id }}</td>
+                                    <td>{{ return.order.order_id }}</td>
+                                    <td>{{ return.user.first_name }} {{ return.user.last_name }}</td>
+                                    <td>{{ return.get_reason_display }}</td>
+                                    <td>
+                                        <span class="badge {% if return.status == 'pending' %}bg-warning{% elif return.status == 'complete' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ return.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ return.return_date|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#returnDetailsModal{{ return.id }}">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Return Details Modal -->
+                                <div class="modal fade" id="returnDetailsModal{{ return.id }}" tabindex="-1" aria-labelledby="returnDetailsModalLabel{{ return.id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="returnDetailsModalLabel{{ return.id }}">Return Details for Order {{ return.order.order_id }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h6>Order Information</h6>
+                                                <p><strong>Order Date:</strong> {{ return.order.created_at|date:"M d, Y" }}</p>
+                                                <p><strong>Total Price:</strong> ${{ return.order.final_price }}</p>
+                                                <p><strong>Order Status:</strong> {{ return.order.get_status_display }}</p>
+
+                                                <h6 class="mt-4">Return Information</h6>
+                                                <p><strong>Return Reason:</strong> {{ return.get_reason_display }}</p>
+                                                <p><strong>Return Status:</strong> {{ return.get_status_display }}</p>
+                                                <p><strong>Return Date:</strong> {{ return.return_date|date:"M d, Y H:i" }}</p>
+
+                                                <h6 class="mt-4">User Information</h6>
+                                                <p><strong>Username:</strong> {{ return.user.first_name }}</p>
+                                                <p><strong>Email:</strong> {{ return.user.email }}</p>
+
+                                                <h6 class="mt-4">Ordered Items</h6>
+                                                <ul class="list-group">
+                                                    {% for item in return.order.items.all %}
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            {{ item.product_variant.product.product_name }} ({{ item.product_variant.variant_name }})
+                                                            <span class="badge bg-primary rounded-pill">Qty: {{ item.quantity }}</span>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                {% if return.status == 'pending' %}
+                                                    <button type="button" class="btn btn-success" onclick="updateReturnStatus({{ return.id }}, 'complete')">Approve Return</button>
+                                                    <button type="button" class="btn btn-danger" onclick="updateReturnStatus({{ return.id }}, 'rejected')">Reject Return</button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center">No return orders found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
+<style>
+body {
+    font-family: 'Alegreya';font-size: 22px;
+}
+</style>
+
+<script>
+    function updateReturnStatus(returnId, newStatus) {
+        // Here you would typically make an AJAX call to update the status
+        // For now, we'll just show an alert
+        alert(`Return ${returnId} status updated to ${newStatus}`);
+        // After successful update, you might want to reload the page or update the UI
+        location.reload();
+    }
+</script>
+{% endblock %}

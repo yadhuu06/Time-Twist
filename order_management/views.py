@@ -6,13 +6,14 @@ from django.http import JsonResponse
 from django.db import transaction
 from django.conf import settings
 
-from order_management.models import Order, Payment, OrderItem, OrderAddress
+from order_management.models import Order, Payment, OrderItem, OrderAddress,Return
 from cart.models import Cart, CartItem ,Wallet,WalletTransaction
 from django.views.decorators.cache import never_cache
 from coupon.models import Coupon, UserCoupon
 from user_pannel.models import UserAddress
 from products.models import ProductVariant
 from django.utils import timezone
+from django.urls import reverse
 from datetime import timedelta
 from decimal import Decimal
 import datetime
@@ -229,9 +230,9 @@ def order_details_user(request,order_id):
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
 
-    if order.status != 'Pending':
+    if order.status != 'Delivered':
         messages.error(request, "Order cannot be canceled.")
-        return redirect('order_management:order_detail', order_id=order_id)
+        return redirect('order_management:order_details_user', order_id=order_id)
     
 
     try:
@@ -251,35 +252,44 @@ def cancel_order(request, order_id):
     return redirect('order_management:my_orders')
 
 
+
 def return_order(request, order_id):
     order = get_object_or_404(Order, order_id=order_id, user=request.user)
     
+    # Check if the order is delivered
     if order.status != 'Delivered':
         messages.error(request, "Only delivered orders can be returned.")
         return redirect('order_management:my_orders')
-    
+
+    # Check if a return has already been requested for this order
+    existing_return = Return.objects.filter(order=order, user=request.user).first()
+    if existing_return:
+        messages.error(request, "You have already requested a return for this order.")
+        return redirect('order_management:my_orders')
+
+    # Ensure the return is requested within 7 days of delivery
     days_since_delivery = (timezone.now().date() - order.delivered_date).days
     if days_since_delivery > 7:
         messages.error(request, "You can only return an order within 7 days of delivery.")
         return redirect('order_management:my_orders')
 
-    total_refund = 0
-    for item in order.items.all():
-        variant = item.product_variant
-        variant.variant_stock += item.quantity  
-        variant.save()
-        total_refund += item.price * item.quantity
-        
-    wallet, created = Wallet.objects.get_or_create(user=request.user)
-    wallet.balance += total_refund
-    wallet.save()
+    if request.method == 'POST':
+        return_reason = request.POST.get('return_reason')
+        additional_comments = request.POST.get('additional_comments', '')
 
-    order.status = 'Returned'
-    order.save()
+        # Create a new Return instance and submit it to admin
+        new_return = Return.objects.create(
+            order=order,
+            user=request.user,
+            reason=return_reason,
+            status='Pending',
+            return_date=timezone.now()
+        )
 
-    messages.success(request, f"Order returned successfully. Amount of ₹{total_refund} has been credited to your wallet.")
-    return redirect('order_management:my_orders')
+        messages.success(request, "Your return request has been submitted successfully. You will be notified once the admin processes it.")
+        return redirect('order_management:my_orders')
 
+    return redirect(reverse('order_management:my_orders'))
 
 def change_status(request, order_id):
     if request.method == "POST":

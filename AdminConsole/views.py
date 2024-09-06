@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from order_management.models import Return
 from UserAccounts.models import User
 from django.shortcuts import get_object_or_404
 from order_management.models import Order, Payment, OrderItem 
@@ -81,3 +82,7 @@ def change_order_status(request, order_id):
             order.status = status
             order.save()
         return redirect('admin_order_list')
+
+def return_list(request):
+    return_item = Return.objects.all().order_by('-return_date')
+    return render(request, "AdminSide/return_list.html", {'return_item': return_item})

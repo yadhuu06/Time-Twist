@@ -2,11 +2,19 @@
 {% block title %}Order List{% endblock %}
 
 {% block content %}
-<div class="row ">
+<div class="row mb-3">
+    <div class="col">
+        <a href="{% url 'return_list' %}" class="btn btn-outline-primary custom-hover-button">
+            <i class="fas fa-undo-alt"></i> View Return Requests
+        </a>
+    </div>
+</div>
+
+<div class="row">
     <div class="col-12 grid-margin">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Order Management</h4>
+                <h4 class="card-title"><strong>Order Management</strong></h4>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -18,11 +26,9 @@
                                         </label>
                                     </div>
                                 </th>
-                               
                                 <th> Order No </th>
                                 <th> Product Cost </th>
                                 <th> Payment Mode </th>
-                               
                                 <th> Payment Status </th>
                                 <th> Actions </th>
                             </tr>
@@ -37,11 +43,9 @@
                                         </label>
                                     </div>
                                 </td>
-                                
                                 <td> {{ order.order_id }} </td>
                                 <td> Rs. {{ order.total_price }} </td>
                                 <td> {{ order.payment.get_method_display }} </td>
-                                
                                 <td>
                                     <div class="badge badge-pill {% if order.status == 'Delivered' %}badge-success
                                         {% elif order.status == 'Shipped' %}badge-primary
@@ -52,10 +56,8 @@
                                         {{ order.status }}
                                     </div>
                                 </td>
-                                
                                 <td>
-                                    <a href="{% url 'order_management:order_details-admin' order.order_id %}" class="btn btn-outline-info btn-fw">details</a>
-
+                                    <a href="{% url 'order_management:order_details-admin' order.order_id %}" class="btn btn-outline-info btn-fw">Details</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -66,6 +68,7 @@
         </div>
     </div>
 </div>
+
 <link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
 <style>
 body {

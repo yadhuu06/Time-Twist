@@ -37,7 +37,6 @@
                                             <div class="col-md-2 text-md-end">
                                                 <p class="card-text">
                                                     <strong>Status:</strong>
-                                                    
                                                     <span class="{% if order.status == 'Delivered' %}text-success{% elif order.status == 'Canceled' %}text-danger{% elif order.status == 'Pending' %}text-warning{% elif order.status == 'Returned' or order.status == 'Refund Completed' %}text-danger{% else %}text-secondary{% endif %}">
                                                         {{ order.status }}
                                                     </span>
@@ -69,29 +68,29 @@
                         </div>
 
                         <!-- Return Reason Modal -->
-                        <div class="modal fade" id="returnModal{{ order.order_id }}" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+                        <div class="modal fade" id="returnModal{{ order.order_id }}" tabindex="-1" aria-labelledby="returnModalLabel{{ order.order_id }}" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <form action="{% url 'order_management:return_order' order_id=order.order_id %}" method="POST">
                                         {% csrf_token %}
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="returnModalLabel">Return Order</h5>
+                                            <h5 class="modal-title" id="returnModalLabel{{ order.order_id }}">Return Order</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
                                             <div class="mb-3">
-                                                <label for="returnReason" class="form-label">Return Reason</label>
-                                                <select class="form-select" id="returnReason" name="return_reason" required>
+                                                <label for="returnReason{{ order.order_id }}" class="form-label">Return Reason</label>
+                                                <select class="form-select" id="returnReason{{ order.order_id }}" name="return_reason" required>
                                                     <option value="Low Quality">Low Quality</option>
-                                                    <option value="Wrong Item">Wrong Item</option>
-                                                    <option value="Damaged Product">Damaged Product</option>
+                                                    <option value="Wrong Item Received">Wrong Item Received</option>
+                                                    <option value="Size Issue">Size Issue</option>
                                                     <option value="Not as Described">Not as Described</option>
-                                                    <option value="Other">Other</option>
+                                                    <option value="Others">Others</option>
                                                 </select>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="additionalComments" class="form-label">Additional Comments (Optional)</label>
-                                                <textarea class="form-control" id="additionalComments" name="additional_comments" rows="3"></textarea>
+                                                <label for="additionalComments{{ order.order_id }}" class="form-label">Additional Comments (Optional)</label>
+                                                <textarea class="form-control" id="additionalComments{{ order.order_id }}" name="additional_comments" rows="3"></textarea>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -152,40 +151,13 @@
 }
 </style>
 
-<!-- SweetAlert2 CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
 <!-- SweetAlert2 JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Add JavaScript for SweetAlert confirmation dialog -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const cancelButtons = document.querySelectorAll('.cancel-order-btn');
-
-        cancelButtons.forEach(function(button) {
-            button.addEventListener('click', function(event) {
-                event.preventDefault();
-                
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "Do you want to cancel this order?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, cancel it!',
-                    cancelButtonText: 'No, keep it'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.closest('form').submit();
-                    }
-                });
-            });
-        });
-
         const returnButtons = document.querySelectorAll('.return-order-btn');
-
+        
         returnButtons.forEach(function(button) {
             button.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -201,10 +173,10 @@
                     cancelButtonText: 'No, keep it'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Trigger modal to capture return reason
-                        const returnModal = document.querySelector(`#returnModal${button.closest('.order-card').querySelector('button').getAttribute('data-bs-target').slice(-1)}`);
+                        const modalID = button.getAttribute('data-bs-target'); // Get the target modal ID
+                        const returnModal = document.querySelector(modalID);
                         const returnModalInstance = new bootstrap.Modal(returnModal);
-                        returnModalInstance.show();
+                        returnModalInstance.show(); // Show the modal
                     }
                 });
             });

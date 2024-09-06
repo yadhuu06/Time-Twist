@@ -75,10 +75,16 @@ class Return(models.Model):
         ('Others', 'Others'),
     ]
     
+    RETURN_STATUS = [
+        ('pending', 'Pending'),
+        ('complete', 'Complete'),
+        ('rejected', 'Rejected'),
+    ]
+
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='returns')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     reason = models.CharField(max_length=50, choices=RETURN_REASONS)
-    description = models.TextField(null=True, blank=True)
+    status = models.CharField(max_length=10, choices=RETURN_STATUS, default='pending')
     return_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
