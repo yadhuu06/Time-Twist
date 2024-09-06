@@ -13,6 +13,21 @@
                             <li><span>Date</span> : {{ order.created_at|date:"F j, Y, g:i a" }}</li>
                             <li><span>Total</span> : Rs {{ order.total_price }}</li>
                             <li><span>Payment method</span> : {{ order.payment.method }}</li>
+                            <li>
+                                <span>Payment status</span> : 
+                                <span class="
+                                    {% if order.payment.status == 'Pending' %}
+                                        text-warning
+                                    {% elif order.payment.status == 'Completed' %}
+                                        text-success
+                                    {% else %}
+                                        text-secondary
+                                    {% endif %}
+                                ">
+                                    {{ order.payment.status }}
+                                </span>
+                            </li>
+                            
                         </ul>
                     </div>
                 </div>

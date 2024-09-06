@@ -1,24 +1,26 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.contrib import messages
+from django.http import JsonResponse
 from django.db import transaction
 from django.conf import settings
 
+from order_management.models import Order, Payment, OrderItem, OrderAddress
 from cart.models import Cart, CartItem ,Wallet,WalletTransaction
+from django.views.decorators.cache import never_cache
 from coupon.models import Coupon, UserCoupon
 from user_pannel.models import UserAddress
 from products.models import ProductVariant
-from order_management.models import Order, Payment, OrderItem, OrderAddress
-from django.views.decorators.cache import never_cache
-import uuid
+from django.utils import timezone
+from datetime import timedelta
+from decimal import Decimal
 import datetime
 import razorpay
+import hashlib
+import uuid
 import json
 import hmac
-import hashlib
-from decimal import Decimal
 
 @login_required
 
@@ -225,7 +227,6 @@ def order_details_user(request,order_id):
 
 @require_POST
 def cancel_order(request, order_id):
-    print("wow")
     order = get_object_or_404(Order, order_id=order_id)
 
     if order.status != 'Pending':
@@ -250,6 +251,36 @@ def cancel_order(request, order_id):
     return redirect('order_management:my_orders')
 
 
+def return_order(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    
+    if order.status != 'Delivered':
+        messages.error(request, "Only delivered orders can be returned.")
+        return redirect('order_management:my_orders')
+    
+    days_since_delivery = (timezone.now().date() - order.delivered_date).days
+    if days_since_delivery > 7:
+        messages.error(request, "You can only return an order within 7 days of delivery.")
+        return redirect('order_management:my_orders')
+
+    total_refund = 0
+    for item in order.items.all():
+        variant = item.product_variant
+        variant.variant_stock += item.quantity  
+        variant.save()
+        total_refund += item.price * item.quantity
+        
+    wallet, created = Wallet.objects.get_or_create(user=request.user)
+    wallet.balance += total_refund
+    wallet.save()
+
+    order.status = 'Returned'
+    order.save()
+
+    messages.success(request, f"Order returned successfully. Amount of ₹{total_refund} has been credited to your wallet.")
+    return redirect('order_management:my_orders')
+
+
 def change_status(request, order_id):
     if request.method == "POST":
         try:
@@ -259,6 +290,12 @@ def change_status(request, order_id):
 
             if new_status:
                 order.status = new_status
+                if order.status == "Delivered":
+                    order.delivered_date=timezone.now()
+                    if order.payment.method == "cashOnDelivery":
+                        order.payment.status = "Completed"
+                        order.payment.save()                   
+                    print("updated")
                 order.save()
                 return JsonResponse({'success': True, 'status': new_status})
             else:

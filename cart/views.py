@@ -164,6 +164,5 @@ def wallet_detail(request):
     user = request.user
     print(user.first_name)
     
-    wallet = get_object_or_404(Wallet, user=user)
-    print(wallet)
-    return render(request, 'UserSide/user_wallet.html', {'wallet': wallet})
+    
+    return render(request,'UserSide/user_wallet.html')

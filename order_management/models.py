@@ -2,6 +2,7 @@ from django.db import models
 from UserAccounts.models import User
 from user_pannel.models import UserAddress
 from products.models import ProductVariant
+from django.utils import timezone
 import uuid
 
 class Payment(models.Model):
@@ -63,3 +64,22 @@ class OrderAddress(models.Model):
     district = models.CharField(max_length=100, null=False)
     state = models.CharField(max_length=100, null=False)
     phone_number = models.CharField(max_length=50, null=False)
+
+
+class Return(models.Model):
+    RETURN_REASONS = [
+        ('Low Quality', 'Low Quality'),
+        ('Not as Described', 'Not as Described'),
+        ('Wrong Item Received', 'Wrong Item Received'),
+        ('Size Issue', 'Size Issue'),
+        ('Others', 'Others'),
+    ]
+    
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='returns')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reason = models.CharField(max_length=50, choices=RETURN_REASONS)
+    description = models.TextField(null=True, blank=True)
+    return_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Return for Order {self.order.order_id} by {self.user.username}"

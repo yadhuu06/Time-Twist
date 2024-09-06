@@ -249,14 +249,12 @@ def checkout(request):
     cart_items = cart.items.filter(is_active=True)
     unavailable_items = cart.items.filter(is_active=False) | cart.items.filter(variant__is_active=False)
     user_address = UserAddress.objects.filter(user=request.user)
-
-    # Check for unavailable items
     if unavailable_items.exists():
         messages.error(request, 'Your cart contains unavailable items. Please review your cart.')
         return redirect('cart:cart_view')
 
-    # Check stock for each cart item
     total_price = 0
+    total_payable = 0
     for item in cart_items:
         if item.quantity > item.variant.variant_stock:
             messages.error(
@@ -267,8 +265,8 @@ def checkout(request):
             return redirect('cart:cart_view')
         item.variant_image = ProductVariantImages.objects.filter(product_variant=item.variant).first()
         total_price += item.sub_total()
+        total_payable += item.main_total()
 
-    # Handle coupon application
     coupons = Coupon.objects.filter(status=True, expiry_date__gte=datetime.date.today())
     user_used_coupons = UserCoupon.objects.filter(user=request.user, used=True).values_list('coupon_id', flat=True)
     available_coupons = coupons.exclude(id__in=user_used_coupons)

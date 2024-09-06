@@ -51,22 +51,30 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 {{ item.variant.product.product_name }} - {{ item.variant.variant_name }} x {{ item.quantity }}
                                 <span>Rs{{ item.sub_total }}</span>
+                                
                             </li>
                             {% endfor %}
                         </ul>
                         <hr>
+                        {% for item in cart_items %}
                         <h6 class="d-flex justify-content-between">
-                            <span>Subtotal</span>
-                            <strong id="subtotalAmount">Rs{{ total_price }}</strong>
+                            <span>Total: </span>
+                            <span id="main_total" style="text-decoration: line-through;">{{ item.main_total }}</span>
+                        </h6>
+                    {% endfor %}
+                    
+                        <h6 class="d-flex justify-content-between">
+                            <span>Subtotal :</span>
+                            <strong id="subtotalAmount"> {{ total_price }}</strong>
                         </h6>
                         <h6 class="d-flex justify-content-between" id="discountSection" style="display:none;">
-                            <span>Discount</span>
-                            <strong id="discountAmount">Rs0</strong>
+                            <span>Discount :</span>
+                            <strong id="discountAmount">Rs 0 </strong>
                         </h6>
-                        <h6 class="d-flex justify-content-between">
-                            <span>Payable</span>
-                            <strong id="payableAmount"><b>Rs{{ total_price }}</b></strong>
-                        </h6>
+                        <h5 class="d-flex justify-content-between">
+                            <span>Payable Rs :</span>
+                            <strong id="payableAmount"> {{ total_price }}</strong>
+                        </h5>
                         <div id="couponDetails" style="display:none;" class="d-flex justify-content-between align-items-center">
                             <span id="appliedCouponDetails"></span>
                             <button type="button" class="btn btn-sm btn-link text-danger p-0" id="removeCouponBtn">&times;</button>
@@ -80,8 +88,8 @@
                             <select class="form-select form-select-sm" id="paymentMethod" name="paymentMethod" required>
             
                                 
-                                <option value="cashOnDelivery">Cash on Delivery</option>
-                                <option value="razorpay">Razorpay</option>
+                                <option value="cashOnDelivery"> Cash on Delivery </option>
+                                <option value="razorpay"> RazorPay </option>
                             </select>
                         </div>
                         
