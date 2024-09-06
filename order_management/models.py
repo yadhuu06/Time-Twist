@@ -20,7 +20,15 @@ class Payment(models.Model):
     def __str__(self):
         return f"{self.user.first_name} - {self.method}"
 
-class Order(models.Model):
+class Order(models.Model):  
+    ORDER_STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Shipped', 'Shipped'),
+        ('Delivered', 'Delivered'),
+        ('Cancelled', 'Cancelled'),
+        
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.ForeignKey(UserAddress, on_delete=models.SET_NULL, null=True)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True)
@@ -31,6 +39,8 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, default='Pending') 
     order_payment_id = models.CharField(max_length=100, null=True, blank=True)
+    delivered_date = models.DateField(null=True, blank=True)
+    
 
     def __str__(self):
         return f"Order {self.id} by {self.user.first_name}"

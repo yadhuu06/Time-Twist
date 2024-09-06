@@ -40,10 +40,8 @@ class Wallet(models.Model):
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     updated_at = models.DateField(default=timezone.now)
 
-    
     def __str__(self):
         return f"{self.user.first_name}'s Wallet"
-
 
 class WalletTransaction(models.Model):
     wallet = models.ForeignKey(Wallet,on_delete=models.CASCADE)

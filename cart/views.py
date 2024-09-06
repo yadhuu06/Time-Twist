@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
-from.models import Wishlist
+from.models import Wishlist,Wallet
 import json
 
 
@@ -160,3 +160,10 @@ def remove_from_wishlist(request, item_id):
     messages.success(request,"item removed from wishlist")
     return redirect('cart:wishlist')
 
+def wallet_detail(request):
+    user = request.user
+    print(user.first_name)
+    
+    wallet = get_object_or_404(Wallet, user=user)
+    print(wallet)
+    return render(request, 'UserSide/user_wallet.html', {'wallet': wallet})

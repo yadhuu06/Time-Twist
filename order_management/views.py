@@ -6,7 +6,7 @@ from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.conf import settings
 
-from cart.models import Cart, CartItem
+from cart.models import Cart, CartItem ,Wallet,WalletTransaction
 from coupon.models import Coupon, UserCoupon
 from user_pannel.models import UserAddress
 from products.models import ProductVariant
@@ -21,6 +21,7 @@ import hashlib
 from decimal import Decimal
 
 @login_required
+
 @login_required
 @never_cache
 def place_order(request):
@@ -45,15 +46,14 @@ def place_order(request):
                 messages.error(request, f'Insufficient stock for {product_variant.product.product_name}.')
                 return redirect('checkout')
 
-        
         selected_address = get_object_or_404(UserAddress, id=address_id, user=request.user)
 
         if payment_method == 'razorpay':
             razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
             razorpay_order = razorpay_client.order.create({
-                'amount': int(total_price * 100),  
+                'amount': int(total_price * 100),  # Razorpay expects the amount in paise
                 'currency': 'INR',
-                'payment_capture': '1'  
+                'payment_capture': '1'  # Automatically capture the payment
             })
 
             request.session['razorpay_order_id'] = razorpay_order['id']
@@ -61,10 +61,10 @@ def place_order(request):
             order = Order.objects.create(
                 user=request.user,
                 address=selected_address,
-                order_id=razorpay_order['id'], 
-                payment=None, 
+                order_id=razorpay_order['id'],
+                payment=None,
                 total_price=total_price,
-                offer_price=0,  
+                offer_price=0,  # Update this if you have discounts
                 final_price=total_price,
                 status='Pending'
             )
@@ -99,7 +99,7 @@ def place_order(request):
                 'address_id': address_id,
             })
 
-        if payment_method == 'cashOnDelivery':
+        elif payment_method == 'cashOnDelivery':
             if total_price >= 15000:
                 messages.error(request, 'Cash on Delivery is not available for orders over Rs 15,000.')
                 return redirect('checkout')
@@ -150,18 +150,13 @@ def place_order(request):
 
     return redirect('checkout')
 
-
 @require_POST
 def verify_payment(request):
     if request.method == 'POST':
-        # Try to get the Razorpay order ID from the POST data or fallback to session data
         order_payment_id = request.POST.get('razorpay_order_id') or request.session.get('razorpay_order_id')
         payment_id = request.POST.get('razorpay_payment_id')
         signature = request.POST.get('razorpay_signature')
 
-        print("Order Payment ID:", order_payment_id)
-        print("Razorpay Payment ID:", payment_id)
-        print("Razorpay Signature:", signature)
 
         if not all([order_payment_id, payment_id, signature]):
             messages.error(request, 'Missing payment details.')
@@ -176,10 +171,8 @@ def verify_payment(request):
         }
 
         try:
-            # Verify payment signature
             client.utility.verify_payment_signature(params_dict)
 
-            # Try to retrieve the order using Razorpay order ID (order_payment_id)
             try:
                 order = Order.objects.get(order_id=order_payment_id)
             except Order.DoesNotExist:
@@ -232,11 +225,13 @@ def order_details_user(request,order_id):
 
 @require_POST
 def cancel_order(request, order_id):
+    print("wow")
     order = get_object_or_404(Order, order_id=order_id)
 
     if order.status != 'Pending':
         messages.error(request, "Order cannot be canceled.")
         return redirect('order_management:order_detail', order_id=order_id)
+    
 
     try:
         with transaction.atomic():

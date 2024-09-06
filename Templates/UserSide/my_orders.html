@@ -51,7 +51,7 @@
                                                     <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-outline-success btn-check-orders">View Details</a>
 
                                                     
-                                                    {% if order.status == 'Dispatched' and order.payment.method != 'cashOnDelivery' %}
+                                                    {% if order.status == 'Delivered' %}
                                                         <button class="genric-btn danger-border">Return</button>
                                                         
                                                     {% elif order.status != 'Delivered' %}

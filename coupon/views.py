@@ -17,12 +17,9 @@ from .models import Coupon
 from .forms import CouponForm
 
 
-
-
-
 @require_POST
 def apply_coupon(request):
-    print("aagaya")
+    
     if request.method == 'POST':
         coupon_code = request.POST.get('coupon_code')
         total_price = Decimal(request.POST.get('total_price', '0'))
