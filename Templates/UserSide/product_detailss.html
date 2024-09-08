@@ -3,6 +3,8 @@
 
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Add Medium Zoom CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/medium-zoom/dist/style.css">
 
 <!-- Start Banner Area -->
 <section class="banner-area organic-breadcrumb">
@@ -31,7 +33,7 @@
                     {% for variant in variants %}
                         {% for image_url in variant.images %}
                             <div class="carousel-item {% if forloop.first and forloop.parentloop.first %}active{% endif %}" data-variant="{{ variant.id }}">
-                                <img src="{{ image_url }}" class="d-block w-100" alt="{{ product.product_name }}" style="object-fit: contain; height: 400px;">
+                                <img src="{{ image_url }}" class="d-block w-100 zoom-image" alt="{{ product.product_name }}" style="object-fit: contain; height: 400px;">
                             </div>
                         {% endfor %}
                     {% endfor %}
@@ -104,7 +106,6 @@
                             <span style="display: inline; font-weight: bold;">Category: </span>
                             <span style="display: inline;">{{ product.product_category.category_name }}</span>
                         </li>
-                        
                     </ul>
                 </div>
             </div>
@@ -124,7 +125,6 @@
     margin: 0;
     padding: 0;
     font-size: 1.5em;
-    
 }
 
 .pricing .original-price {
@@ -136,10 +136,16 @@
 #offer-price h3 {
     font-weight: bold;
 }
+
+.zoom-image {
+    cursor: zoom-in;
+}
 </style>
 
 <!-- JavaScript to handle price and image updates -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Add Medium Zoom JS -->
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const colorButtons = document.querySelectorAll('.color-button');
@@ -151,6 +157,7 @@
         const stockDisplay = document.querySelector('#stock-display');
         const stockValue = document.querySelector('#stock-value');
         const outOfStockMessage = document.querySelector('#out-of-stock-message');
+        let zoom = mediumZoom('.zoom-image');
 
         function updateStock(stock) {
             stockValue.textContent = stock;
@@ -167,6 +174,11 @@
                 addToCartBtn.style.display = 'inline-block';
                 outOfStockMessage.style.display = 'none';
             }
+        }
+
+        function initializeZoom() {
+            zoom.detach(); // Detach the previous zoom
+            zoom = mediumZoom('.zoom-image'); // Reinitialize zoom for all images
         }
 
         colorButtons.forEach(button => {
@@ -192,7 +204,7 @@
 
                     const img = document.createElement('img');
                     img.src = imageUrl;
-                    img.className = 'd-block w-100';
+                    img.className = 'd-block w-100 zoom-image';
                     img.alt = '{{ product.product_name }}';
                     img.style.objectFit = 'contain';
                     img.style.height = '400px';
@@ -200,6 +212,8 @@
                     carouselItem.appendChild(img);
                     carouselInner.appendChild(carouselItem);
                 });
+
+                initializeZoom();
 
                 colorButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
@@ -213,6 +227,9 @@
         $('#productImagesCarousel').carousel({
             interval: false
         });
+
+        // Initialize zoom for the first image
+        initializeZoom();
     });
 </script>
 
@@ -242,18 +259,18 @@
     });
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-      
-        h1,  {
-            font-family: 'Oswald', sans-serif;
-            font-size: 42px;
-            font-weight: 700;
-        }
-    </style>
+<style>
+    h1 {
+        font-family: 'Oswald', sans-serif;
+        font-size: 42px;
+        font-weight: 700;
+    }
+</style>
 <link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
 <style>
 p {
-    font-family: 'Alegreya';font-size: 22px;
+    font-family: 'Alegreya';
+    font-size: 22px;
 }
 </style>
 {% endblock %}

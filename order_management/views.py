@@ -9,6 +9,7 @@ from django.conf import settings
 from order_management.models import Order, Payment, OrderItem, OrderAddress,Return
 from cart.models import Cart, CartItem ,Wallet,WalletTransaction
 from django.views.decorators.cache import never_cache
+from django.template.loader import get_template
 from coupon.models import Coupon, UserCoupon
 from user_pannel.models import UserAddress
 from products.models import ProductVariant
@@ -16,6 +17,8 @@ from django.utils import timezone
 from django.urls import reverse
 from datetime import timedelta
 from decimal import Decimal
+
+
 import datetime
 import razorpay
 import hashlib
@@ -23,14 +26,16 @@ import uuid
 import json
 import hmac
 
-@login_required
+
 
 @login_required
 @never_cache
+
 def place_order(request):
     if request.method == 'POST':
         payment_method = request.POST.get('paymentMethod')
         address_id = request.POST.get('address')
+        applied_coupon_id = request.POST.get('applied_coupon')
 
         if not payment_method or not address_id:
             messages.error(request, 'Please select both a payment method and a delivery address.')
@@ -39,6 +44,14 @@ def place_order(request):
         cart = get_object_or_404(Cart, user=request.user)
         cart_items = cart.items.filter(is_active=True)
         total_price = sum(item.sub_total() for item in cart_items)
+
+        # Apply coupon if available
+        coupon_discount = 0
+        if applied_coupon_id:
+            coupon = get_object_or_404(Coupon, id=applied_coupon_id, status=True)
+            if coupon.minimum_amount <= total_price <= coupon.maximum_amount:
+                coupon_discount = (total_price * coupon.discount) / 100
+                total_price -= coupon_discount
 
         for item in cart_items:
             product_variant = item.variant
@@ -54,9 +67,9 @@ def place_order(request):
         if payment_method == 'razorpay':
             razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
             razorpay_order = razorpay_client.order.create({
-                'amount': int(total_price * 100),  # Razorpay expects the amount in paise
+                'amount': int(total_price * 100),  
                 'currency': 'INR',
-                'payment_capture': '1'  # Automatically capture the payment
+                'payment_capture': '1' 
             })
 
             request.session['razorpay_order_id'] = razorpay_order['id']
@@ -66,13 +79,12 @@ def place_order(request):
                 address=selected_address,
                 order_id=razorpay_order['id'],
                 payment=None,
-                total_price=total_price,
-                offer_price=0,  # Update this if you have discounts
+                total_price=total_price + coupon_discount,
+                offer_price=coupon_discount,
                 final_price=total_price,
                 status='Pending'
             )
 
-            # Save address in OrderAddress model
             OrderAddress.objects.create(
                 user=request.user,
                 name=selected_address.name,
@@ -85,14 +97,25 @@ def place_order(request):
             )
 
             for item in cart_items:
+                item_discount = (item.sub_total() / (total_price + coupon_discount)) * coupon_discount
                 OrderItem.objects.create(
                     order=order,
                     product_variant=item.variant,
                     quantity=item.quantity,
-                    price=item.variant.offer_price
+                    price=item.variant.offer_price,
+                    coupon_offer=item_discount
                 )
                 item.variant.variant_stock -= item.quantity
                 item.variant.save()
+
+            if applied_coupon_id:
+                UserCoupon.objects.create(
+                    user=request.user,
+                    coupon=coupon,
+                    used=True,
+                    used_at=timezone.now(),
+                    order=order
+                )
 
             return render(request, 'UserSide/razorpay_payment.html', {
                 'razorpay_order_id': razorpay_order['id'],
@@ -118,13 +141,12 @@ def place_order(request):
                 address=selected_address,
                 payment=payment,
                 order_id=str(uuid.uuid4()),
-                total_price=total_price,
-                offer_price=0,  # Update this if you have discounts
+                total_price=total_price + coupon_discount,
+                offer_price=coupon_discount,
                 final_price=total_price,
                 status='Pending'
             )
 
-            # Save address in OrderAddress model
             OrderAddress.objects.create(
                 user=request.user,
                 name=selected_address.name,
@@ -137,14 +159,25 @@ def place_order(request):
             )
 
             for item in cart_items:
+                item_discount = (item.sub_total() / (total_price + coupon_discount)) * coupon_discount
                 OrderItem.objects.create(
                     order=order,
                     product_variant=item.variant,
                     quantity=item.quantity,
-                    price=item.variant.offer_price
+                    price=item.variant.offer_price,
+                    coupon_offer=item_discount
                 )
                 item.variant.variant_stock -= item.quantity
                 item.variant.save()
+
+            if applied_coupon_id:
+                UserCoupon.objects.create(
+                    user=request.user,
+                    coupon=coupon,
+                    used=True,
+                    used_at=timezone.now(),
+                    order=order
+                )
 
             cart.items.all().delete()
 
@@ -152,7 +185,6 @@ def place_order(request):
             return render(request, 'UserSide/order_placed.html', {'order': order})
 
     return redirect('checkout')
-
 @require_POST
 def verify_payment(request):
     if request.method == 'POST':
@@ -230,9 +262,9 @@ def order_details_user(request,order_id):
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
 
-    if order.status != 'Delivered':
+    if order.status == 'Delivered':
         messages.error(request, "Order cannot be canceled.")
-        return redirect('order_management:order_details_user', order_id=order_id)
+        return redirect('order_management:my_orders')
     
 
     try:
@@ -255,19 +287,16 @@ def cancel_order(request, order_id):
 
 def return_order(request, order_id):
     order = get_object_or_404(Order, order_id=order_id, user=request.user)
-    
-    # Check if the order is delivered
+
     if order.status != 'Delivered':
         messages.error(request, "Only delivered orders can be returned.")
         return redirect('order_management:my_orders')
 
-    # Check if a return has already been requested for this order
     existing_return = Return.objects.filter(order=order, user=request.user).first()
     if existing_return:
         messages.error(request, "You have already requested a return for this order.")
         return redirect('order_management:my_orders')
 
-    # Ensure the return is requested within 7 days of delivery
     days_since_delivery = (timezone.now().date() - order.delivered_date).days
     if days_since_delivery > 7:
         messages.error(request, "You can only return an order within 7 days of delivery.")
@@ -277,7 +306,6 @@ def return_order(request, order_id):
         return_reason = request.POST.get('return_reason')
         additional_comments = request.POST.get('additional_comments', '')
 
-        # Create a new Return instance and submit it to admin
         new_return = Return.objects.create(
             order=order,
             user=request.user,
@@ -314,3 +342,33 @@ def change_status(request, order_id):
             return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+    
+    
+def render_pdf_view(request):
+    # Load the template
+    template = get_template('your_template.html')
+    context = {'data': 'Your data here'}
+    html = template.render(context)
+
+    # Create a PDF using WeasyPrint
+    pdf_file = HTML(string=html).write_pdf()
+
+    # Send the PDF as a response
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="output.pdf"'
+    return response
+    order = get_object_or_404(Order, id=order_id)
+    template = get_template('order_management/invoice_template.html')
+    context = {'order': order}
+    html = template.render(context)
+    
+    # Create a PDF
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    
+    if not pdf.err:
+        response = HttpResponse(result.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="invoice_{order.order_id}.pdf"'
+        return response
+    
+    return HttpResponse('Error generating PDF', status=400)

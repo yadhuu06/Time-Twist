@@ -51,17 +51,16 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 {{ item.variant.product.product_name }} - {{ item.variant.variant_name }} x {{ item.quantity }}
                                 <span>Rs{{ item.sub_total }}</span>
-                                
                             </li>
                             {% endfor %}
                         </ul>
                         <hr>
                         {% for item in cart_items %}
                         <h6 class="d-flex justify-content-between">
-                            <span>Total: </span>
+                            <span>Original prices </span>
                             <span id="main_total" style="text-decoration: line-through;">{{ item.main_total }}</span>
                         </h6>
-                    {% endfor %}
+                        {% endfor %}
                     
                         <h6 class="d-flex justify-content-between">
                             <span>Subtotal :</span>
@@ -86,8 +85,6 @@
                         <div class="mt-3">
                             <label for="paymentMethod" class="form-label">Payment Method</label>
                             <select class="form-select form-select-sm" id="paymentMethod" name="paymentMethod" required>
-            
-                                
                                 <option value="cashOnDelivery"> Cash on Delivery </option>
                                 <option value="razorpay"> RazorPay </option>
                             </select>
@@ -215,7 +212,7 @@
                                 <button type="submit" class="btn btn-sm btn-primary mt-2">Add Address</button>
                             </div>
                         </div>
-                    </form> 
+                    </form>
                 </div>
             </div>
         </div>
@@ -223,13 +220,12 @@
 </div>
 
 <script>
-// Apply Coupon Button Click Handler
+
 document.getElementById('applyCouponBtn').addEventListener('click', function () {
     var couponModal = new bootstrap.Modal(document.getElementById('couponModal'));
     couponModal.show();
 });
 
-// Apply Coupon from Modal
 document.querySelectorAll('.apply-coupon-btn').forEach(function (button) {
     button.addEventListener('click', function () {
         var card = button.closest('.card');
@@ -240,7 +236,6 @@ document.querySelectorAll('.apply-coupon-btn').forEach(function (button) {
         var couponMax = parseFloat(card.getAttribute('data-coupon-max'));
         var subtotal = parseFloat(document.getElementById('subtotalAmount').textContent.replace('Rs', ''));
         
-        // Validate coupon conditions
         if (subtotal >= couponMin && subtotal <= couponMax) {
             var discountAmount = subtotal * (couponDiscount / 100);
             var payableAmount = subtotal - discountAmount;
@@ -248,33 +243,56 @@ document.querySelectorAll('.apply-coupon-btn').forEach(function (button) {
             document.getElementById('discountAmount').textContent = 'Rs' + discountAmount.toFixed(2);
             document.getElementById('payableAmount').textContent = 'Rs' + payableAmount.toFixed(2);
             
-            // Update the form with applied coupon details
             document.getElementById('appliedCoupon').value = couponId;
             document.getElementById('appliedCouponDetails').textContent = couponCode + ' - Rs' + discountAmount.toFixed(2) + ' off';
             
-            // Show/Hide relevant sections
+            
             document.getElementById('discountSection').style.display = 'flex';
             document.getElementById('couponDetails').style.display = 'flex';
-            couponModal.hide();
+            bootstrap.Modal.getInstance(document.getElementById('couponModal')).hide();
         } else {
             alert('Coupon not applicable for the current order total.');
         }
     });
 });
 
-// Remove Coupon Button Click Handler
+
 document.getElementById('removeCouponBtn').addEventListener('click', function () {
     var subtotal = parseFloat(document.getElementById('subtotalAmount').textContent.replace('Rs', ''));
     document.getElementById('discountAmount').textContent = 'Rs0';
     document.getElementById('payableAmount').textContent = 'Rs' + subtotal.toFixed(2);
     
-    // Clear applied coupon
     document.getElementById('appliedCoupon').value = '';
     document.getElementById('appliedCouponDetails').textContent = '';
     
-    // Hide/Show relevant sections
     document.getElementById('discountSection').style.display = 'none';
     document.getElementById('couponDetails').style.display = 'none';
 });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
 </script>
 {% endblock %}

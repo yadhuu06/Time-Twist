@@ -1,4 +1,5 @@
 {% extends "AdminSide/base.html" %}
+{% load static %}
 {% block title %}Returns List{% endblock %}
 
 {% block content %}
@@ -11,8 +12,8 @@
         </div>
         <div class="card-body">
             {% if return_item %}
-                <div class="table">
-                    <table class="table ">
+                <div class="table-responsive">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>Return ID</th>
@@ -28,7 +29,7 @@
                             {% for return in return_item %}
                                 <tr>
                                     <td>{{ return.id }}</td>
-                                    <td>{{ return.order.order_id }}</td>
+                                    <td>{{ return.order.order_id|slice:"-5:" }}</td>
                                     <td>{{ return.user.first_name }} {{ return.user.last_name }}</td>
                                     <td>{{ return.get_reason_display }}</td>
                                     <td>
@@ -36,7 +37,7 @@
                                             {{ return.get_status_display }}
                                         </span>
                                     </td>
-                                    <td>{{ return.return_date|date:"M d, Y H:i" }}</td>
+                                    <td>{{ return.return_date|date:"M d" }}</td>
                                     <td>
                                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#returnDetailsModal{{ return.id }}">
                                             View Details
@@ -46,35 +47,33 @@
 
                                 <!-- Return Details Modal -->
                                 <div class="modal fade" id="returnDetailsModal{{ return.id }}" tabindex="-1" aria-labelledby="returnDetailsModalLabel{{ return.id }}" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
+                                    <div class="modal-dialog modal-dialog-centered modal-md">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="returnDetailsModalLabel{{ return.id }}">Return Details for Order {{ return.order.order_id }}</h5>
+                                                <h5 class="modal-title" id="returnDetailsModalLabel{{ return.id }}">Return Details for Order {{ return.order.order_id|slice:"-5:" }}</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <h6>Order Information</h6>
-                                                <p><strong>Order Date:</strong> {{ return.order.created_at|date:"M d, Y" }}</p>
-                                                <p><strong>Total Price:</strong> ${{ return.order.final_price }}</p>
+                                                <p><strong>Order Date:</strong> {{ return.order.created_at|date:"M d" }}</p>
+                                                <p><strong>Total Price:</strong> {{ return.order.final_price }}</p>
                                                 <p><strong>Order Status:</strong> {{ return.order.get_status_display }}</p>
 
                                                 <h6 class="mt-4">Return Information</h6>
                                                 <p><strong>Return Reason:</strong> {{ return.get_reason_display }}</p>
                                                 <p><strong>Return Status:</strong> {{ return.get_status_display }}</p>
-                                                <p><strong>Return Date:</strong> {{ return.return_date|date:"M d, Y H:i" }}</p>
+                                                <p><strong>Return Date:</strong> {{ return.return_date|date:"M d" }}</p>
 
                                                 <h6 class="mt-4">User Information</h6>
                                                 <p><strong>Username:</strong> {{ return.user.first_name }}</p>
                                                 <p><strong>Email:</strong> {{ return.user.email }}</p>
 
-                                                <h6 class="mt-4">Ordered Items</h6>
+                                                <h6 class="mt-4">Returned Item</h6>
                                                 <ul class="list-group">
-                                                    {% for item in return.order.items.all %}
-                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                            {{ item.product_variant.product.product_name }} ({{ item.product_variant.variant_name }})
-                                                            <span class="badge bg-primary rounded-pill">Qty: {{ item.quantity }}</span>
-                                                        </li>
-                                                    {% endfor %}
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        {{ return.item.product_variant.product.product_name }} ({{ return.item.product_variant.variant_name }})
+                                                        <span class="badge bg-primary rounded-pill">Qty: {{ return.item.quantity }}</span>
+                                                    </li>
                                                 </ul>
                                             </div>
                                             <div class="modal-footer">
@@ -97,20 +96,62 @@
         </div>
     </div>
 </div>
-<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
-<style>
-body {
-    font-family: 'Alegreya';font-size: 22px;
-}
-</style>
 
+{% block extra_css %}
+<style>
+    .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        min-height: calc(100% - 1rem);
+    }
+
+    .modal-md {
+        max-width: 66.6667%; /* 8/12 width */
+    }
+
+    body {
+        font-family: 'Alegreya', sans-serif;
+        font-size: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function updateReturnStatus(returnId, newStatus) {
-        // Here you would typically make an AJAX call to update the status
-        // For now, we'll just show an alert
-        alert(`Return ${returnId} status updated to ${newStatus}`);
-        // After successful update, you might want to reload the page or update the UI
-        location.reload();
+        fetch('{% url "update_return_status" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                return_id: returnId,
+                status: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(`Return ${returnId} status updated to ${newStatus}`);
+                location.reload();
+            } else {
+                alert('Error updating return status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the return status');
+        });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var modals = document.querySelectorAll('.modal');
+        modals.forEach(function(modal) {
+            new bootstrap.Modal(modal);
+        });
+    });
 </script>
+{% endblock %}
 {% endblock %}

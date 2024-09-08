@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - {{ order.order_id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .invoice-details {
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Invoice</h1>
+        </div>
+        <div class="invoice-details">
+            <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+            <p><strong>Date:</strong> {{ order.created_at|date:"F j, Y, g:i a" }}</p>
+            <p><strong>Payment Method:</strong> {{ order.payment.method }}</p>
+            <p><strong>Payment Status:</strong> {{ order.payment.status }}</p>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Variant</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product_variant.product.product_name }}</td>
+                    <td>{{ item.product_variant.variant_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>Rs{{ item.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="total">
+            <p><strong>Subtotal:</strong> Rs{{ order.total_price }}</p>
+            <p><strong>Shipping:</strong> Rs{{ order.final_price|sub:order.total_price }}</p>
+            <p><strong>Total:</strong> Rs{{ order.final_price }}</p>
+        </div>
+    </div>
+</body>
+</html>

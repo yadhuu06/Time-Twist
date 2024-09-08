@@ -98,27 +98,16 @@
                                 <td></td>
                                 <td></td>
                                 <td>
-                                    <p>${{ order.total_price }}</p>
+                                    <p>Rs {{ order.total_price }}</p>
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <h4>Shipping</h4>
-                                </td>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                    {% comment %} <p>Flat rate: ${{ order.final_price - order.total_price }}</p> {% endcomment %}
-                                </td>
-                            </tr>
-                            <tr>
+                            
                                 <td>
                                     <h4>Total</h4>
                                 </td>
                                 <td></td>
                                 <td></td>
                                 <td>
-                                    <p>${{ order.final_price }}</p>
+                                    <p>Rs {{ order.final_price }}</p>
                                 </td>
                             </tr>
                         </tbody>

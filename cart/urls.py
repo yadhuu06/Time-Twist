@@ -11,3 +11,4 @@ urlpatterns = [
     path('wishlist/remove/<int:item_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
     path('wallet/', views.wallet_detail, name='wallet_detail'),
 ]
+    

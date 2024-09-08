@@ -146,7 +146,7 @@ def add_to_wishlist(request, product_id):
         messages.info(request, 'This item is already in your wishlist.')
     else:
         messages.success(request, 'Item added to your wishlist.')
-    return redirect('cart:wishlist')
+    return redirect('shop_view')
 
 def remove_from_wishlist(request, item_id):
     print(item_id) 
@@ -162,7 +162,4 @@ def remove_from_wishlist(request, item_id):
 
 def wallet_detail(request):
     user = request.user
-    print(user.first_name)
-    
-    
     return render(request,'UserSide/user_wallet.html')
