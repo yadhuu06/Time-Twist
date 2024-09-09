@@ -37,7 +37,7 @@
                                             <div class="col-md-2 text-md-end">
                                                 <p class="card-text">
                                                     <strong>Status:</strong>
-                                                    <span class="{% if order.status == 'Delivered' %}text-success{% elif order.status == 'Canceled' %}text-danger{% elif order.status == 'Pending' %}text-warning{% elif order.status == 'Returned' or order.status == 'Refund Completed' %}text-danger{% else %}text-secondary{% endif %}">
+                                                    <span class="{% if order.status == 'Delivered' %}text-success{% elif order.status == 'Cancelled' %}text-danger{% elif order.status == 'Pending' %}text-warning{% elif order.status == 'Returned' or order.status == 'Refund Completed' %}text-danger{% else %}text-secondary{% endif %}">
                                                         {{ order.status }}
                                                     </span>
                                                 </p>
@@ -53,7 +53,7 @@
                                                         <button type="button" class="btn btn-outline-danger return-order-btn" data-bs-toggle="modal" data-bs-target="#returnModal{{ order.order_id }}">
                                                             Return
                                                         </button>
-                                                    {% elif order.status != 'Delivered' and order.status != 'Canceled' and order.status != 'Returned' %}
+                                                    {% elif order.status != 'Delivered' and order.status != 'Cancelled' and order.status != 'Returned' %}
                                                         <form action="{% url 'order_management:cancel_order' order_id=order.order_id %}" method="POST" class="d-inline">
                                                             {% csrf_token %}
                                                             <button type="submit" class="btn btn-outline-danger cancel-order-btn">Cancel</button>

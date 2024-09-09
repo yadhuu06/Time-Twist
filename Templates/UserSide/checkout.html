@@ -159,10 +159,10 @@
                                 <input type="text" name="state" class="form-control" placeholder="State/Province" value="{{ a.state }}" required>
                             </div>
                             <div class="col-md-4">
-                                <input type="text" name="pin_number" class="form-control" placeholder="Zip/Postal Code" value="{{ a.pin_number }}" required>
+                                <input type="text" name="pin_number" class="form-control" placeholder="Zip/Postal Code" pattern="\d{6}" title="Must be 6 digits"  value="{{ a.pin_number }}" required>
                             </div>
                             <div class="col-md-4">
-                                <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" value="{{ a.phone_number }}" required>
+                                <input type="text" name="phone_number" class="form-control" placeholder="Phone Number"  pattern="\d{10}" title="Must be 10 digits" value="{{ a.phone_number }}" required>
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-sm btn-primary mt-2">Save Changes</button>
@@ -180,7 +180,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                    <h5 class="modal-title" id="addAddressModalLabel">Add Address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -203,10 +203,11 @@
                                 <input type="text" name="state" class="form-control" placeholder="State/Province" required>
                             </div>
                             <div class="col-md-4">
-                                <input type="text" name="pin_number" class="form-control" placeholder="Zip/Postal Code" required>
+                                <input type="text" name="pin_number" class="form-control" placeholder="Zip/Postal Code" pattern="\d{6}" title="Must be 6 digits" required>
+
                             </div>
                             <div class="col-md-4">
-                                <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" required>
+                                <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" pattern="\d{10}" title="Must be 10 digits"  required>
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-sm btn-primary mt-2">Add Address</button>
@@ -219,80 +220,59 @@
     </div>
 </div>
 
+<!-- Ensure Bootstrap's JS and your custom script are included -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-
-document.getElementById('applyCouponBtn').addEventListener('click', function () {
-    var couponModal = new bootstrap.Modal(document.getElementById('couponModal'));
-    couponModal.show();
-});
-
-document.querySelectorAll('.apply-coupon-btn').forEach(function (button) {
-    button.addEventListener('click', function () {
-        var card = button.closest('.card');
-        var couponId = card.getAttribute('data-coupon-id');
-        var couponCode = card.getAttribute('data-coupon-code');
-        var couponDiscount = parseFloat(card.getAttribute('data-coupon-discount'));
-        var couponMin = parseFloat(card.getAttribute('data-coupon-min'));
-        var couponMax = parseFloat(card.getAttribute('data-coupon-max'));
-        var subtotal = parseFloat(document.getElementById('subtotalAmount').textContent.replace('Rs', ''));
-        
-        if (subtotal >= couponMin && subtotal <= couponMax) {
-            var discountAmount = subtotal * (couponDiscount / 100);
-            var payableAmount = subtotal - discountAmount;
-            
-            document.getElementById('discountAmount').textContent = 'Rs' + discountAmount.toFixed(2);
-            document.getElementById('payableAmount').textContent = 'Rs' + payableAmount.toFixed(2);
-            
-            document.getElementById('appliedCoupon').value = couponId;
-            document.getElementById('appliedCouponDetails').textContent = couponCode + ' - Rs' + discountAmount.toFixed(2) + ' off';
-            
-            
-            document.getElementById('discountSection').style.display = 'flex';
-            document.getElementById('couponDetails').style.display = 'flex';
-            bootstrap.Modal.getInstance(document.getElementById('couponModal')).hide();
-        } else {
-            alert('Coupon not applicable for the current order total.');
-        }
+    // JavaScript to handle modal functionality
+    document.querySelectorAll('.modal').forEach(function (modalEl) {
+        new bootstrap.Modal(modalEl);
     });
-});
 
+    // Handle apply coupon button
+    document.getElementById('applyCouponBtn').addEventListener('click', function () {
+        var couponModal = new bootstrap.Modal(document.getElementById('couponModal'));
+        couponModal.show();
+    });
 
-document.getElementById('removeCouponBtn').addEventListener('click', function () {
-    var subtotal = parseFloat(document.getElementById('subtotalAmount').textContent.replace('Rs', ''));
-    document.getElementById('discountAmount').textContent = 'Rs0';
-    document.getElementById('payableAmount').textContent = 'Rs' + subtotal.toFixed(2);
-    
-    document.getElementById('appliedCoupon').value = '';
-    document.getElementById('appliedCouponDetails').textContent = '';
-    
-    document.getElementById('discountSection').style.display = 'none';
-    document.getElementById('couponDetails').style.display = 'none';
-});
-</script>
+    // Handle coupon application
+    document.querySelectorAll('.apply-coupon-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var couponCard = this.closest('.coupon-card');
+            var couponId = couponCard.getAttribute('data-coupon-id');
+            var couponCode = couponCard.getAttribute('data-coupon-code');
+            var couponDiscount = couponCard.getAttribute('data-coupon-discount');
+            var couponMin = couponCard.getAttribute('data-coupon-min');
+            var couponMax = couponCard.getAttribute('data-coupon-max');
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        {% if messages %}
-            const messages = [
-                {% for message in messages %}
-                    {
-                        level: "{{ message.tags }}",
-                        text: "{{ message }}"
-                    },
-                {% endfor %}
-            ];
-            messages.forEach(message => {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-right',
-                    icon: message.level === 'success' ? 'success' : 'error',
-                    title: message.text,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            });
-        {% endif %}
+            // Set the applied coupon details
+            document.getElementById('appliedCoupon').value = couponCode;
+            document.getElementById('appliedCouponDetails').innerText = 'Coupon applied: ' + couponCode + ' - Discount: ' + couponDiscount + '%';
+            document.getElementById('discountSection').style.display = 'block';
+
+            // Calculate discount and update amounts (example calculation, adjust as needed)
+            var subtotal = parseFloat(document.getElementById('subtotalAmount').innerText.replace('Rs', ''));
+            var discountAmount = subtotal * (couponDiscount / 100);
+            var discountedTotal = subtotal - discountAmount;
+
+            if (discountedTotal < couponMin) {
+                discountedTotal = subtotal;
+                document.getElementById('appliedCouponDetails').innerText += ' (Not valid for this amount)';
+                document.getElementById('discountSection').style.display = 'none';
+            } else if (discountedTotal > couponMax) {
+                discountedTotal = couponMax;
+            }
+
+            document.getElementById('discountAmount').innerText = 'Rs ' + discountAmount.toFixed(2);
+            document.getElementById('payableAmount').innerText = 'Rs ' + discountedTotal.toFixed(2);
+        });
+    });
+
+    // Handle remove coupon button
+    document.getElementById('removeCouponBtn').addEventListener('click', function () {
+        document.getElementById('appliedCoupon').value = '';
+        document.getElementById('appliedCouponDetails').innerText = '';
+        document.getElementById('discountSection').style.display = 'none';
+        document.getElementById('payableAmount').innerText = document.getElementById('subtotalAmount').innerText;
     });
 </script>
 {% endblock %}

@@ -28,6 +28,7 @@ class Order(models.Model):
         ('Shipped', 'Shipped'),
         ('Delivered', 'Delivered'),
         ('Cancelled', 'Cancelled'),
+        ('Returned', 'Returned')
         
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -52,6 +53,8 @@ class OrderItem(models.Model):
     quantity = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     coupon_offer = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    paid_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
 
     def __str__(self):
         return f"{self.product_variant.product_name} ({self.quantity})"

@@ -7,39 +7,70 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f0f4f8; /* Soft and light background */
+            font-family: 'Arial', sans-serif;
         }
         .confirmation-box {
             max-width: 600px;
             margin: 50px auto;
-            background: #fff;
+            background-color: #ffffff; /* Clean white background for box */
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
             text-align: center;
         }
         .confirmation-icon {
             font-size: 50px;
-            color: green;
+            color: #28a745; /* Bright green for success icon */
+            margin-bottom: 20px;
+        }
+        .confirmation-header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333333; /* Dark text for readability */
+            margin-bottom: 10px;
+        }
+        .confirmation-message {
+            font-size: 16px;
+            color: #555555; /* Slightly lighter text for secondary message */
+            margin-bottom: 20px;
         }
         .order-id {
             font-weight: bold;
+            color: #007bff; /* Accent color for order ID */
         }
-        .btn-check-orders, .btn-continue-shopping {
+        .btn-check-orders, .btn-view-summary, .btn-continue-shopping {
+            display: block;
             width: 100%;
             margin-top: 20px;
             padding: 12px;
-        }
-        .btn-check-orders {
-            color: #ffc107;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
             text-decoration: none;
+            text-align: center;
+        }
+        .btn-check-orders, .btn-view-summary {
+            background-color: transparent;
+            border: 2px solid #007bff; /* Blue border */
+            color: #007bff; /* Blue text */
+            transition: all 0.3s ease;
+        }
+        .btn-check-orders:hover, .btn-view-summary:hover {
+            background-color: #007bff;
+            color: #fff; /* Inverse color on hover */
         }
         .btn-continue-shopping {
-            background-color: #007bff;
+            background-color: #28a745; /* Bright green background */
             color: white;
             border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-continue-shopping:hover {
+            background-color: #218838; /* Darker green on hover */
         }
     </style>
+    
 </head>
 <body>
 
@@ -50,11 +81,13 @@
         </div>  
         <h2 class="my-4">ORDER CONFIRMED</h2>
         <p>Thank you for the order. Your order has been confirmed!</p>
-        <p>The order ID is: <span class="order-id">{{order.order_id}}</span>, the order will be delivered within 7 days.</p>
+        <p>The order ID is: <span class="order-id">{{order.order_id}}</span>, the order will be delivered within <b> 7 days</b>.</p>
         <a href="{% url 'order_management:my_orders' %}" class="btn btn-outline-warning btn-check-orders">Check Orders</a>
-        <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-outline-success btn-check-orders">View sUMMARY</a>
+        <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-outline-success btn-check-orders">View Summary</a>
 
-        <button class="btn btn-continue-shopping"href="{% url 'shop_view' %}">Continue Shopping</button>
+        <a href="{% url 'shop_view' %}" class="btn btn-outline-warning mt-3">
+            Continue Shopping
+        </a>
     </div>
 </div>
 

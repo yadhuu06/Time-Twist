@@ -30,7 +30,6 @@ import hmac
 
 @login_required
 @never_cache
-
 def place_order(request):
     if request.method == 'POST':
         payment_method = request.POST.get('paymentMethod')
@@ -103,7 +102,8 @@ def place_order(request):
                     product_variant=item.variant,
                     quantity=item.quantity,
                     price=item.variant.offer_price,
-                    coupon_offer=item_discount
+                    coupon_offer=item_discount,
+                    paid_price=item.variant.offer_price - item_discount
                 )
                 item.variant.variant_stock -= item.quantity
                 item.variant.save()
@@ -165,7 +165,8 @@ def place_order(request):
                     product_variant=item.variant,
                     quantity=item.quantity,
                     price=item.variant.offer_price,
-                    coupon_offer=item_discount
+                    coupon_offer=item_discount,
+                    paid_price=item.variant.offer_price - item_discount
                 )
                 item.variant.variant_stock -= item.quantity
                 item.variant.save()
@@ -185,6 +186,7 @@ def place_order(request):
             return render(request, 'UserSide/order_placed.html', {'order': order})
 
     return redirect('checkout')
+
 @require_POST
 def verify_payment(request):
     if request.method == 'POST':
@@ -258,14 +260,19 @@ def order_details_user(request,order_id):
     order = get_object_or_404(Order, order_id=order_id)
     return render(request, 'UserSide/order_details.html', {'order': order})
 
-@require_POST
+
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
 
     if order.status == 'Delivered':
         messages.error(request, "Order cannot be canceled.")
         return redirect('order_management:my_orders')
-    
+
+    wallet = None  # Initialize wallet as None
+
+    # Check if the payment method is not cashOnDelivery
+    if order.payment.method != 'cashOnDelivery':
+        wallet, created = Wallet.objects.get_or_create(user=order.user)
 
     try:
         with transaction.atomic():
@@ -274,15 +281,25 @@ def cancel_order(request, order_id):
                 product_variant.variant_stock += item.quantity
                 product_variant.save()
 
-            order.status = 'Canceled'
+                if wallet:
+                    wallet.balance += item.paid_price
+                    wallet.save()
+
+                    WalletTransaction.objects.create(
+                        wallet=wallet,
+                        amount=item.paid_price,
+                        description=f"Refund for item {item.product_variant} in Order {order.order_id} cancellation",
+                        transaction_type="credit"
+                    )
+
+            order.status = 'Cancelled'
             order.save()
 
-        messages.success(request, "Order canceled successfully.")
+        messages.success(request, "Order canceled successfully and refunds processed.")
     except Exception as e:
         messages.error(request, f"An error occurred while canceling the order: {str(e)}")
-    
-    return redirect('order_management:my_orders')
 
+    return redirect('order_management:my_orders')
 
 
 def return_order(request, order_id):
@@ -319,6 +336,9 @@ def return_order(request, order_id):
 
     return redirect(reverse('order_management:my_orders'))
 
+
+
+
 def change_status(request, order_id):
     if request.method == "POST":
         try:
@@ -345,15 +365,13 @@ def change_status(request, order_id):
     
     
 def render_pdf_view(request):
-    # Load the template
+  
     template = get_template('your_template.html')
     context = {'data': 'Your data here'}
     html = template.render(context)
 
-    # Create a PDF using WeasyPrint
     pdf_file = HTML(string=html).write_pdf()
 
-    # Send the PDF as a response
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="output.pdf"'
     return response
@@ -361,8 +379,7 @@ def render_pdf_view(request):
     template = get_template('order_management/invoice_template.html')
     context = {'order': order}
     html = template.render(context)
-    
-    # Create a PDF
+
     result = BytesIO()
     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
     

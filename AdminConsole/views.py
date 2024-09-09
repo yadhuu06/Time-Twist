@@ -1,18 +1,22 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from order_management.models import Return
+from order_management.models import Return, Order, Payment, OrderItem
 from UserAccounts.models import User
-from django.shortcuts import get_object_or_404
-from order_management.models import Order, Payment, OrderItem 
 from user_pannel.models import UserAddress
 from cart.models import Wallet, WalletTransaction
-from products.models import Products,ProductVariant
+from products.models import Products, ProductVariant
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
-
+from datetime import datetime, timedelta, date
+from django.core.paginator import Paginator
+from django.db.models.functions import TruncMonth, TruncYear
+from dateutil.relativedelta import relativedelta
+from django.db import transaction
+import json
+ 
 
 def is_admin(user):
     return  user.is_admin
@@ -88,52 +92,82 @@ def change_order_status(request, order_id):
 
 @user_passes_test(is_admin)
 def return_list(request):
-    return_item = Return.objects.all().order_by('-return_date')
+    return_item = Return.objects.exclude(status='complete').order_by('-return_date')
     return render(request, "AdminSide/return_list.html", {'return_item': return_item})
 
-@user_passes_test(is_admin)
+
+ 
+
 @require_POST
 def update_return_status(request):
-    if request.method == 'POST':
+    try:
         data = json.loads(request.body)
         return_id = data.get('return_id')
         new_status = data.get('status')
-        
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
+    if not return_id or not new_status:
+        return JsonResponse({'status': 'error', 'message': 'Missing return_id or status'}, status=400)
+
+    with transaction.atomic():
         try:
-            return_item = Return.objects.get(id=return_id)
-            return_item.status = new_status
+            return_item = Return.objects.select_for_update().get(id=return_id)
+
+            if return_item.status != 'Pending':
+                return JsonResponse({'status': 'error', 'message': 'This return has already been processed'}, status=400)
+
+            return_item.status = 'returned' if new_status == 'complete' else new_status
             return_item.save()
 
             if new_status == 'complete':
-                # Calculate refund amount
-                order_item = return_item.order_item
-                refund_amount = order_item.total_price
+                order_items = OrderItem.objects.filter(order=return_item.order, product_variant__in=return_item.order.items.values_list('product_variant', flat=True))
+
+                if not order_items.exists():
+                    return JsonResponse({'status': 'error', 'message': 'Associated order items not found'}, status=404)
+
+                total_refund_amount = 0
                 
-                # Get user's wallet
-                wallet = Wallet.objects.get(user=return_item.user)
-                wallet.balance += refund_amount
+                for order_item in order_items:
+                    refund_amount = order_item.paid_price
+                    total_refund_amount += refund_amount
+                    
+                    product_variant = order_item.product_variant
+                    product_variant.variant_stock += order_item.quantity
+                    product_variant.save()
+
+                wallet, _ = Wallet.objects.get_or_create(user=return_item.user)
+                wallet.balance += total_refund_amount
                 wallet.save()
 
-                # Record transaction
                 WalletTransaction.objects.create(
                     wallet=wallet,
-                    amount=refund_amount,
+                    amount=total_refund_amount,
                     description=f'Refund for return {return_item.id}',
                     transaction_type='credit'
                 )
 
-            return JsonResponse({'status': 'success'})
+                # Update payment status to 'refund'
+                Payment.objects.filter(order=return_item.order).update(status='refund')
+                Order.objects.filter(id=return_item.order.id).update(status='Returned')
+
+                messages.success(request, 'Return approved, refund processed, and stock updated')
+                return JsonResponse({'status': 'success', 'message': 'Return approved, refund processed, and stock updated'})
+
+            elif new_status == 'rejected':
+                messages.info(request, 'Return rejected')
+                return JsonResponse({'status': 'success', 'message': 'Return rejected'})
+
+            else:
+                messages.info(request, 'Return status updated')
+                return JsonResponse({'status': 'success', 'message': 'Return status updated'})
+
         except Return.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Return not found'})
-
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
-
-
-from datetime import datetime, timedelta, date
-from django.core.paginator import Paginator
-from django.shortcuts import render
-from django.db.models.functions import TruncMonth, TruncYear
-from dateutil.relativedelta import relativedelta
+            return JsonResponse({'status': 'error', 'message': 'Return not found'}, status=404)
+        except OrderItem.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Associated order item not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': f'An unexpected error occurred: {str(e)}'}, status=500)
 
 @user_passes_test(is_admin)
 def sales_report(request):
@@ -141,7 +175,7 @@ def sales_report(request):
     end_date = request.GET.get('end_date')
     report_type = request.GET.get('report_type', 'daily')
     
-    # Filter orders where status is "Delivered"
+   
     orders = Order.objects.filter(status="Delivered")
     
     if start_date and end_date:
@@ -156,11 +190,9 @@ def sales_report(request):
                 start_date = datetime.strptime(start_date, '%Y').date().replace(month=1, day=1)
                 end_date = datetime.strptime(end_date, '%Y').date().replace(month=12, day=31)
             
-            # Add one day to end_date to include the end date in the results
             end_date = end_date + timedelta(days=1)
             orders = orders.filter(created_at__range=[start_date, end_date])
         except ValueError:
-            # If date parsing fails, reset the filter
             start_date = None
             end_date = None
     
@@ -170,8 +202,7 @@ def sales_report(request):
         orders = orders.annotate(report_date=TruncYear('created_at')).order_by('-report_date', '-created_at')
     else:  
         orders = orders.order_by('-created_at')
-    
-    # Pagination
+
     paginator = Paginator(orders, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

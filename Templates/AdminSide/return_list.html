@@ -4,16 +4,16 @@
 
 {% block content %}
 <div class="container-fluid my-4">
-    <h1 class="mb-4">Return Orders</h1>
+    <h1 class="mb-4 text-light"><strong>Return Orders</strong></h1>
 
-    <div class="card">
+    <div class="card bg-dark text-light">
         <div class="card-header">
-            <h5 class="mb-0">All Return Requests</h5>
+            <h5 class="mb-0">All Return Requests :</h5>
         </div>
         <div class="card-body">
             {% if return_item %}
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover table-dark">
                         <thead>
                             <tr>
                                 <th>Return ID</th>
@@ -29,7 +29,7 @@
                             {% for return in return_item %}
                                 <tr>
                                     <td>{{ return.id }}</td>
-                                    <td>{{ return.order.order_id|slice:"-5:" }}</td>
+                                    <td>..{{ return.order.order_id|slice:"-5:" }}</td>
                                     <td>{{ return.user.first_name }} {{ return.user.last_name }}</td>
                                     <td>{{ return.get_reason_display }}</td>
                                     <td>
@@ -39,46 +39,48 @@
                                     </td>
                                     <td>{{ return.return_date|date:"M d" }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#returnDetailsModal{{ return.id }}">
+                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#returnDetailsModal{{ return.id }}">
                                             View Details
                                         </button>
+                                        {% if return.status == 'pending' %}
+                                            <button class="btn btn-sm btn-success" onclick="updateReturnStatus({{ return.id }}, 'complete')">
+                                                Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="updateReturnStatus({{ return.id }}, 'rejected')">
+                                                Reject
+                                            </button>
+                                        {% endif %}
                                     </td>
                                 </tr>
 
                                 <!-- Return Details Modal -->
                                 <div class="modal fade" id="returnDetailsModal{{ return.id }}" tabindex="-1" aria-labelledby="returnDetailsModalLabel{{ return.id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-md">
-                                        <div class="modal-content">
+                                        <div class="modal-content bg-dark text-light">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="returnDetailsModalLabel{{ return.id }}">Return Details for Order {{ return.order.order_id|slice:"-5:" }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <h6>Order Information</h6>
                                                 <p><strong>Order Date:</strong> {{ return.order.created_at|date:"M d" }}</p>
                                                 <p><strong>Total Price:</strong> {{ return.order.final_price }}</p>
-                                                <p><strong>Order Status:</strong> {{ return.order.get_status_display }}</p>
+                                               
 
                                                 <h6 class="mt-4">Return Information</h6>
                                                 <p><strong>Return Reason:</strong> {{ return.get_reason_display }}</p>
-                                                <p><strong>Return Status:</strong> {{ return.get_status_display }}</p>
+                                                <p><strong>Return Status:</strong> Pending</p>
                                                 <p><strong>Return Date:</strong> {{ return.return_date|date:"M d" }}</p>
 
                                                 <h6 class="mt-4">User Information</h6>
                                                 <p><strong>Username:</strong> {{ return.user.first_name }}</p>
                                                 <p><strong>Email:</strong> {{ return.user.email }}</p>
 
-                                                <h6 class="mt-4">Returned Item</h6>
-                                                <ul class="list-group">
-                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                        {{ return.item.product_variant.product.product_name }} ({{ return.item.product_variant.variant_name }})
-                                                        <span class="badge bg-primary rounded-pill">Qty: {{ return.item.quantity }}</span>
-                                                    </li>
-                                                </ul>
+                                                
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                {% if return.status == 'pending' %}
+                                                {% if return.status == 'Pending' %}
                                                     <button type="button" class="btn btn-success" onclick="updateReturnStatus({{ return.id }}, 'complete')">Approve Return</button>
                                                     <button type="button" class="btn btn-danger" onclick="updateReturnStatus({{ return.id }}, 'rejected')">Reject Return</button>
                                                 {% endif %}
@@ -99,6 +101,13 @@
 
 {% block extra_css %}
 <style>
+    body {
+        font-family: 'Alegreya', sans-serif;
+        font-size: 16px;
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+
     .modal-dialog-centered {
         display: flex;
         align-items: center;
@@ -109,9 +118,28 @@
         max-width: 66.6667%; /* 8/12 width */
     }
 
-    body {
-        font-family: 'Alegreya', sans-serif;
-        font-size: 16px;
+    .table-dark {
+        --bs-table-bg: #1e1e1e;
+        --bs-table-striped-bg: #2c2c2c;
+        --bs-table-striped-color: #fff;
+        --bs-table-active-bg: #373b3e;
+        --bs-table-active-color: #fff;
+        --bs-table-hover-bg: #323539;
+        --bs-table-hover-color: #fff;
+        color: #fff;
+        border-color: #373b3e;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+        color: #fff;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+        color: #fff;
     }
 </style>
 {% endblock %}
@@ -119,12 +147,29 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     function updateReturnStatus(returnId, newStatus) {
+        const csrftoken = getCookie('csrftoken');
+
         fetch('{% url "update_return_status" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': csrftoken // Adding the CSRF token in the header
             },
             body: JSON.stringify({
                 return_id: returnId,
@@ -135,9 +180,9 @@
         .then(data => {
             if (data.status === 'success') {
                 alert(`Return ${returnId} status updated to ${newStatus}`);
-                location.reload();
+                location.reload(); // Reload to reflect the changes
             } else {
-                alert('Error updating return status');
+                alert('Error: ' + data.message);
             }
         })
         .catch(error => {
@@ -145,13 +190,7 @@
             alert('An error occurred while updating the return status');
         });
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        var modals = document.querySelectorAll('.modal');
-        modals.forEach(function(modal) {
-            new bootstrap.Modal(modal);
-        });
-    });
 </script>
+
 {% endblock %}
 {% endblock %}
