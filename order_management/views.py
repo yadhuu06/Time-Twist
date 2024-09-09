@@ -7,7 +7,7 @@ from django.db import transaction
 from django.conf import settings
 
 from order_management.models import Order, Payment, OrderItem, OrderAddress,Return
-from cart.models import Cart, CartItem ,Wallet,WalletTransaction
+from cart.models import Cart, CartItem ,Wallet,WalletTransaction 
 from django.views.decorators.cache import never_cache
 from django.template.loader import get_template
 from coupon.models import Coupon, UserCoupon
@@ -43,8 +43,10 @@ def place_order(request):
         cart = get_object_or_404(Cart, user=request.user)
         cart_items = cart.items.filter(is_active=True)
         total_price = sum(item.sub_total() for item in cart_items)
+        main_total =   sum(item.main_total() for item in cart_items)
+        print(main_total)
 
-        # Apply coupon if available
+       
         coupon_discount = 0
         if applied_coupon_id:
             coupon = get_object_or_404(Coupon, id=applied_coupon_id, status=True)
@@ -78,7 +80,7 @@ def place_order(request):
                 address=selected_address,
                 order_id=razorpay_order['id'],
                 payment=None,
-                total_price=total_price + coupon_discount,
+                total_price=main_total,
                 offer_price=coupon_discount,
                 final_price=total_price,
                 status='Pending'
@@ -135,13 +137,12 @@ def place_order(request):
                 user=request.user,
                 amount=total_price
             )
-
             order = Order.objects.create(
                 user=request.user,
                 address=selected_address,
                 payment=payment,
                 order_id=str(uuid.uuid4()),
-                total_price=total_price + coupon_discount,
+                total_price=main_total,
                 offer_price=coupon_discount,
                 final_price=total_price,
                 status='Pending'
@@ -258,6 +259,7 @@ def order_details_admin(request, order_id):
 
 def order_details_user(request,order_id):
     order = get_object_or_404(Order, order_id=order_id)
+   
     return render(request, 'UserSide/order_details.html', {'order': order})
 
 

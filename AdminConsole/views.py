@@ -12,11 +12,11 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from datetime import datetime, timedelta, date
 from django.core.paginator import Paginator
-from django.db.models.functions import TruncMonth, TruncYear
+from django.db.models.functions import TruncDay, TruncMonth, TruncYear
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
+from django.db.models import Sum
 import json
- 
 
 def is_admin(user):
     return  user.is_admin
@@ -147,7 +147,6 @@ def update_return_status(request):
                     transaction_type='credit'
                 )
 
-                # Update payment status to 'refund'
                 Payment.objects.filter(order=return_item.order).update(status='refund')
                 Order.objects.filter(id=return_item.order.id).update(status='Returned')
 
@@ -169,52 +168,72 @@ def update_return_status(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': f'An unexpected error occurred: {str(e)}'}, status=500)
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+from django.db.models.functions import TruncMonth, TruncYear, TruncDay
+
 @user_passes_test(is_admin)
 def sales_report(request):
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    start_date_str = request.GET.get('start_date', '')
+    end_date_str = request.GET.get('end_date', '')
     report_type = request.GET.get('report_type', 'daily')
-    
-   
+
     orders = Order.objects.filter(status="Delivered")
-    
-    if start_date and end_date:
+
+    start_date = None
+    end_date = None
+
+    if start_date_str and end_date_str:
         try:
             if report_type == 'daily':
-                start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
             elif report_type == 'monthly':
-                start_date = datetime.strptime(start_date, '%Y-%m').date().replace(day=1)
-                end_date = (datetime.strptime(end_date, '%Y-%m') + relativedelta(months=1) - timedelta(days=1)).date()
+                start_date = datetime.strptime(start_date_str, '%Y-%m').date().replace(day=1)
+                end_date = (datetime.strptime(end_date_str, '%Y-%m').date() + relativedelta(months=1) - timedelta(days=1))
             elif report_type == 'yearly':
-                start_date = datetime.strptime(start_date, '%Y').date().replace(month=1, day=1)
-                end_date = datetime.strptime(end_date, '%Y').date().replace(month=12, day=31)
-            
-            end_date = end_date + timedelta(days=1)
-            orders = orders.filter(created_at__range=[start_date, end_date])
+                start_date = datetime.strptime(start_date_str, '%Y').date().replace(month=1, day=1)
+                end_date = datetime.strptime(end_date_str, '%Y').date().replace(month=12, day=31)
+
+            if start_date and end_date:
+             
+                end_date = end_date + timedelta(days=1)
+                orders = orders.filter(created_at__range=[start_date, end_date])
         except ValueError:
-            start_date = None
-            end_date = None
-    
+            start_date_str = ''
+            end_date_str = ''
+
     if report_type == 'monthly':
         orders = orders.annotate(report_date=TruncMonth('created_at')).order_by('-report_date', '-created_at')
     elif report_type == 'yearly':
         orders = orders.annotate(report_date=TruncYear('created_at')).order_by('-report_date', '-created_at')
     else:  
-        orders = orders.order_by('-created_at')
+        orders = orders.annotate(report_date=TruncDay('created_at')).order_by('-report_date', '-created_at')
+
+    # Calculate discount for each order
+    for order in orders:
+        order.discount = order.total_price - order.final_price
 
     paginator = Paginator(orders, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    # Convert back to string for form display
-    start_date_str = start_date.strftime('%Y-%m-%d') if isinstance(start_date, date) else ''
-    end_date_str = end_date.strftime('%Y-%m-%d') if isinstance(end_date, date) else ''
-    
-    return render(request, 'AdminSide/sales_report.html', {
+    page_number = request.GET.get('page', 1)
+    try:
+        page_obj = paginator.page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.page(1)
+
+    start_date_str = start_date.strftime('%Y-%m-%d') if start_date else ''
+    end_date_str = end_date.strftime('%Y-%m-%d') if end_date else ''
+
+
+    context = {
         'page_obj': page_obj,
         'orders': page_obj,
         'start_date': start_date_str,
         'end_date': end_date_str,
         'report_type': report_type,
-    })
+        'total_order_amount': orders.aggregate(total_order_amount=Sum('final_price'))['total_order_amount'] or 0,
+        'total_discount': orders.aggregate(total_discount=Sum('offer_price'))['total_discount'] or 0,
+    }
+
+    return render(request, 'AdminSide/sales_report.html', context)

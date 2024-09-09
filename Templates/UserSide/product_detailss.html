@@ -177,8 +177,8 @@
         }
 
         function initializeZoom() {
-            zoom.detach(); // Detach the previous zoom
-            zoom = mediumZoom('.zoom-image'); // Reinitialize zoom for all images
+            zoom.detach(); 
+            zoom = mediumZoom('.zoom-image');
         }
 
         colorButtons.forEach(button => {
@@ -241,36 +241,20 @@
                 {% for message in messages %}
                     {
                         level: "{{ message.tags }}",
-                        text: "{{ message }}"
+                        content: "{{ message }}"
                     },
                 {% endfor %}
             ];
+
             messages.forEach(message => {
                 Swal.fire({
-                    toast: true,
-                    position: 'top-right',
                     icon: message.level === 'success' ? 'success' : 'error',
-                    title: message.text,
+                    title: message.content,
                     showConfirmButton: false,
-                    timer: 3000
+                    timer: 1500
                 });
             });
         {% endif %}
     });
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-<style>
-    h1 {
-        font-family: 'Oswald', sans-serif;
-        font-size: 42px;
-        font-weight: 700;
-    }
-</style>
-<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
-<style>
-p {
-    font-family: 'Alegreya';
-    font-size: 22px;
-}
-</style>
 {% endblock %}
