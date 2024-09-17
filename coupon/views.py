@@ -1,20 +1,24 @@
-# views.py
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from .models import  Coupon, UserCoupon
+from .models import Coupon, UserCoupon
 from products.models import ProductVariantImages
 from cart.models import Cart, CartItem
 from user_pannel.models import UserAddress
-from  order_management.models import Order, OrderItem, Payment
+from order_management.models import Order, OrderItem, Payment
 from decimal import Decimal
 import datetime
 import uuid
 from django.views import View
-from .models import Coupon
 from .forms import CouponForm
+from django.contrib.auth.decorators import user_passes_test
+from AdminConsole.views import is_admin
+from django.utils.decorators import method_decorator
+
+
+def is_admin(user):
+    return user.is_staff or user.is_superuser
 
 
 @require_POST
@@ -53,12 +57,13 @@ def apply_coupon(request):
 
 
 
-
 class CouponListView(View):
     def get(self, request):
         coupons = Coupon.objects.all()
         return render(request, 'AdminSide/coupon_list.html', {'coupons': coupons})
 
+
+@method_decorator(user_passes_test(is_admin), name='dispatch')
 class CouponCreateView(View):
     def post(self, request):
         form = CouponForm(request.POST)
@@ -76,8 +81,7 @@ class CouponCreateView(View):
             })
         return JsonResponse({'errors': form.errors}, status=400)
 
-
-
+@method_decorator(user_passes_test(is_admin), name='dispatch')
 class CouponUpdateView(View):
     def post(self, request, pk):
         coupon = get_object_or_404(Coupon, pk=pk)
@@ -96,12 +100,13 @@ class CouponUpdateView(View):
             })
         return JsonResponse({'errors': form.errors}, status=400)
 
+@method_decorator(user_passes_test(is_admin), name='dispatch')
 class CouponDeleteView(View):
-  
     def post(self, request, pk):
         coupon = get_object_or_404(Coupon, pk=pk)
         coupon.status = False
         coupon.save()
+        return JsonResponse({'message': 'Coupon deleted successfully'})
 
 def generate_coupon_code(request):
     coupon_code = str(uuid.uuid4()).upper()[:8]

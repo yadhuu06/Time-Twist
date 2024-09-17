@@ -150,6 +150,62 @@
     background-color: #e0e0e0;
 }
 </style>
+<!-- SweetAlert2 JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Handle return button click
+        const returnButtons = document.querySelectorAll('.return-order-btn');
+        returnButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to return this order?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, return it!',
+                    cancelButtonText: 'No, keep it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const modalID = button.getAttribute('data-bs-target'); // Get the target modal ID
+                        const returnModal = document.querySelector(modalID);
+                        const returnModalInstance = new bootstrap.Modal(returnModal);
+                        returnModalInstance.show(); // Show the modal
+                    }
+                });
+            });
+        });
+
+        // Handle cancel button click
+        const cancelForms = document.querySelectorAll('.cancel-order-btn');
+        cancelForms.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to cancel this order ?, all the items will be cancelled",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, cancel it!',
+                    cancelButtonText: 'No, keep it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Submit the form if confirmed
+                        button.closest('form').submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 
 <!-- SweetAlert2 JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

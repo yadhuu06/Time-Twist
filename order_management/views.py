@@ -5,30 +5,30 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.db import transaction
 from django.conf import settings
-
-from order_management.models import Order, Payment, OrderItem, OrderAddress,Return
-from cart.models import Cart, CartItem ,Wallet,WalletTransaction 
 from django.views.decorators.cache import never_cache
 from django.template.loader import get_template
+from django.utils import timezone
+from django.contrib.auth.decorators import user_passes_test
+from django.urls import reverse
+from order_management.models import Order, Payment, OrderItem, OrderAddress, Return
+from cart.models import Cart, CartItem, Wallet, WalletTransaction
 from coupon.models import Coupon, UserCoupon
 from user_pannel.models import UserAddress
 from products.models import ProductVariant
-from django.utils import timezone
-from django.urls import reverse
+from user_pannel.decorators import active_user_required
 from datetime import timedelta
 from decimal import Decimal
-
-
 import datetime
 import razorpay
 import hashlib
+from AdminConsole.views import is_admin
 import uuid
 import json
 import hmac
 
 
 
-@login_required
+@active_user_required
 @never_cache
 def place_order(request):
     if request.method == 'POST':
@@ -43,148 +43,231 @@ def place_order(request):
         cart = get_object_or_404(Cart, user=request.user)
         cart_items = cart.items.filter(is_active=True)
         total_price = sum(item.sub_total() for item in cart_items)
-        main_total =   sum(item.main_total() for item in cart_items)
-        print(main_total)
+        main_total = sum(item.main_total() for item in cart_items)
 
-       
         coupon_discount = 0
         if applied_coupon_id:
-            coupon = get_object_or_404(Coupon, id=applied_coupon_id, status=True)
+            coupon = get_object_or_404(Coupon, coupon_code=applied_coupon_id, status=True)
             if coupon.minimum_amount <= total_price <= coupon.maximum_amount:
                 coupon_discount = (total_price * coupon.discount) / 100
                 total_price -= coupon_discount
 
         for item in cart_items:
             product_variant = item.variant
-            if not product_variant.is_active or not product_variant.product.is_active:
-                messages.error(request, f'Product {product_variant.product.product_name} is no longer available.')
+            product = product_variant.product
+
+            # Check if the product and its variant are active
+            if not product.is_active:
+                messages.error(request, f'Product {product.product_name} is no longer available.')
+                return redirect('checkout')
+            if not product_variant.is_active:
+                messages.error(request, f'Variant {product_variant.variant_name} for product {product.product_name} is no longer available.')
                 return redirect('checkout')
             if product_variant.variant_stock < item.quantity:
-                messages.error(request, f'Insufficient stock for {product_variant.product.product_name}.')
+                messages.error(request, f'Insufficient stock for {product_variant.variant_name} of product {product.product_name}.')
                 return redirect('checkout')
 
         selected_address = get_object_or_404(UserAddress, id=address_id, user=request.user)
 
-        if payment_method == 'razorpay':
-            razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
-            razorpay_order = razorpay_client.order.create({
-                'amount': int(total_price * 100),  
-                'currency': 'INR',
-                'payment_capture': '1' 
-            })
+        # Check if user is active
+        if not request.user.is_active:
+            messages.error(request, 'Your account is not active.')
+            return redirect('checkout')
 
-            request.session['razorpay_order_id'] = razorpay_order['id']
+        with transaction.atomic():
+            if payment_method == 'razorpay':
+                razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
+                razorpay_order = razorpay_client.order.create({
+                    'amount': int(total_price * 100),  # Razorpay amount is in paise
+                    'currency': 'INR',
+                    'payment_capture': '1'  # Auto-capture
+                })
 
-            order = Order.objects.create(
-                user=request.user,
-                address=selected_address,
-                order_id=razorpay_order['id'],
-                payment=None,
-                total_price=main_total,
-                offer_price=coupon_discount,
-                final_price=total_price,
-                status='Pending'
-            )
+                request.session['razorpay_order_id'] = razorpay_order['id']
 
-            OrderAddress.objects.create(
-                user=request.user,
-                name=selected_address.name,
-                house_name=selected_address.house_name,
-                street_name=selected_address.street_name,
-                pin_number=selected_address.pin_number,
-                district=selected_address.district,
-                state=selected_address.state,
-                phone_number=selected_address.phone_number
-            )
-
-            for item in cart_items:
-                item_discount = (item.sub_total() / (total_price + coupon_discount)) * coupon_discount
-                OrderItem.objects.create(
-                    order=order,
-                    product_variant=item.variant,
-                    quantity=item.quantity,
-                    price=item.variant.offer_price,
-                    coupon_offer=item_discount,
-                    paid_price=item.variant.offer_price - item_discount
-                )
-                item.variant.variant_stock -= item.quantity
-                item.variant.save()
-
-            if applied_coupon_id:
-                UserCoupon.objects.create(
+                order = Order.objects.create(
                     user=request.user,
-                    coupon=coupon,
-                    used=True,
-                    used_at=timezone.now(),
-                    order=order
+                    address=selected_address,
+                    order_id=razorpay_order['id'],
+                    payment=None,
+                    total_price=main_total,
+                    offer_price=coupon_discount,
+                    final_price=total_price,
+                    status='Pending'
                 )
 
-            return render(request, 'UserSide/razorpay_payment.html', {
-                'razorpay_order_id': razorpay_order['id'],
-                'razorpay_key_id': settings.RAZORPAY_API_KEY,
-                'amount': total_price,
-                'user': request.user,
-                'address_id': address_id,
-            })
-
-        elif payment_method == 'cashOnDelivery':
-            if total_price >= 15000:
-                messages.error(request, 'Cash on Delivery is not available for orders over Rs 15,000.')
-                return redirect('checkout')
-
-            payment = Payment.objects.create(
-                method=payment_method,
-                user=request.user,
-                amount=total_price
-            )
-            order = Order.objects.create(
-                user=request.user,
-                address=selected_address,
-                payment=payment,
-                order_id=str(uuid.uuid4()),
-                total_price=main_total,
-                offer_price=coupon_discount,
-                final_price=total_price,
-                status='Pending'
-            )
-
-            OrderAddress.objects.create(
-                user=request.user,
-                name=selected_address.name,
-                house_name=selected_address.house_name,
-                street_name=selected_address.street_name,
-                pin_number=selected_address.pin_number,
-                district=selected_address.district,
-                state=selected_address.state,
-                phone_number=selected_address.phone_number
-            )
-
-            for item in cart_items:
-                item_discount = (item.sub_total() / (total_price + coupon_discount)) * coupon_discount
-                OrderItem.objects.create(
-                    order=order,
-                    product_variant=item.variant,
-                    quantity=item.quantity,
-                    price=item.variant.offer_price,
-                    coupon_offer=item_discount,
-                    paid_price=item.variant.offer_price - item_discount
-                )
-                item.variant.variant_stock -= item.quantity
-                item.variant.save()
-
-            if applied_coupon_id:
-                UserCoupon.objects.create(
+                OrderAddress.objects.create(
                     user=request.user,
-                    coupon=coupon,
-                    used=True,
-                    used_at=timezone.now(),
-                    order=order
+                    name=selected_address.name,
+                    house_name=selected_address.house_name,
+                    street_name=selected_address.street_name,
+                    pin_number=selected_address.pin_number,
+                    district=selected_address.district,
+                    state=selected_address.state,
+                    phone_number=selected_address.phone_number
                 )
 
-            cart.items.all().delete()
+                for item in cart_items:
+                    item_discount = (item.sub_total() / (total_price + coupon_discount)) * coupon_discount
+                    OrderItem.objects.create(
+                        order=order,
+                        product_variant=item.variant,
+                        quantity=item.quantity,
+                        price=item.variant.offer_price,
+                        coupon_offer=item_discount,
+                        paid_price=item.variant.offer_price - item_discount
+                    )
+                    item.variant.variant_stock -= item.quantity
+                    item.variant.save()
 
-            messages.success(request, 'Order placed successfully!')
-            return render(request, 'UserSide/order_placed.html', {'order': order})
+                if applied_coupon_id:
+                    UserCoupon.objects.create(
+                        user=request.user,
+                        coupon=coupon,
+                        used=True,
+                        used_at=timezone.now(),
+                        order=order
+                    )
+
+                return render(request, 'UserSide/razorpay_payment.html', {
+                    'razorpay_order_id': razorpay_order['id'],
+                    'razorpay_key_id': settings.RAZORPAY_API_KEY,
+                    'amount': total_price,
+                    'user': request.user,
+                    'address_id': address_id,
+                })
+
+            elif payment_method == 'cashOnDelivery':
+                if total_price >= 15000:
+                    messages.error(request, 'Cash on Delivery is not available for orders over Rs 15,000.')
+                    return redirect('checkout')
+
+                payment = Payment.objects.create(
+                    method=payment_method,
+                    user=request.user,
+                    amount=total_price
+                )
+                order = Order.objects.create(
+                    user=request.user,
+                    address=selected_address,
+                    payment=payment,
+                    order_id=str(uuid.uuid4()),
+                    total_price=main_total,
+                    offer_price=coupon_discount,
+                    final_price=total_price,
+                    status='Pending'
+                )
+
+                OrderAddress.objects.create(
+                    user=request.user,
+                    name=selected_address.name,
+                    house_name=selected_address.house_name,
+                    street_name=selected_address.street_name,
+                    pin_number=selected_address.pin_number,
+                    district=selected_address.district,
+                    state=selected_address.state,
+                    phone_number=selected_address.phone_number
+                )
+
+                for item in cart_items:
+                    item_discount = (item.sub_total() / (total_price + coupon_discount)) * coupon_discount
+                    OrderItem.objects.create(
+                        order=order,
+                        product_variant=item.variant,
+                        quantity=item.quantity,
+                        price=item.variant.offer_price,
+                        coupon_offer=item_discount,
+                        paid_price=item.variant.offer_price - item_discount
+                    )
+                    item.variant.variant_stock -= item.quantity
+                    item.variant.save()
+
+                if applied_coupon_id:
+                    UserCoupon.objects.create(
+                        user=request.user,
+                        coupon=coupon,
+                        used=True,
+                        used_at=timezone.now(),
+                        order=order
+                    )
+
+                cart.items.all().delete()
+
+                messages.success(request, 'Order placed successfully!')
+                return render(request, 'UserSide/order_placed.html', {'order': order})
+
+            elif payment_method == 'Wallet':
+                wallet = get_object_or_404(Wallet, user=request.user)
+                if wallet.balance >= total_price:
+                    wallet.balance -= total_price
+                    wallet.updated_at = timezone.now()
+                    wallet.save()
+
+                    WalletTransaction.objects.create(
+                        wallet=wallet,
+                        amount=total_price,
+                        description=f"Payment for Order {uuid.uuid4()}",
+                        timestamp=timezone.now(),
+                        transaction_type='Debit'
+                    )
+
+                    payment = Payment.objects.create(
+                        method=payment_method,
+                        user=request.user,
+                        amount=total_price,
+                        status='Completed'
+                    )
+
+                    order = Order.objects.create(
+                        user=request.user,
+                        address=selected_address,
+                        payment=payment,
+                        order_id=str(uuid.uuid4()),
+                        total_price=main_total,
+                        offer_price=coupon_discount,
+                        final_price=total_price,
+                        status='Pending'
+                    )
+
+                    OrderAddress.objects.create(
+                        user=request.user,
+                        name=selected_address.name,
+                        house_name=selected_address.house_name,
+                        street_name=selected_address.street_name,
+                        pin_number=selected_address.pin_number,
+                        district=selected_address.district,
+                        state=selected_address.state,
+                        phone_number=selected_address.phone_number
+                    )
+
+                    for item in cart_items:
+                        item_discount = (item.sub_total() / (total_price + coupon_discount)) * coupon_discount
+                        OrderItem.objects.create(
+                            order=order,
+                            product_variant=item.variant,
+                            quantity=item.quantity,
+                            price=item.variant.offer_price,
+                            coupon_offer=item_discount,
+                            paid_price=item.variant.offer_price - item_discount
+                        )
+                        item.variant.variant_stock -= item.quantity
+                        item.variant.save()
+
+                    if applied_coupon_id:
+                        UserCoupon.objects.create(
+                            user=request.user,
+                            coupon=coupon,
+                            used=True,
+                            used_at=timezone.now(),
+                            order=order
+                        )
+
+                    cart.items.all().delete()
+                    messages.success(request, 'Order placed successfully using Wallet!')
+                    return render(request, 'UserSide/order_placed.html', {'order': order})
+                else:
+                    messages.error(request, 'Insufficient balance in your wallet. Please choose another payment method.')
+                    return redirect('checkout')
 
     return redirect('checkout')
 
@@ -252,17 +335,18 @@ def my_orders(request):
     return render(request, 'UserSide/my_orders.html', {'orders': orders})
 
 
-
+@user_passes_test(is_admin)
 def order_details_admin(request, order_id):
-    order = get_object_or_404(Order, order_id=order_id)
+    order = get_object_or_404(Order, order_id=order_id)  # Fetch the specific order by order_id
     return render(request, 'AdminSide/order_details.html', {'order': order})
 
+@active_user_required
 def order_details_user(request,order_id):
     order = get_object_or_404(Order, order_id=order_id)
    
     return render(request, 'UserSide/order_details.html', {'order': order})
 
-
+@active_user_required
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
 
@@ -270,9 +354,8 @@ def cancel_order(request, order_id):
         messages.error(request, "Order cannot be canceled.")
         return redirect('order_management:my_orders')
 
-    wallet = None  # Initialize wallet as None
+    wallet = None 
 
-    # Check if the payment method is not cashOnDelivery
     if order.payment.method != 'cashOnDelivery':
         wallet, created = Wallet.objects.get_or_create(user=order.user)
 
@@ -303,7 +386,7 @@ def cancel_order(request, order_id):
 
     return redirect('order_management:my_orders')
 
-
+@active_user_required
 def return_order(request, order_id):
     order = get_object_or_404(Order, order_id=order_id, user=request.user)
 
@@ -340,7 +423,7 @@ def return_order(request, order_id):
 
 
 
-
+@user_passes_test(is_admin)
 def change_status(request, order_id):
     if request.method == "POST":
         try:
@@ -366,28 +449,3 @@ def change_status(request, order_id):
         return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
     
     
-def render_pdf_view(request):
-  
-    template = get_template('your_template.html')
-    context = {'data': 'Your data here'}
-    html = template.render(context)
-
-    pdf_file = HTML(string=html).write_pdf()
-
-    response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="output.pdf"'
-    return response
-    order = get_object_or_404(Order, id=order_id)
-    template = get_template('order_management/invoice_template.html')
-    context = {'order': order}
-    html = template.render(context)
-
-    result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-    
-    if not pdf.err:
-        response = HttpResponse(result.getvalue(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="invoice_{order.order_id}.pdf"'
-        return response
-    
-    return HttpResponse('Error generating PDF', status=400)

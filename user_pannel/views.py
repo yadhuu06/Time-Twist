@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from products.models import Category, Brand, Products, ProductVariant, ProductVariantImages
 from brand.models import Brand
-from cart.models import Cart
+from cart.models import Cart,Wallet
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -270,6 +270,7 @@ def checkout(request):
     coupons = Coupon.objects.filter(status=True, expiry_date__gte=datetime.date.today())
     user_used_coupons = UserCoupon.objects.filter(user=request.user, used=True).values_list('coupon_id', flat=True)
     available_coupons = coupons.exclude(id__in=user_used_coupons)
+    wallet, created = Wallet.objects.get_or_create(user=request.user)
 
     applied_coupon_code = request.GET.get('coupon')
     discount_amount = 0
@@ -289,6 +290,7 @@ def checkout(request):
             messages.error(request, "Invalid coupon code.")
 
     context = {
+        'wallet':wallet,
         'cart': cart,
         'cart_items': cart_items,
         'user_address': user_address,

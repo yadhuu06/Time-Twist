@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
-from.models import Wishlist,Wallet
+from.models import Wishlist,Wallet,WalletTransaction
 import json
 
 
@@ -138,7 +138,7 @@ def wishlist_view(request):
 def add_to_wishlist(request, product_id):
    
     product = get_object_or_404(Products, id=product_id)
-    print('haii')
+    p
     
     wishlist, created = Wishlist.objects.get_or_create(user=request.user, product=product)
     
@@ -148,8 +148,7 @@ def add_to_wishlist(request, product_id):
         messages.success(request, 'Item added to your wishlist.')
     return redirect('shop_view')
 
-def remove_from_wishlist(request, item_id):
-    print(item_id) 
+def remove_from_wishlist(request, item_id): 
    
     item_id=item_id
     wishlist_item = get_object_or_404(Wishlist, product_id=item_id, user=request.user)
@@ -160,6 +159,12 @@ def remove_from_wishlist(request, item_id):
     messages.success(request,"item removed from wishlist")
     return redirect('cart:wishlist')
 
+@login_required
 def wallet_detail(request):
     user = request.user
-    return render(request,'UserSide/user_wallet.html')
+    wallet, created = Wallet.objects.get_or_create(user=user)
+    transactions = WalletTransaction.objects.filter(wallet=wallet).order_by('-timestamp')
+    return render(request, 'UserSide/user_wallet.html', {
+        'wallet': wallet,
+        'transactions': transactions
+    })

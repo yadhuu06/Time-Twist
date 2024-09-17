@@ -90,12 +90,12 @@
                     <th scope="col">PRODUCT</th>
                     <th scope="col">PRICE</th>
                     <th scope="col">STOCK DETAIL</th>
-            
+                    <th scope="col">ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in wishlist_data %}
-                <tr>
+                <tr data-href="{% url 'product_detail_user' item.product.id %}" class="clickable-row">
                     <td class="d-flex align-items-center">
                         <img src="{{ item.image.url }}" alt="{{ item.product.product_name }}" class="product-image mr-3">
                         <div>
@@ -111,23 +111,28 @@
                         </span>
                     </td>
                     <td>
-                        <a href="{% url 'product_detail_user' item.product.id %}"">
-                            <i class="fas fa-info-circle "></i> 
-                        </a>
-                        
-
-                    </td>
-                    <td>
                         <a id="wishlist-button" class="wishlist-btn" href="{% url 'cart:remove_from_wishlist' item.product.id %}">
-                            <i class="fas fa-heart"></i> <!-- Filled heart by default -->
+                            <i class="fas fa-heart"></i>
                         </a>
-                        
                     </td>
-                    
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    
+    <script>
+        // JavaScript to make rows clickable
+        document.addEventListener('DOMContentLoaded', function() {
+            var rows = document.querySelectorAll('.clickable-row');
+            rows.forEach(function(row) {
+                row.addEventListener('click', function() {
+                    window.location.href = this.getAttribute('data-href');
+                });
+            });
+        });
+    </script>
+    
 
     </div>
 </div>
