@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container my-5 pt-5">
-    <h1 class="mb-4 text-center">Checkout</h1>
+    <h1 class="mb-4 text-center"><strong>Checkout</strong></h1>
 
     <form id="checkoutForm" action="{% url 'order_management:place_order' %}" method="POST">
         {% csrf_token %}
@@ -11,7 +11,7 @@
                 <!-- Delivery Address Section -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <h5 class="card-title mb-4">Delivery Address</h5>
+                        <h5 class="card-title mb-4"><strong>Delivery Address</strong></h5>
 
                         <!-- Existing Addresses -->
                         {% for a in user_address %}
@@ -45,7 +45,7 @@
             <div class="col-lg-4">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <h5 class="card-title mb-4" style="color: darkblue;">Order Summary</h5>
+                        <h5 class="card-title mb-4" style="color: darkblue;"><strong>Order Summary</strong></h5>
                         <ul class="list-group list-group-flush">
                             {% for item in cart_items %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -67,6 +67,10 @@
                             <strong id="subtotalAmount"> {{ total_price }}</strong>
                         </h6>
                         <h6 class="d-flex justify-content-between" id="discountSection" style="display:none;">
+                            <span>Shipping :</span>
+                            <strong id="discountAmount">Rs 0 </strong>
+                        </h6>
+                         <h6 class="d-flex justify-content-between" id="discountSection" style="display:none;">
                             <span>Discount :</span>
                             <strong id="discountAmount">Rs 0 </strong>
                         </h6>
@@ -83,7 +87,7 @@
                         
                         <!-- Payment Method Dropdown -->
                         <div class="mt-3">
-                            <label for="paymentMethod" class="form-label">Payment Method</label>
+                            <label for="paymentMethod" class="form-label"><h4><strong>Payment Method</h4></strong></label>
                             <select class="form-select form-select-sm" id="paymentMethod" name="paymentMethod" required>
                                 <option value="cashOnDelivery"> Cash on Delivery </option>
                                 <option value="razorpay"> RazorPay </option>
@@ -141,7 +145,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{% url 'edit_address' a.id %}" method="post">
+                    <form action="{% url 'cart:edit_address' a.id %}" method="post">
                         {% csrf_token %}
                         <div class="row g-3"> <!-- Added more space between rows -->
                             <div class="col-md-6">
@@ -200,40 +204,60 @@
 
     <!-- Add Address Modal -->
     <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addAddressModalLabel">Add Address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{% url 'add_address' %}" method="post">
+                    <form action="{% url 'cart:add_address' %}" method="post">
                         {% csrf_token %}
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+                                <div class="form-group mb-3">
+                                    <label for="name" class="form-label">Full Name</label>
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Full Name" required>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="house_name" class="form-control" placeholder="House Name" required>
+                                <div class="form-group mb-3">
+                                    <label for="house_name" class="form-label">House Name</label>
+                                    <input type="text" id="house_name" name="house_name" class="form-control" placeholder="House Name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label for="street_name" class="form-label">Street Address</label>
+                                    <input type="text" id="street_name" name="street_name" class="form-control" placeholder="Street Address" required>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="street_name" class="form-control" placeholder="Street Address" required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" name="district" class="form-control" placeholder="District" required>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" name="state" class="form-control" placeholder="State/Province" required>
+                                <div class="form-group mb-3">
+                                    <label for="district" class="form-label">District</label>
+                                    <input type="text" id="district" name="district" class="form-control" placeholder="District" required>
+                                </div>
                             </div>
                             <div class="col-md-4">
-                                <input type="text" name="pin_number" class="form-control" placeholder="Zip/Postal Code" pattern="\d{6}" title="Must be 6 digits" required>
-
+                                <div class="form-group mb-3">
+                                    <label for="state" class="form-label">State/Province</label>
+                                    <input type="text" id="state" name="state" class="form-control" placeholder="State/Province" required>
+                                </div>
                             </div>
                             <div class="col-md-4">
-                                <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" pattern="\d{10}" title="Must be 10 digits"  required>
+                                <div class="form-group mb-3">
+                                    <label for="pin_number" class="form-label">Zip/Postal Code</label>
+                                    <input type="text" id="pin_number" name="pin_number" class="form-control" placeholder="Zip/Postal Code" pattern="\d{6}" title="Must be 6 digits" required>
+                                </div>
                             </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-sm btn-primary mt-2">Add Address</button>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="phone_number" class="form-label">Phone Number</label>
+                                    <input type="text" id="phone_number" name="phone_number" class="form-control" placeholder="Phone Number" pattern="\d{10}" title="Must be 10 digits" required>
+                                </div>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-primary mt-3">Add Address</button>
                             </div>
                         </div>
                     </form>
@@ -241,6 +265,7 @@
             </div>
         </div>
     </div>
+    
 </div>
 
 <!-- Ensure Bootstrap's JS and your custom script are included -->

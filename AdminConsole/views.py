@@ -10,25 +10,92 @@ from products.models import Products, ProductVariant
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
-from datetime import datetime, timedelta, date
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models.functions import TruncDay, TruncMonth, TruncYear
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum, Count
+from django.utils import timezone
+from datetime import datetime, timedelta, date
 import json
+from django.db import models  # Import models
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncDate  # Import TruncDate for date truncation
+from django.shortcuts import render
+from django.utils import timezone
+from datetime import timedelta
+from django.views.decorators.cache import never_cache
+from order_management.models import Order, OrderItem  # Adjust the imports based on your app structure
+
 
 def is_admin(user):
     return  user.is_admin
 
 
 @user_passes_test(is_admin)
+
+
 @never_cache
 def admin_page(request):
-    return render(request,'AdminSide/admin-dashboard.html')
+    time_range = request.GET.get('time_range', 'weekly')
+
+    if time_range == 'weekly':
+        start_date = timezone.now() - timedelta(days=7)
+    elif time_range == 'monthly':
+        start_date = timezone.now() - timedelta(days=30)
+    elif time_range == 'yearly':
+        start_date = timezone.now() - timedelta(days=365)
+    else:
+        start_date = timezone.now() - timedelta(days=7)  
+
+    orders = Order.objects.filter(created_at__gte=start_date)
+
+    total_orders = orders.count()
+    pending_orders = orders.filter(status='Pending').count()
+    completed_orders = orders.filter(status='Delivered').count()
+
+    order_trends = orders.annotate(date=TruncDate('created_at')) \
+                         .values('date') \
+                         .annotate(count=Count('id'), revenue=Sum('final_price')) \
+                         .order_by('date')
+
+    dates = [entry['date'].strftime('%Y-%m-%d') for entry in order_trends]
+    orders_data = [entry['count'] for entry in order_trends]
+    revenue_data = [float(entry['revenue']) for entry in order_trends]
+
+    order_status_data = [
+        orders.filter(status='Pending').count(),
+        orders.filter(status='Processing').count(),
+        orders.filter(status='Shipped').count(),
+        orders.filter(status='Delivered').count()
+    ]
+
+# Get top 5 selling products
+    top_products = OrderItem.objects.filter(order__created_at__gte=start_date) \
+                                .values('product_variant__product__product_name') \
+                                .annotate(total_quantity=Sum('quantity')) \
+                                .order_by('-total_quantity')[:5]
+
+# Get top 5 selling variants
+    top_variants = OrderItem.objects.filter(order__created_at__gte=start_date) \
+                                .values('product_variant__variant_name') \
+                                .annotate(total_quantity=Sum('quantity')) \
+                                .order_by('-total_quantity')[:5]
+
+    context = {
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'completed_orders': completed_orders,
+        'dates': dates,
+        'orders_data': orders_data,
+        'revenue_data': revenue_data,
+        'order_status_data': order_status_data,
+        'top_products': top_products,
+        'top_variants': top_variants,
+        'time_range': time_range,
+    }
     
-
-
+    return render(request, 'AdminSide/admin-dashboard.html', context)
 
 def admin_login(request):
     
@@ -40,7 +107,8 @@ def admin_login(request):
             if user.is_admin:
              
                 login(request, user)
-                return render(request,'AdminSide/admin-dashboard.html')              
+                
+                return redirect('admin_page')            
             else:
                 messages.error(request, 'You are not authorized to access this page.')
         else:
@@ -83,7 +151,9 @@ def admin_order_list(request):
 @user_passes_test(lambda user: user.is_superuser)
 def change_order_status(request, order_id):
     if request.method == 'POST':
+       
         order = get_object_or_404(Order, id=order_id)
+        
         status = request.POST.get('status')
         if status in ['Pending', 'Delivered', 'Accepted', 'Rejected']:
             order.status = status
@@ -99,6 +169,7 @@ def return_list(request):
  
 
 @require_POST
+@user_passes_test(is_admin)
 def update_return_status(request):
     try:
         data = json.loads(request.body)
@@ -144,7 +215,7 @@ def update_return_status(request):
                     wallet=wallet,
                     amount=total_refund_amount,
                     description=f'Refund for return {return_item.id}',
-                    transaction_type='credit'
+                    transaction_type='Credit'
                 )
 
                 Payment.objects.filter(order=return_item.order).update(status='refund')
@@ -167,11 +238,6 @@ def update_return_status(request):
             return JsonResponse({'status': 'error', 'message': 'Associated order item not found'}, status=404)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': f'An unexpected error occurred: {str(e)}'}, status=500)
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
-from django.db.models.functions import TruncMonth, TruncYear, TruncDay
 
 @user_passes_test(is_admin)
 def sales_report(request):
@@ -237,3 +303,5 @@ def sales_report(request):
     }
 
     return render(request, 'AdminSide/sales_report.html', context)
+
+

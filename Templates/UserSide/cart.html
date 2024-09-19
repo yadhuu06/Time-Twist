@@ -34,9 +34,13 @@
                                                 {% endif %}
                                                 <div>
                                                     <strong>{{ item.product.product_name }}</strong><br>
-                                                    <small class="text-muted">{{ item.variant.variant_name }}</small>
+                                                    <small class="text-muted">Varient:  {{ item.variant.variant_name }}</small>
                                                     <br>
-                                                    <small class="text-muted">Stock left: <span class="text-success" id="stock-{{ item.id }}">{{ item.variant.variant_stock }}</span></small>
+                                                    <small class="text-muted">Stock left: <span class="text-success" id="">{{ item.variant.offer_price }}</span></small>
+                                                    <br>
+                                                    <small class="text-muted">price: <span class="text-success" id="stock-{{ item.id }}">{{ item.variant.variant_stock }}</span></small>
+                                                
+                                            
                                                 </div>
                                             </div>
                                         </td>
@@ -78,7 +82,7 @@
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Shipping:</span>
-                            <strong>Free</strong>
+                            <strong>₹<span id="shipping-charge">0</span></strong>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between mb-4">
@@ -129,7 +133,7 @@
         }
 
         const url = '{% url "cart:update_cart_quantity" %}';
-        
+
         fetch(url, {
             method: 'POST',
             headers: {
@@ -144,8 +148,11 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Update only the subtotal for this item
                 quantityInput.value = newQuantity;
                 document.getElementById(`subtotal-${itemId}`).innerText = data.subtotal;
+
+                // Recalculate the cart total and shipping charge
                 updateCartTotal();
             } else {
                 Swal.fire({
@@ -175,9 +182,16 @@
             total += parseFloat(subtotalElement.innerText);
         });
 
-        // Update the total and final total on the page
+        // Update the subtotal on the page
         document.getElementById('cart-total').innerText = total.toFixed(2);
-        document.getElementById('cart-total-final').innerText = total.toFixed(2);
+
+        // Calculate shipping charge: ₹40 if total is less than ₹10,000
+        let shippingCharge = total < 10000 ? 40 : 0;
+        document.getElementById('shipping-charge').innerText = shippingCharge.toFixed(2);
+
+        // Update the final total (subtotal + shipping)
+        const finalTotal = total + shippingCharge;
+        document.getElementById('cart-total-final').innerText = finalTotal.toFixed(2);
     }
 
     // Function to get the CSRF token for making POST requests
@@ -197,12 +211,9 @@
     }
 
     // Call updateCartTotal() on page load to ensure totals are correct
-    document.addEventListener('DOMContentLoaded', function() {
-        updateCartTotal();
-    });
-</script>
-
-<script>
+    document.addEventListener('DOMContentLoaded', updateCartTotal);
+    
+    // Show alerts for messages, if any
     document.addEventListener('DOMContentLoaded', (event) => {
         {% if messages %}
             const messages = [
@@ -226,5 +237,6 @@
         {% endif %}
     });
 </script>
+
 <div class="space" style="margin-top: 200px;"></div>
 {% endblock %}

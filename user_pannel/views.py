@@ -52,6 +52,7 @@ def add_address(request):
 
     messages.error(request, "Failed to add address.")
     return redirect('user_profile')
+
 def edit_profile(request):
     if request.method == 'POST':
    

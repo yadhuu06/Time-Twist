@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
 from.models import Wishlist,Wallet,WalletTransaction
+from user_pannel.models import UserAddress
 import json
 
 
@@ -133,6 +134,62 @@ def wishlist_view(request):
     return render(request, 'UserSide/wishlist.html', {'wishlist_data': wishlist_data})
 
 
+def add_address(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        house_name = request.POST.get('house_name')
+        street_name = request.POST.get('street_name')
+        pin_number = request.POST.get('pin_number')
+        district = request.POST.get('district')
+        state = request.POST.get('state')
+        phone_number = request.POST.get('phone_number')
+
+        if UserAddress.objects.filter(user=request.user, house_name=house_name, street_name=street_name, pin_number=pin_number).exists():
+            messages.error(request, 'This address already exists.')
+            return redirect('checkout')
+
+        address = UserAddress(
+            user=request.user,
+            name=name,
+            house_name=house_name,
+            street_name=street_name,
+            pin_number=pin_number,
+            district=district,
+            state=state,
+            phone_number=phone_number,
+            status=True,
+        )
+        address.save()
+        messages.success(request, 'Address added successfully!')
+        return redirect('checkout')
+
+    messages.error(request, "Failed to add address.")
+    return redirect('checkout')
+
+@login_required
+@never_cache
+def edit_address(request, address_id):
+    address = get_object_or_404(UserAddress, id=address_id, user=request.user)
+
+    if request.method == 'POST':
+        address.name = request.POST.get('name')
+        address.house_name = request.POST.get('house_name')
+        address.street_name = request.POST.get('street_name')
+        address.pin_number = request.POST.get('pin_number')
+        address.district = request.POST.get('district')
+        address.state = request.POST.get('state')
+        address.phone_number = request.POST.get('phone_number')
+
+
+        if 'set_as_primary' in request.POST:
+            UserAddress.objects.filter(user=request.user).update(status=False)
+            address.status = True
+        address.save()
+        messages.success(request, 'Address updated successfully!')
+        return redirect('checkout')
+    return redirect('checkout')
+    
+
 
 
 def add_to_wishlist(request, product_id):
@@ -164,6 +221,7 @@ def wallet_detail(request):
     user = request.user
     wallet, created = Wallet.objects.get_or_create(user=user)
     transactions = WalletTransaction.objects.filter(wallet=wallet).order_by('-timestamp')
+    print(wallet.balance)
     return render(request, 'UserSide/user_wallet.html', {
         'wallet': wallet,
         'transactions': transactions

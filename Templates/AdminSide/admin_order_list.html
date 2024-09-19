@@ -49,8 +49,9 @@
                                 <td>
                                     <div class="badge badge-pill {% if order.status == 'Delivered' %}badge-success
                                         {% elif order.status == 'Shipped' %}badge-primary
-                                        {% elif order.status == 'Rejected' %}badge-danger
-                                        {% elif order.status == 'Canceled' %}badge-danger
+                                        {% elif order.status == 'Returned' %}badge-danger
+                                        {% elif order.status == 'Rejected' %}badge-Warning
+                                        {% elif order.status == 'Cancelled' %}badge-danger
                                         {% elif order.status == 'Processing' %}badge-warning
                                         {% else %}badge-info{% endif %}">
                                         {{ order.status }}

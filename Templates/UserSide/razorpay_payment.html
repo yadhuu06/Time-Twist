@@ -7,33 +7,80 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f7f9fc;
+        }
+        .payment-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+        }
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        .card-body {
+            padding: 2rem;
+        }
+        .btn-pay {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            transition: all 0.3s ease;
+        }
+        .btn-pay:hover {
+            background-color: #0b5ed7;
+            border-color: #0b5ed7;
+        }
+        .btn-pay:focus {
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.5);
+        }
+        .total-amount {
+            font-size: 1.5rem;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .pay-description {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+        .payment-container .card-title {
+            margin-bottom: 1.5rem;
+        }
+        .payment-container p {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+    </style>
 </head>
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow-lg">
-                    <div class="card-body">
-                        <h2 class="card-title text-center mb-4">Complete Your Payment</h2>
-                        <p class="text-center mb-4">Total Amount: <strong>₹{{ amount }}</strong></p>
+<body>
 
-                        <!-- Form to handle Razorpay payment -->
-                        <form id="razorpay-form" action="{% url 'order_management:payment_verify' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="razorpay_order_id" value="{{ razorpay_order_id }}">
-                            <input type="hidden" name="amount" value="{{ amount }}">
-                            <input type="hidden" name="address_id" value="{{ address_id }}">
-                            <input type="hidden" name="payment_method" value="razorpay">
-                            <input type="hidden" name="razorpay_payment_id">
-                            <input type="hidden" name="razorpay_signature">
+    <div class="payment-container py-5">
+        <div class="card shadow-lg">
+            <div class="card-body text-center">
+                <h2 class="card-title text-primary">Complete Your Payment</h2>
+                <p class="total-amount">Total Amount: ₹{{ amount }}</p>
+                <p class="pay-description">To complete the payment, please click on the Pay Now button below. You will be redirected to the Razorpay gateway to process the payment securely.</p>
 
-                            <div class="d-grid">
-                                <p>click the pay now button to complete the pament using razopay</p>
-                                <button type="button" id="pay-btn" class="btn btn-primary btn-lg">Pay Now</button>
-                            </div>
-                        </form>
+                <!-- Form to handle Razorpay payment -->
+                <form id="razorpay-form" action="{% url 'order_management:payment_verify' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="razorpay_order_id" value="{{ razorpay_order_id }}">
+                    <input type="hidden" name="amount" value="{{ amount }}">
+                    <input type="hidden" name="address_id" value="{{ address_id }}">
+                    <input type="hidden" name="payment_method" value="razorpay">
+                    <input type="hidden" name="razorpay_payment_id">
+                    <input type="hidden" name="razorpay_signature">
+
+                    <div class="d-grid gap-2">
+                        <button type="button" id="pay-btn" class="btn btn-pay btn-lg btn-block">Pay Now</button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -75,4 +122,3 @@
     </script>
 </body>
 </html>
-

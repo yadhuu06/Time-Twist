@@ -138,8 +138,8 @@ def place_order(request):
                 })
 
             elif payment_method == 'cashOnDelivery':
-                if total_price >= 15000:
-                    messages.error(request, 'Cash on Delivery is not available for orders over Rs 15,000.')
+                if total_price >= 10000:
+                    messages.error(request, 'Cash on Delivery is not available for orders over Rs 10,000.')
                     return redirect('checkout')
 
                 payment = Payment.objects.create(
@@ -348,6 +348,7 @@ def order_details_user(request,order_id):
 
 @active_user_required
 def cancel_order(request, order_id):
+    print('haii')
     order = get_object_or_404(Order, order_id=order_id)
 
     if order.status == 'Delivered':
@@ -379,6 +380,7 @@ def cancel_order(request, order_id):
 
             order.status = 'Cancelled'
             order.save()
+            
 
         messages.success(request, "Order canceled successfully and refunds processed.")
     except Exception as e:
@@ -431,21 +433,27 @@ def change_status(request, order_id):
             new_status = data.get('status')
             order = get_object_or_404(Order, id=order_id)
 
+            # Prevent status change if the order is already cancelled by the customer
+            if order.status == 'Cancelled':
+                messages.error(request, "Customer already cancelled the item.")
+                return JsonResponse({'success': False, 'error': 'Order already cancelled'}, status=400)
+
             if new_status:
                 order.status = new_status
+
+                # Update delivered date and payment status if the order is delivered
                 if order.status == "Delivered":
-                    order.delivered_date=timezone.now()
+                    order.delivered_date = timezone.now()
                     if order.payment.method == "cashOnDelivery":
                         order.payment.status = "Completed"
-                        order.payment.save()                   
-                    print("updated")
+                        order.payment.save()
+
                 order.save()
                 return JsonResponse({'success': True, 'status': new_status})
             else:
                 return JsonResponse({'success': False, 'error': 'Invalid status'}, status=400)
+
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
-    
-    
