@@ -1,0 +1,83 @@
+<!-- brand.html -->
+{% extends "AdminSide/base.html" %}
+
+
+{% block title %}Brands Page{% endblock %}
+
+
+{% block content %}
+
+
+{% if messages %}
+<div id="messages">
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div style="display: flex; flex-direction: row; align-items: center; font-family: Montserrat;">
+    <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="{% url 'brand:add_brand' %}">+ Add New Brand</a>
+    <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">BRANDS</h3>
+    
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table">
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Brand Name</th>
+                                    <th scope="col">Brand Description</th>
+                                    <th scope="col">Active?</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for brand in brands %}
+                                <tr>
+                                    <td>{{ brand.brand_name }}</td>
+                                    <td>{{ brand.description }}</td>
+                                    <td>{{ brand.status }}</td>
+                                    <td>
+                                        <form method="post" action="{% url 'brand:edit_brand' brand.id  %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="brand_id" value="{{ brand.id }}">
+                                            <input type="hidden" name="brand_name" value="{{ brand.brand_name }}">
+                                            <button type="submit" class="btn btn-sm btn-primary">Edit</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Hide messages after 20 seconds (20000 milliseconds)
+    setTimeout(function() {
+        var messages = document.getElementById('messages');
+        if (messages) {
+            messages.style.display = 'none';
+        }
+    }, 20000); /
+</script>
+
+{% endblock %}
+

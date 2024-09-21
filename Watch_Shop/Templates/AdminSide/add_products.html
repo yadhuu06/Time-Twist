@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <!-- Load static files -->
+    {% load static %}
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            width: 700px;
+        }
+        .card-header {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 1.5rem;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .form-control {
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .form-check-label {
+            font-size: 1rem;
+            color: #007bff;
+        }
+        .form-control-lg {
+            font-size: 1.25rem;
+            padding: 0.5rem;
+            width: 100%; /* Ensure the select elements take up the full width */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card mx-auto">
+            <div class="card-header text-center">
+                Add New Product
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <form method="post" action="{% url 'products:add_products' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="product_name">Product Name</label>
+                        <input type="text" class="form-control form-control-lg" id="product_name" name="product_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product_description">Product Description</label>
+                        <textarea class="form-control form-control-lg" id="product_description" name="product_description" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product_category">Product Category</label>
+                        <select class="form-control form-control-lg" id="product_category" name="product_category" required>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.category_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product_brand">Product Brand</label>
+                        <select class="form-control form-control-lg" id="product_brand" name="product_brand" required>
+                            {% for brand in brands %}
+                                <option value="{{ brand.id }}">{{ brand.brand_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price</label>
+                        <input type="number" step="0.01" class="form-control form-control-lg" id="price" name="price"min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="offer_price">Offer Price</label>
+                        <input type="number" step="0.01" class="form-control form-control-lg" id="offer_price" name="offer_price" min="0">
+                    </div>
+                    
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active">
+                        <label class="form-check-label" for="is_active">Is Active</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+</body>
+</html>

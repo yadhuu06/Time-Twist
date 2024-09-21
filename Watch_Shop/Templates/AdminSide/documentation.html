@@ -1,0 +1,174 @@
+{% extends "AdminSide/base.html" %}
+{% block title %}Brands Page{% endblock %}
+
+{% block content %}
+<style>
+    .documentation {
+        font-family: 'Arial', sans-serif;
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        line-height: 1.6;
+    }
+    .documentation h1, .documentation h2, .documentation h3 {
+        color: #2c3e50;
+    }
+    .documentation h1 {
+        border-bottom: 2px solid #2c3e50;
+        padding-bottom: 10px;
+    }
+    .documentation h2 {
+        margin-top: 40px;
+    }
+    .documentation h3 {
+        margin-top: 20px;
+    }
+    .documentation ul {
+        list-style-type: square;
+        padding-left: 20px;
+    }
+    .documentation p {
+        margin: 15px 0;
+    }
+    .documentation code {
+        background-color: #f4f4f4;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+    .documentation .highlight {
+        background-color: #e8f0fe;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
+
+<div class="documentation">
+    <h1>Glow Gear Shopee Documentation</h1>
+
+    <h2>Introduction</h2>
+    <p>Welcome to <strong>Glow Gear Shopee</strong>, the ultimate destination for watch enthusiasts. Our platform offers an extensive collection of watches from various renowned brands. Whether you're looking for luxury, sports, or casual watches, Glow Gear Shopee has something for everyone.</p>
+
+    <h2>Features</h2>
+    <h3>1. Extensive Watch Collection</h3>
+    <p>Glow Gear Shopee features a diverse range of watches, categorized into:</p>
+    <ul>
+        <li><em>Men's Watches</em></li>
+        <li><em>Women's Watches</em></li>
+        <li><em>Kids' Watches</em></li>
+    </ul>
+
+    <h3>2. User-Friendly Interface</h3>
+    <p>Our intuitive interface ensures a seamless shopping experience, with easy navigation and quick access to product details.</p>
+
+    <h3>3. Advanced Search and Filters</h3>
+    <p>Easily find the perfect watch using our advanced search and filtering options. Filter by brand, price, type, and more.</p>
+
+    <h3>4. Secure Payment Options</h3>
+    <p>We offer secure and multiple payment options to ensure a smooth transaction process.</p>
+
+    <h3>5. Customer Reviews and Ratings</h3>
+    <p>Read customer reviews and ratings to make informed purchasing decisions.</p>
+
+    <h3>6. Wishlist</h3>
+    <p>Save your favorite watches to your wishlist for future purchases.</p>
+
+    <h3>7. Order Tracking</h3>
+    <p>Track your orders in real-time from the moment you place an order until it arrives at your doorstep.</p>
+
+    <h2>Getting Started</h2>
+    <h3>1. Registration</h3>
+    <p>Create an account by providing your basic details. Once registered, you can start exploring and shopping.</p>
+
+    <h3>2. Browsing Watches</h3>
+    <p>Navigate through our categories or use the search bar to find specific watches.</p>
+
+    <h3>3. Product Details</h3>
+    <p>Click on any watch to view detailed information, including specifications, reviews, and pricing.</p>
+
+    <h3>4. Adding to Cart</h3>
+    <p>Add your desired watches to the cart and proceed to checkout when you're ready.</p>
+
+    <h3>5. Checkout and Payment</h3>
+    <p>Choose your preferred payment method, enter your shipping details, and place your order.</p>
+
+    <h3>6. Order Confirmation</h3>
+    <p>Receive an order confirmation email with all the necessary details.</p>
+
+    <h2>Technical Specifications</h2>
+    <h3>Frontend</h3>
+    <p>Utilizes modern technologies to provide a dynamic and responsive user interface:</p>
+    <ul>
+        <li><strong>HTML5, CSS3, JavaScript</strong></li>
+        <li><strong>Bootstrap</strong> for dynamic and responsive UI</li>
+    </ul>
+
+    <h3>Backend</h3>
+    <p>Powered by robust backend technologies:</p>
+    <ul>
+        <li><strong>Python</strong> and <strong>Django</strong> for backend operations</li>
+        <li><strong>PostgreSQL</strong> for database management</li>
+    </ul>
+
+    <h3>Security</h3>
+    <p>Ensures user data protection with:</p>
+    <ul>
+        <li>SSL encryption for secure transactions</li>
+        <li>Regular security audits</li>
+    </ul>
+
+    <h3>Performance</h3>
+    <p>Optimized for fast loading times and minimal lag:</p>
+    <ul>
+        <li>Efficient OTP generation and validation</li>
+    </ul>
+
+    <h2>Developer Guide</h2>
+    <h3>Project Structure</h3>
+    <div class="highlight">
+        <pre>
+GlowGearShopee/
+│
+├── UserAccounts/
+│   ├── backends.py
+│   ├── models.py
+│   ├── views.py
+│
+├── templates/
+│   ├── UserName/
+│   ├── AdminSide/
+│
+├── static/
+│   ├── UserSide/
+│   │   ├── imgfolder/
+│   │   │   ├── mymail.jpg
+│
+├── manage.py
+├── settings.py
+├── urls.py
+└── wsgi.py
+        </pre>
+    </div>
+
+    <h3>Setting Up the Project</h3>
+    <ol>
+        <li><strong>Clone the repository:</strong>
+            <pre><code>git clone https://github.com/yourusername/GlowGearShopee.git</code></pre>
+        </li>
+        <li><strong>Install dependencies:</strong>
+            <pre><code>pip install -r requirements.txt</code></pre>
+        </li>
+        <li><strong>Database Migration:</strong>
+            <pre><code>python manage.py migrate</code></pre>
+        </li>
+        <li><strong>Run the server:</strong>
+            <pre><code>python manage.py runserver</code></pre>
+        </li>
+    </ol>
+
+    <h2>Contact Us</h2>
+    <p>For any queries or support, please reach out to us at <a href="mailto:support@glowgearshopee.com">support@glowgearshopee.com</a>.</p>
+
+    <p>Feel free to expand or modify this documentation as per your specific requirements.</p>
+</div>
+
+{% endblock %}

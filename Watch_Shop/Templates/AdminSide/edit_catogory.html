@@ -1,0 +1,43 @@
+{% extends "AdminSide/base.html" %}
+{% block title %}Edit Category{% endblock %}
+
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="col-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Edit the Category</h4>
+            <form class="forms-sample" method="post" action="{% url 'catogory:edit_category' category.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="categoryName">Category Name</label>
+                    <input type="text" class="form-control" id="categoryName" name="category_name" value="{{ category.category_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryDescription">Description</label>
+                    <input type="text" class="form-control" id="categoryDescription" name="category_description" value="{{ category.category_description }}">
+                </div>
+                <div class="form-group">
+                    <label for="categoryStatus">Status</label>
+                    <select class="form-control" id="categoryStatus" name="is_available">
+                        <option value="true" {% if category.is_available %}selected{% endif %}>Active</option>
+                        <option value="false" {% if not category.is_available %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mr-2">Save Changes</button>
+                <a href="{% url 'catogory:catogory_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

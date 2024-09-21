@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}G-G ADMIN{% endblock %}</title>
+ 
+<body>
+
+
+    {% block header %}
+        {% include 'AdminSide/navbar.html' %}
+    {% endblock %}
+    <div class="mes" style="color: #fff; margin-top: 100px;">
+
+    {% block content %}
+        
+    {% endblock %}
+    </div>
+    
+
+    
+</body>
+</html>
