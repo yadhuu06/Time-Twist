@@ -66,9 +66,9 @@
                             <span>Subtotal :</span>
                             <strong id="subtotalAmount"> {{ total_price }}</strong>
                         </h6>
-                        <h6 class="d-flex justify-content-between" id="discountSection" style="display:none;">
+                        <h6 class="d-flex justify-content-between" id="shippingSection">
                             <span>Shipping :</span>
-                            <strong id="discountAmount">Rs 0 </strong>
+                            <strong id="shippingAmount">Rs 0</strong>
                         </h6>
                          <h6 class="d-flex justify-content-between" id="discountSection" style="display:none;">
                             <span>Discount :</span>
@@ -321,6 +321,26 @@
         document.getElementById('appliedCouponDetails').innerText = '';
         document.getElementById('discountSection').style.display = 'none';
         document.getElementById('payableAmount').innerText = document.getElementById('subtotalAmount').innerText;
+    });
+    function updatePayableAmount() {
+        let subtotal = parseFloat(document.getElementById('subtotalAmount').innerText.replace('Rs', '').trim());
+        let shipping = 0;
+
+        if (subtotal < 10000) {
+            shipping = 40;
+            document.getElementById('shippingAmount').innerText = 'Rs ' + shipping;
+        } else {
+            document.getElementById('shippingAmount').innerText = 'Rs 0';
+        }
+
+        // Calculate the new payable amount by adding shipping
+        let payable = subtotal + shipping;
+        document.getElementById('payableAmount').innerText = 'Rs ' + payable;
+    }
+
+    // Call updatePayableAmount on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updatePayableAmount();
     });
 </script>
 {% endblock %}

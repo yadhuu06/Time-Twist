@@ -44,7 +44,7 @@
                                     <h6 class="card-title">Order Summary</h6>
                                     <p class="card-text">
                                         <strong>Total Items:</strong> {{ order.items.count }}<br>
-                                        <strong>Total Amount:</strong> ₹{{ order.total_price|floatformat:2 }}<br>
+                                        <strong>Total Amount:</strong> ₹{{ order.final_price|floatformat:2 }}<br>
                                         <strong>Status:</strong> 
                                         <span class="{% if order.status == 'Delivered' %}text-success{% elif order.status == 'Cancelled' %}text-danger{% elif order.status == 'Pending' %}text-warning{% elif order.status == 'Returned' or order.status == 'Refund Completed' %}text-danger{% else %}text-secondary{% endif %}">
                                             {{ order.status }}

@@ -51,12 +51,18 @@ def place_order(request):
             if coupon.minimum_amount <= total_price <= coupon.maximum_amount:
                 coupon_discount = (total_price * coupon.discount) / 100
                 total_price -= coupon_discount
+        
+        
+        shipping_charge = 0        
+        if total_price < 10000:
+            shipping_charge = 40
+            total_price += shipping_charge 
 
         for item in cart_items:
             product_variant = item.variant
             product = product_variant.product
 
-            # Check if the product and its variant are active
+          
             if not product.is_active:
                 messages.error(request, f'Product {product.product_name} is no longer available.')
                 return redirect('checkout')
@@ -69,7 +75,7 @@ def place_order(request):
 
         selected_address = get_object_or_404(UserAddress, id=address_id, user=request.user)
 
-        # Check if user is active
+        
         if not request.user.is_active:
             messages.error(request, 'Your account is not active.')
             return redirect('checkout')
@@ -92,8 +98,9 @@ def place_order(request):
                     payment=None,
                     total_price=main_total,
                     offer_price=coupon_discount,
+                    shipping=shipping_charge,
                     final_price=total_price,
-                    status='Pending'
+                    
                 )
 
                 OrderAddress.objects.create(
@@ -155,6 +162,7 @@ def place_order(request):
                     total_price=main_total,
                     offer_price=coupon_discount,
                     final_price=total_price,
+                    shipping=shipping_charge,                   
                     status='Pending'
                 )
 
@@ -226,6 +234,7 @@ def place_order(request):
                         total_price=main_total,
                         offer_price=coupon_discount,
                         final_price=total_price,
+                        shipping=shipping_charge,
                         status='Pending'
                     )
 
@@ -348,7 +357,7 @@ def order_details_user(request,order_id):
 
 @active_user_required
 def cancel_order(request, order_id):
-    print('haii')
+    
     order = get_object_or_404(Order, order_id=order_id)
 
     if order.status == 'Delivered':
@@ -366,7 +375,6 @@ def cancel_order(request, order_id):
                 product_variant = item.product_variant
                 product_variant.variant_stock += item.quantity
                 product_variant.save()
-
                 if wallet:
                     wallet.balance += item.paid_price
                     wallet.save()

@@ -200,7 +200,7 @@ def update_return_status(request):
                 total_refund_amount = 0
                 
                 for order_item in order_items:
-                    refund_amount = order_item.paid_price
+                    refund_amount = order_item.paid_price-order_item.shipping
                     total_refund_amount += refund_amount
                     
                     product_variant = order_item.product_variant

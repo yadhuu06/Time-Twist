@@ -16,19 +16,33 @@
                         <li><span>Order number</span> : {{ order.order_id }}</li>
                         <li><span>Date</span> : {{ order.created_at|date:"F j, Y, g:i a" }}</li>
                         <li><span>Total</span> : Rs {{ order.total_price }}</li>
+                        
+                        <li><span>Shipping</span> : {{ order.shipping }}</li>
                         <li><span>Payment method</span> : {{ order.payment.method }}</li>
+                        <li><span>Order Status</span> : 
+                            <span class="
+                                {% if order.status == 'Pending' %}
+                                    text-warning
+                                {% elif order.status == 'Completed' %}
+                                    text-success
+                                {% else %}
+                                    text-secondary
+                                {% endif %}
+                            ">
+                                <strong>{{ order.status }}</strong>
+                            </span></li>
                         <li>
                             <span>Payment status</span> : 
                             <span class="
                                 {% if order.payment.status == 'Pending' %}
-                                    text-warning
+                                   text-warning
                                 {% elif order.payment.status == 'Completed' %}
                                     text-success
                                 {% else %}
                                     text-secondary
                                 {% endif %}
                             ">
-                                {{ order.payment.status }}
+                            <strong>{{ order.payment.status }}</strong>
                             </span>
                         </li>
                     </ul>
