@@ -33,8 +33,6 @@ def is_admin(user):
 
 
 @user_passes_test(is_admin)
-
-
 @never_cache
 def admin_page(request):
     time_range = request.GET.get('time_range', 'weekly')
@@ -51,6 +49,7 @@ def admin_page(request):
     orders = Order.objects.filter(created_at__gte=start_date)
 
     total_orders = orders.count()
+    total_revenue = Order.objects.filter(created_at__gte=start_date).aggregate(Sum('final_price'))['final_price__sum'] or 0
     pending_orders = orders.filter(status='Pending').count()
     completed_orders = orders.filter(status='Delivered').count()
 
@@ -58,10 +57,12 @@ def admin_page(request):
                          .values('date') \
                          .annotate(count=Count('id'), revenue=Sum('final_price')) \
                          .order_by('date')
+    
 
     dates = [entry['date'].strftime('%Y-%m-%d') for entry in order_trends]
     orders_data = [entry['count'] for entry in order_trends]
     revenue_data = [float(entry['revenue']) for entry in order_trends]
+
 
     order_status_data = [
         orders.filter(status='Pending').count(),
@@ -81,21 +82,27 @@ def admin_page(request):
                                 .values('product_variant__variant_name') \
                                 .annotate(total_quantity=Sum('quantity')) \
                                 .order_by('-total_quantity')[:5]
-
+    top_brands = OrderItem.objects.filter(order__created_at__gte=start_date) \
+                                .values('product_variant__product__product_brand__brand_name') \
+                                .annotate(total_quantity=Sum('quantity')) \
+                                .order_by('-total_quantity')[:5]                            
     context = {
         'total_orders': total_orders,
         'pending_orders': pending_orders,
         'completed_orders': completed_orders,
         'dates': dates,
+        'total_revenue':total_revenue,
         'orders_data': orders_data,
         'revenue_data': revenue_data,
         'order_status_data': order_status_data,
         'top_products': top_products,
         'top_variants': top_variants,
+        'top_brands': top_brands,
         'time_range': time_range,
     }
     
     return render(request, 'AdminSide/admin-dashboard.html', context)
+
 
 def admin_login(request):
     
@@ -239,6 +246,15 @@ def update_return_status(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': f'An unexpected error occurred: {str(e)}'}, status=500)
 
+
+from django.shortcuts import render
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Sum, F
+from django.db.models.functions import TruncDay, TruncMonth, TruncYear
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
+
 @user_passes_test(is_admin)
 def sales_report(request):
     start_date_str = request.GET.get('start_date', '')
@@ -263,7 +279,6 @@ def sales_report(request):
                 end_date = datetime.strptime(end_date_str, '%Y').date().replace(month=12, day=31)
 
             if start_date and end_date:
-             
                 end_date = end_date + timedelta(days=1)
                 orders = orders.filter(created_at__range=[start_date, end_date])
         except ValueError:
@@ -274,12 +289,21 @@ def sales_report(request):
         orders = orders.annotate(report_date=TruncMonth('created_at')).order_by('-report_date', '-created_at')
     elif report_type == 'yearly':
         orders = orders.annotate(report_date=TruncYear('created_at')).order_by('-report_date', '-created_at')
-    else:  
+    else:  # daily
         orders = orders.annotate(report_date=TruncDay('created_at')).order_by('-report_date', '-created_at')
 
     # Calculate discount for each order
-    for order in orders:
-        order.discount = order.total_price - order.final_price
+    orders = orders.annotate(
+        discount=F('total_price') - F('final_price'),
+        coupon_discount=F('offer_price')
+    )
+
+    # Aggregate total values
+    total_stats = orders.aggregate(
+        total_order_amount=Sum('final_price'),
+        total_discount=Sum('discount'),
+        total_coupon_discount=Sum('coupon_discount')
+    )
 
     paginator = Paginator(orders, 10)
     page_number = request.GET.get('page', 1)
@@ -291,17 +315,15 @@ def sales_report(request):
     start_date_str = start_date.strftime('%Y-%m-%d') if start_date else ''
     end_date_str = end_date.strftime('%Y-%m-%d') if end_date else ''
 
-
     context = {
         'page_obj': page_obj,
         'orders': page_obj,
         'start_date': start_date_str,
         'end_date': end_date_str,
         'report_type': report_type,
-        'total_order_amount': orders.aggregate(total_order_amount=Sum('final_price'))['total_order_amount'] or 0,
-        'total_discount': orders.aggregate(total_discount=Sum('offer_price'))['total_discount'] or 0,
+        'total_order_amount': total_stats['total_order_amount'] or 0,
+        'total_discount': total_stats['total_discount'] or 0,
+        'total_coupon_discount': total_stats['total_coupon_discount'] or 0,
     }
 
     return render(request, 'AdminSide/sales_report.html', context)
-
-

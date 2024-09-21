@@ -125,6 +125,7 @@ def render_form(request, product_name='', product_description='', price='', offe
 @never_cache
 @admin_required
 def edit_product(request, product_id):
+    
     product = get_object_or_404(Products, id=product_id)
     
     if request.method == 'POST':
@@ -135,9 +136,10 @@ def edit_product(request, product_id):
         price = request.POST.get('price')
         offer_percentage = request.POST.get('offer_percentage')
         is_active = request.POST.get('is_active') == 'on'
-        featured = request.POST.get('featured') == 'on'
-        print(offer_percentage)
-        print("OKKK")
+        featured = request.POST.get('featured') == 'True'
+        print(featured)
+        print(is_active)
+       
 
      
         if re.match(r'^[^\w]+$', product_name) or not product_name:
@@ -426,4 +428,5 @@ def list_productVarient(request, Products_id):
         'variants': variants,
     }
     return render(request, 'AdminSide/varient_list.html', context)
+
 

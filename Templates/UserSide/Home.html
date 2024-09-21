@@ -4,73 +4,6 @@
 {%block content%}
 <body>
 
-	<!-- Start Header Area -->
-	<header class="header_area sticky-header">
-		<div class="main_menu">
-			<nav class="navbar navbar-expand-lg navbar-light main_box">
-				<div class="container">
-					<!-- Brand and toggle get grouped for better mobile display -->
-					<a class="navbar-brand logo_h" href="index.html"><img src="{% static 'img/logo.png' %}" alt=""></a>
-					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-					 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<!-- Collect the nav links, forms, and other content for toggling -->
-					<div class="collapse navbar-collapse offset" id="navbarSupportedContent">
-						<ul class="nav navbar-nav menu_nav ml-auto">
-							<li class="nav-item active"><a class="nav-link" href="index.html">Home</a></li>
-							<li class="nav-item submenu dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false">Shop</a>
-								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="category.html">Category</a></li>
-									<li class="nav-item"><a class="nav-link" href="single-product.html">Product Details</a></li>
-									<li class="nav-item"><a class="nav-link" href="checkout.html">Product Checkout</a></li>
-									<li class="nav-item"><a class="nav-link" href="cart.html">Shopping Cart</a></li>
-									<li class="nav-item"><a class="nav-link" href="confirmation.html">Confirmation</a></li>
-								</ul>
-							</li>
-							<li class="nav-item submenu dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false">Blog</a>
-								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
-									<li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a></li>
-								</ul>
-							</li>
-							<li class="nav-item submenu dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false">Pages</a>
-								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
-									<li class="nav-item"><a class="nav-link" href="tracking.html">Tracking</a></li>
-									<li class="nav-item"><a class="nav-link" href="elements.html">Elements</a></li>
-								</ul>
-							</li>
-							<li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
-						</ul>
-						<ul class="nav navbar-nav navbar-right">
-							<li class="nav-item"><a href="#" class="cart"><span class="ti-bag"></span></a></li>
-							<li class="nav-item">
-								<button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</nav>
-		</div>
-		<div class="search_input" id="search_input_box">
-			<div class="container">
-				<form class="d-flex justify-content-between">
-					<input type="text" class="form-control" id="search_input" placeholder="Search Here">
-					<button type="submit" class="btn"></button>
-					<span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
-				</form>
-			</div>
-		</div>
-	</header>
 	
 	{% if messages %}
 							<ul class="messages">
@@ -89,9 +22,49 @@
 						<div class="row single-slide align-items-center d-flex">
 							<div class="col-lg-5 col-md-6">
 								<div class="banner-content">
-									<h1> G-SHOCK New <br>Collection!</h1>
-									<p>At GLOW GEAR, we curate a stunning collection of watches that blend style with functionality. Whether you're seeking a classic timepiece for everyday wear or a statement watch for special occasions, our handpicked selection ensures there's something for every taste.</p>
-								
+									<h1 class="highlighted-title">G-SHOCK New <br>Collection!</h1>
+
+									<p style="
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    text-align: center; 
+    animation: fade-in 2s ease-in-out forwards, color-change 3s ease-in-out infinite; 
+    opacity: 0; 
+    color: #000000; 
+    margin: 20px 0; 
+">
+    New Exiting  Models Are Just arrived!
+</p>
+<a href="{% url 'shop_view' %}" style="
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #ff7f0e, #ff4500); /* Orange gradient */
+    border: none;
+    border-radius: 8px;
+    padding: 12px 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease, opacity 0.4s ease; /* Added opacity transition */
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: inline-block;
+    text-decoration: none;
+    opacity: 0.8;"  /* Set initial opacity */
+    
+    onmouseover="this.style.background='linear-gradient(135deg, #ff4500, #ff7f0e)'; 
+                 this.style.transform='translateY(-3px)';
+                 this.style.boxShadow='0 8px 20px rgba(0, 0, 0, 0.3)';
+                 this.style.opacity='1';"  /* Fade in on hover */
+    
+    onmouseout="this.style.background='linear-gradient(135deg, #ff7f0e, #ff4500)';
+                this.style.transform='translateY(0)';
+                this.style.boxShadow='0 4px 10px rgba(0, 0, 0, 0.2)';
+                this.style.opacity='0.8';">  <!-- Fade back when not hovered -->
+    Explore Collection
+</a>
+
+
+
 								</div>
 							</div>
 							<div class="col-lg-7">
@@ -108,7 +81,8 @@
 						<div class="row single-slide">
 							<div class="col-lg-5">
 								<div class="banner-content">
-									<h1>G-SHOCK New <br>Collections Arrived!!!!</h1>
+									<h1 class="highlighted-title">G-SHOCK New <br>Collections Arrived!!!!</h1>
+
 									
 									<div class="add-bag d-flex align-items-center">
 										<a class="add-btn" href=""><span class="lnr lnr-cross"></span></a>
@@ -129,574 +103,832 @@
 	</section>
 	<!-- End banner Area -->
 
-	{% comment %} <!-- start features Area -->
-	<section class="features-area section_gap">
-		<div class="container">
-			<div class="row features-inner">
-				<!-- single features -->
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
-							<img src="{% static 'img/features/f-icon1.png' %}" alt="">
-						</div>
-						<h6>Free Delivery</h6>
-						<p>Free Shipping on all order</p>
-					</div>
-				</div>
-				<!-- single features -->
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
-							<img src="{% static 'img/features/f-icon2.png' %}" alt="">
-						</div>
-						<h6>Return Policy</h6>
-						<p>Free Shipping on all order</p>
-					</div>
-				</div>
-				<!-- single features -->
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
-							<img src="{% static 'img/features/f-icon3.png' %}" alt="">
-						</div>
-						<h6>24/7 Support</h6>
-						<p>Free Shipping on all order</p>
-					</div>
-				</div>
-				<!-- single features -->
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
-							<img src="{% static 'img/features/f-icon4.png' %}" alt="">
-						</div>
-						<h6>Secure Payment</h6>
-						<p>Free Shipping on all order</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section> {% endcomment %}
-	<!-- end features Area -->
+<style>/* Fade-in animation */
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(20px); /* Optional: subtle movement */
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0); /* Normal position */
+    }
+}
 
-	<!-- Start category Area -->
-	<section class="category-area">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-lg-8 col-md-12">
-					<div class="row">
-						<div class="col-lg-8 col-md-8">
-							<div class="single-deal">
-								<div class="overlay"></div>
-								<img class="img-fluid w-100" src="{% static 'img/category/c1.jpg' %}" alt="">
-								<a href="img/category/c1.jpg" class="img-pop-up" target="_blank">
-									<div class="deal-details">
-										<h6 class="deal-title">Sneaker for Sports</h6>
-									</div>
-								</a>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4">
-							<div class="single-deal">
-								<div class="overlay"></div>
-								<img class="img-fluid w-100" src="{% static 'img/category/c2.jpg' %}" alt="">
-								<a href="img/category/c2.jpg" class="img-pop-up" target="_blank">
-									<div class="deal-details">
-										<h6 class="deal-title">Sneaker for Sports</h6>
-									</div>
-								</a>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4">
-							<div class="single-deal">
-								<div class="overlay"></div>
-								<img class="img-fluid w-100" src="{% static 'img/category/c3.jpg' %}" alt="">
-								<a href="img/category/c3.jpg" class="img-pop-up" target="_blank">
-									<div class="deal-details">
-										<h6 class="deal-title">Product for Couple</h6>
-									</div>
-								</a>
-							</div>
-						</div>
-						<div class="col-lg-8 col-md-8">
-							<div class="single-deal">
-								<div class="overlay"></div>
-								<img class="img-fluid w-100" src="{% static 'img/category/c4.jpg' %}" alt="">
-								<a href="img/category/c4.jpg" class="img-pop-up" target="_blank">
-									<div class="deal-details">
-										<h6 class="deal-title">Sneaker for Sports</h6>
-									</div>
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-4 col-md-6">
-					<div class="single-deal">
-						<div class="overlay"></div>
-						<img class="img-fluid w-100" src="{% static 'img/category/c5.jpg' %}" alt="">
-						<a href="img/category/c5.jpg" class="img-pop-up" target="_blank">
-							<div class="deal-details">
-								<h6 class="deal-title">Sneaker for Sports</h6>
-							</div>
-						</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
+/* Color change animation */
+@keyframes color-change {
+    0% {
+        color: #ffffff; /* Starting color */
+    }
+    50% {
+        color: #ffcc00; /* Mid-point color */
+    }
+    100% {
+        color: #ffffff; /* Ending color */
+    }
+}
+</style>
 	<!-- End category Area -->
 
-	<!-- start product Area -->
-	<section class="owl-carousel active-product-area section_gap">
-		<!-- single product slide -->
-		<div class="container mt-5">
+	<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiss Time House - Luxury Watches</title>
+	
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    
+</head>
+
+
+
+    <!-- Hero section with changing images -->
+	<section id="home" class="hero-section">
+		<div class="hero-overlay"></div>
+		<div class="container hero-content">
+			<h3 class="display-3 fw-bold mb-4">Discover Timeless Elegance</h3>
+			<p class="lead mb-5">Explore our curated collection of luxury timepieces</p>
+			<a href="{% url 'shop_view' %}" style="
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #8b0000, #ff0000);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: inline-block;
+    text-decoration: none;" 
+    onmouseover="this.style.background='linear-gradient(135deg, #ff0000, #8b0000)'; 
+                 this.style.transform='translateY(-3px)';
+                 this.style.boxShadow='0 8px 20px rgba(0, 0, 0, 0.3)';"
+    onmouseout="this.style.background='linear-gradient(135deg, #8b0000, #ff0000)';
+                this.style.transform='translateY(0)';
+                this.style.boxShadow='0 4px 10px rgba(0, 0, 0, 0.2)';">
+    Explore Collection
+</a>
+
+
+		</div>
+	</section>
+	
+
+    <!-- Featured products section -->
+	<section id="featured" class="featured-products py-5">
+		<div class="container">
+			<h2 class="text-center mb-5 featured-heading-brand">Featured Watches</h2>
+
+
 			<div class="row">
 				{% for product in products %}
-				<div class="col-lg-3 col-md-4 mb-4">
-					<a href="{% url 'product_detail_user' product.id %}" class="text-decoration-none"> <!-- Add the link here -->
-						<div class="card single-product">
-							<div class="card-img-top">
+				<div class="col-lg-4 col-md-6 mb-4">
+					<div class="single-product">
+						<div class="product-img">
+							<div class="image-wrapper">
 								{% if product.variants.all %}
 									{% with product.variants.all|first as first_variant %}
 										{% if first_variant.images.all %}
 											{% with first_variant.images.all|first as first_image %}
-												<img class="img-fluid" src="{{ first_image.image.url }}" alt="{{ product.product_name }}">
+												<img class="product-image" src="{{ first_image.image.url }}" alt="{{ product.product_name }}">
 											{% endwith %}
 										{% else %}
-											<img class="img-fluid" src="{% static 'default_image.jpg' %}" alt="Default Image">
+											<img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
 										{% endif %}
 									{% endwith %}
 								{% else %}
-									<img class="img-fluid" src="{% static 'default_image.jpg' %}" alt="Default Image">
-								{% endif %}
-							</div>
-							<div class="card-body">
-								<h5 class="card-title">{{ product.product_brand }}</h5>
-								<h6 class="card-subtitle mb-2 text-muted">{{ product.product_name }}</h6>
-								<p class="card-text">{{ product.product_description|slice:":100" }}{% if product.product_description|length > 100 %}...{% endif %}</p>
-								<div class="price">
-									{% if product.offer_price %}
-										<h6 class="text-success">${{ product.offer_price }}</h6>
-										<del class="text-muted">${{ product.price }}</del>
-									{% else %}
-										<h6>${{ product.price }}</h6>
-									{% endif %}
-								</div>
-								{% if product.offer_price %}
-								<p class="text-success">
-									<strong>Discount:</strong> {{ product.offer_price_percentage|floatformat:2 }}% OFF
-								</p>
-								
+									<img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
 								{% endif %}
 							</div>
 						</div>
-					</a> <!-- Close the link here -->
+						<div class="product-details mt-3">
+							<h5>{{ product.product_name }}</h5>
+							<h6 class="text-primary">{{ product.product_brand.brand_name }}</h6>
+							<div class="price">
+								{% if product.offer_price %}
+									<h4 class="text-success font-weight-bold">₹ {{ product.offer_price }}</h4>
+								{% endif %}
+								<h6 class="text-muted">
+									<span class="text-decoration-line-through">₹ {{ product.price }}</span>
+								</h6>
+							</div>
+						</div>
+					</div>
 				</div>
-				{% empty %}
-				<p>No products available.</p>
 				{% endfor %}
 			</div>
 		</div>
-			
-					
-					{% comment %} <!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'img/product/p2.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
 
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'img/product/p3.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'img/product/p4.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
-
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'img/product/p5.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
-
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'img/product/p6.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
-
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'img/product/p7.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
-
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div> {% endcomment %}
-					</div>
-					
-							<h1>Coming Products</h1>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-								dolore
-								magna aliqua.</p>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<!-- single product -->
-					
-					<!-- single product -->
-					<div class="row">
-						{% for product in featured_products|slice:":5" %}
-						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-							<div class="single-related-product d-flex">
-								<a href="{% url 'product_detail' product.id %}">
-									{% if product.variants.first.images.first %}
-									<img src="{{ product.variants.first.images.first.image.url }}" alt="{{ product.product_name }}">
-									{% else %}
-									<img src="{% static 'UserSide/img/No_Images_available.png' %}" alt="No Image Available">
-									{% endif %}
-								</a>
-								<div class="desc">
-									<a href="{% url 'product_detail' product.id %}" class="title">{{ product.product_name }}</a>
-									<div class="price">
-										<h6>${{ product.calculate_offer_price|floatformat:2 }}</h6>
-										<h6 class="l-through">${{ product.price|floatformat:2 }}</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-						{% endfor %}
-					</div>
-					
-
-	<!-- Start exclusive deal Area -->
-	<section class="exclusive-deal-area">
-		<div class="container-fluid">
-			<div class="row justify-content-center align-items-center">
-				<div class="col-lg-6 no-padding exclusive-left">
-					<div class="row clock_sec clockdiv" id="clockdiv">
-						<div class="col-lg-12">
-							<h1>Exclusive Hot Deal Ends Soon!</h1>
-							<p>Who are in extremely love with eco friendly system.</p>
-						</div>
-						<div class="col-lg-12">
-							<div class="row clock-wrap">
-								<div class="col clockinner1 clockinner">
-									<h1 class="days">150</h1>
-									<span class="smalltext">Days</span>
-								</div>
-								<div class="col clockinner clockinner1">
-									<h1 class="hours">23</h1>
-									<span class="smalltext">Hours</span>
-								</div>
-								<div class="col clockinner clockinner1">
-									<h1 class="minutes">47</h1>
-									<span class="smalltext">Mins</span>
-								</div>
-								<div class="col clockinner clockinner1">
-									<h1 class="seconds">59</h1>
-									<span class="smalltext">Secs</span>
-								</div>
-							</div>
-						</div>
-					</div>
-					<a href="" class="primary-btn">Shop Now</a>
-				</div>
-				
-	<!-- End exclusive deal Area -->
-
-	<!-- Start brand Area -->
-	<section class="brand-area section_gap">
-		<div class="container">
-			<div class="row">
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'img/brand/1.png' %}" alt="">
-				</a>
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'img/brand/2.png' %}" alt="">
-				</a>
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'img/brand/3.png' %}" alt="">
-				</a>
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'img/brand/4.png' %}" alt="">
-				</a>
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'img/brand/5.png' %}" alt="">
-				</a>
-			</div>
-		</div>
-	</section>
-	<!-- End brand Area -->
-
-	<!-- Start related-product Area -->
-	<section class="related-product-area section_gap_bottom">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-lg-6 text-center">
-					<div class="section-title">
-						<h1>Deals of the Week</h1>
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-							magna aliqua.</p>
-					</div>
-				</div>
-			</div>
-			
-				<div class="col-lg-3">
-					<div class="ctg-right">
-						<a href="#" target="_blank">
-							<img class="img-fluid d-block mx-auto" src="{% static 'img/category/c5.jpg' %}" alt="">
-						</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- End related-product Area -->
-
-	<!-- start footer Area -->
-	<footer class="footer-area section_gap">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-3  col-md-6 col-sm-6">
-					<div class="single-footer-widget">
-						<h6>About Us</h6>
-						<p>
-							Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore dolore
-							magna aliqua.
-						</p>
-					</div>
-				</div>
-				<div class="col-lg-4  col-md-6 col-sm-6">
-					<div class="single-footer-widget">
-						<h6>Newsletter</h6>
-						<p>Stay update with our latest</p>
-						<div class="" id="mc_embed_signup">
-
-							<form target="_blank" novalidate="true" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
-							 method="get" class="form-inline">
-
-								<div class="d-flex flex-row">
-
-									<input class="form-control" name="EMAIL" placeholder="Enter Email" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Email '"
-									 required="" type="email">
+        <div class="container-fluid my-5">
+            <h2 class="text-center interactive-header">Our Brands</h2>
+            <div class="brand-logos-wrapper">
+              <button id="prev" class="btn btn-light"><i class="fas fa-chevron-left"></i></button>
+              <div class="brand-logos d-flex">
+                <div class="card mx-3">
+                  <div class="card-body p-2">
+                    <img src="{% static 'UserSide/img/fk.png' %}" alt="Brand 1" class="brand-logo img-fluid">
+                  </div>
+                </div>
+                <div class="card mx-3">
+                  <div class="card-body p-2">
+                    <img src="{% static 'UserSide/img/th.png' %}" alt="Brand 2" class="brand-logo img-fluid">
+                  </div>
+                </div>
+                <div class="card mx-3">
+                  <div class="card-body p-2">
+                    <img src="{% static 'UserSide/img/tx.png' %}" alt="Brand 3" class="brand-logo img-fluid">
+                  </div>
+                </div>
+                <div class="card mx-3">
+                  <div class="card-body p-2">
+                    <img src="{% static 'UserSide/img/rlx.png' %}" alt="Brand 4" class="brand-logo img-fluid">
+                  </div>
+                </div>
+                <div class="card mx-3">
+                  <div class="card-body p-2">
+                    <img src="{% static 'UserSide/img/co.png' %}" alt="Brand 5" class="brand-logo img-fluid">
+                  </div>
+                </div>
+                <div class="card mx-3">
+                  <div class="card-body p-2">
+                    <img src="{% static 'UserSide/img/tst.png' %}" alt="Brand 6" class="brand-logo img-fluid">
+                  </div>
+                </div>
+                <div class="card mx-3">
+                  <div class="card-body p-2">
+                    <img src="{% static 'UserSide/img/lg.png' %}" alt="Brand 7" class="brand-logo img-fluid">
+                  </div>
+                </div>
+              </div>
+              <button id="next" class="btn btn-light"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          <style>/* Navigation button styling */
+            .btn {
+              font-size: 2rem;
+              margin: 0 10px;
+              border-radius: 50%;
+              z-index: 1000; /* Ensure buttons are above other content */
+              background-color: #fff; /* Add background color to make buttons visible */
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slight shadow for better visibility */
+            }
+            
+            .brand-logos-wrapper {
+              display: flex;
+              align-items: center;
+              overflow: hidden;
+              width: 100%;
+              position: relative;
+              z-index: 1; /* Ensure the brand logos are underneath the buttons */
+            }
+            
+            /* Card styling */
+            .card {
+              flex: 0 0 18%;
+              max-width: 220px;
+              height: 180px;
+              border: none;
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+              transition: transform 0.3s ease, box-shadow 0.3s ease;
+              z-index: 0; /* Ensure cards are behind the buttons */
+            }
+           
+              /* Interactive heading with hover effect */
+              .interactive-header {
+                font-size: 2.5rem;
+                font-family: 'Cinzel', serif;
+                transition: transform 0.3s ease, color 0.3s ease;
+              }
+          
+              .interactive-header:hover {
+                transform: scale(1.05);
+                color: #007bff;
+              }
+              
+          
+              /* Full-width scrollable section styling */
+              .brand-logos-wrapper {
+                display: flex;
+                align-items: center; /* Align items vertically centered */
+                overflow: hidden;
+                width: 100%;
+                position: relative; /* For absolute positioning of buttons */
+              }
+              
+          
+              .brand-logos {
+                display: flex;
+                transition: transform 0.5s ease;
+              }
+          
+              /* Card styling */
+              .card {
+                flex: 0 0 18%; /* Each card takes up approximately 18% of the full width */
+                max-width: 220px; /* Increased max width */
+                height: 180px; /* Increased height */
+                border: none;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+              }
+          
+              .card:hover {
+                transform: scale(1.05); /* Slightly increase size on hover */
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+              }
+          
+              .brand-logo {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+              }
+          
+              /* Navigation button styling */
+              .btn {
+                font-size: 2rem;
+                margin: 0 10px;
+                border-radius: 50%;
+                z-index: 10; /* Ensure buttons are above other content */
+              }
+            </style>
+          
+            <script>
+              const cards = document.querySelectorAll('.card');
+              const totalCards = cards.length;
+              let currentIndex = 0;
+          
+              function updateDisplay() {
+                const offset = currentIndex * 20; // Each card takes up 20%
+                document.querySelector('.brand-logos').style.transform = `translateX(-${offset}%)`;
+              }
+          
+              document.getElementById('next').addEventListener('click', () => {
+                if (currentIndex < totalCards - 5) { // Change 5 based on visible cards
+                  currentIndex++;
+                }
+                updateDisplay();
+              });
+          
+              document.getElementById('prev').addEventListener('click', () => {
+                if (currentIndex > 0) {
+                  currentIndex--;
+                }
+                updateDisplay();
+              });
+            </script>
+          
+            <!-- Include Font Awesome -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+          </div>
+          
+     
 
 
-									<button class="click-btn btn btn-default"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></button>
-									<div style="position: absolute; left: -5000px;">
-										<input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value="" type="text">
-									</div>
+	
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
 
-									<!-- <div class="col-lg-4 col-md-4">
-												<button class="bb-btn btn"><span class="lnr lnr-arrow-right"></span></button>
-											</div>  -->
-								</div>
-								<div class="info"></div>
-							</form>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-3  col-md-6 col-sm-6">
-					<div class="single-footer-widget mail-chimp">
-						<h6 class="mb-20">Instragram Feed</h6>
-						<ul class="instafeed d-flex flex-wrap">
-							<li><img src="{% static 'img/i1.jpg' %}" alt=""></li>
-							<li><img src="{% static 'img/i2.jpg' %}" alt=""></li>
-							<li><img src="{% static 'img/i3.jpg' %}" alt=""></li>
-							<li><img src="{% static 'img/i4.jpg' %}" alt=""></li>
-							<li><img src="{% static 'img/i5.jpg' %}" alt=""></li>
-							<li><img src="{% static 'img/i6.jpg' %}" alt=""></li>
-							<li><img src="{% static 'img/i7.jpg' %}" alt=""></li>
-							<li><img src="{% static 'img/i8.jpg' %}" alt=""></li>
-						</ul>
-					</div>
-				</div>
-				<div class="col-lg-2 col-md-6 col-sm-6">
-					<div class="single-footer-widget">
-						<h6>Follow Us</h6>
-						<p>Let us be social</p>
-						<div class="footer-social d-flex align-items-center">
-							<a href="#"><i class="fa fa-facebook"></i></a>
-							<a href="#"><i class="fa fa-twitter"></i></a>
-							<a href="#"><i class="fa fa-dribbble"></i></a>
-							<a href="#"><i class="fa fa-behance"></i></a>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
-				<p class="footer-text m-0"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-</p>
-			</div>
-		</div>
-	</footer>
-	<!-- End footer Area -->
+		body {
+			font-family: 'Helvetica Neue', Arial, sans-serif;
+			color: #333;
+		}
+		
+		.navbar {
+			background-color: rgba(255, 255, 255, 0.9);
+			backdrop-filter: blur(10px);
+		}
+		@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
 
+.highlighted-title {
+    font-family: 'Cinzel', serif;
+    font-size: 3rem;
+    color: #ffffff;
+    background: linear-gradient(90deg, #ff5733, #ffbd33);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: fadeInUp 1s forwards;
+    text-align: center;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+		.navbar-brand {
+			font-weight: bold;
+			font-size: 1.8rem;
+			color: #000;
+		}
+		
+		.nav-link {
+			color: #000 !important;
+			font-weight: 500;
+		}
+		
+		.hero-section {
+			height: 100vh;
+			background-size: cover;
+			background-position: left;
+			display: flex;
+			align-items: center; /* Align content vertically to the center */
+			justify-content: flex-start; /* Align content to the left */
+			color: white;
+			text-align: left; /* Ensure text is aligned left */
+			position: relative;
+			padding-left: 50px; /* Padding to keep content away from the edge */
+		}
+		
+		.hero-content {
+			z-index: 2;
+			max-width: 40%; /* Content will take up 40% of the width, staying to the left of the watch */
+			margin-left: 0; /* Ensure no extra margins */
+			padding-right: 20px; /* Optional: add some space between the text and the watch */
+		}
+		
+		
+		.hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("{% static 'UserSide/img/bcm.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1;
+        }
+        
+		h3 {
+			font-family: 'Cinzel', serif;
+			font-size: 3rem;
+		}
+		.highlighted-title {
+			font-size: 3rem; /* Adjust for responsiveness */
+			font-weight: bold;
+			text-align: center; /* Center alignment */
+			animation: fade-in 2s ease-in-out forwards, color-change 3s ease-in-out infinite;
+			opacity: 0;
+			color: #fffff; /* Initial color */
+			margin: 20px 0; /* Space around the title */
+		}
+		
+		/* Fade-in animation */
+		@keyframes fade-in {
+			0% {
+				opacity: 0;
+				transform: translateY(20px); /* Optional: subtle movement */
+			}
+			100% {
+				opacity: 1;
+				transform: translateY(0); /* Normal position */
+			}
+		}
+		
+		/* Color change animation */
+		@keyframes color-change {
+			0% {
+				color: #ffffff; /* Starting color */
+			}
+			50% {
+				color: #ffcc00; /* Mid-point color */
+			}
+			100% {
+				color: #ffffff; /* Ending color */
+			}
+		}
+		
+		/* Responsive adjustments */
+		@media (max-width: 768px) {
+			.highlighted-title {
+				font-size: 2.5rem; /* Smaller size for mobile */
+			}
+		}
+		
+		@media (max-width: 480px) {
+			.highlighted-title {
+				font-size: 2rem; /* Even smaller for very small screens */
+			}
+		}
+		
+		
+		p {
+			font-family: 'Playfair Display', serif;
+			font-size: 1.5rem;
+		}
+		/* Add the fade-in and color change animation to the text */
+/* General Styles */
+body {
+    font-family: 'Cinzel', serif;
+}
+
+/* Hero Section */
+.hero-content {
+    padding: 50px 0; /* Adjusted padding */
+    text-align: center; /* Center align content */
+}
+
+/* Header and Paragraph Animations */
+.hero-content h3 {
+    animation: fade-in 2s ease-in-out forwards, color-change 3s ease-in-out infinite;
+    opacity: 0;
+}
+
+.hero-content p {
+    animation: fade-in 3s ease-in-out forwards, color-change 3s ease-in-out infinite;
+    opacity: 0;
+}
+
+.hero-content a {
+    animation: fade-in 4s ease-in-out forwards;
+    opacity: 0;
+}
+
+/* Fade-in Animation */
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Color Change Animation */
+@keyframes color-change {
+    0% {
+        color: #000000; /* Starting color: black */
+    }
+    50% {
+        color: #ffcc00; /* Mid-point color change */
+    }
+    100% {
+        color: #000000; /* Ending color: black */
+    }
+}
+
+/* Featured Heading */
+.featured-heading-brand {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    overflow: hidden;
+    white-space: nowrap;
+    letter-spacing: 0.15em;
+    display: inline-block;
+    animation: typing 3.5s steps(30, end), blink-caret .75s step-end infinite;
+}
+
+/* Typing Effect */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+/* Blinking Caret */
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: black; }
+}
+
+/* Button Styles */
+.btn-outline-light {
+    border-width: 2px;
+}
+
+/* Featured Section */
+.featured-section {
+    padding: 50px 0; /* Adjusted to reduce space */
+}
+
+/* Featured Watch */
+.featured-watch {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.featured-watch img {
+    transition: transform 0.3s ease;
+}
+
+.featured-watch:hover img {
+    transform: scale(1.05);
+}
+
+.featured-watch-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.featured-watch:hover .featured-watch-info {
+    transform: translateY(0);
+}
+
+/* Single Product */
+.single-product {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-img {
+    width: 100%;
+    height: 400px; /* Fixed height for the image container */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Ensure the full image fits without cropping */
+    object-position: center; /* Center the image */
+}
+
+.product-details {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.price {
+    margin-top: auto;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .featured-heading-brand {
+        font-size: 2rem; /* Smaller size for mobile */
+    }
+
+    .hero-content h3 {
+        font-size: 1.5rem; /* Adjust h3 size */
+    }
+
+    .hero-content p {
+        font-size: 1.2rem; /* Adjust paragraph size */
+    }
+}
+
+@media (max-width: 480px) {
+    .featured-heading-brand {
+        font-size: 1.5rem; /* Even smaller for very small screens */
+    }
+
+    .hero-content h3 {
+        font-size: 1.2rem; /* Adjust h3 size */
+    }
+
+    .hero-content p {
+        font-size: 1rem; /* Adjust paragraph size */
+    }
+}
+>/style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Example of adding an event listener to the button
+        const exploreButton = document.querySelector('.hero-content a');
+        exploreButton.addEventListener('click', function(event) {
+            // Add any functionality you want here
+            console.log('Explore Collection clicked!');
+        });
+    });
+</script>
+
+ 
+
+
+<style>
+    /* Hero Section Styles */
+    .hero-sections {
+        position: relative;
+        height: 100vh;
+        overflow: hidden;
+    }
+    .single-hero-slide {
+        height: 80vh;
+        display: flex;
+        align-items: center;
+        background-size: cover;
+        background-position: center;
+    }
+    .single-hero-slide h1 {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    
+    /* Featured Brands Styles */
+    .brand-item img {
+        max-width: 100%;
+        height: auto;
+        filter: grayscale(100%);
+        transition: filter 0.3s ease;
+    }
+    .brand-item:hover img {
+        filter: grayscale(0%);
+    }
+    
+    /* Product Styles */
+    .single-product {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+    }
+    .single-product:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .product-img {
+        position: relative;
+        overflow: hidden;
+    }
+    .violet-bg {
+        background-color: #f0f0f0;
+        padding: 20px;
+    }
+    .product-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.7);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .single-product:hover .product-overlay {
+        opacity: 1;
+    }
+    .product-overlay .btn {
+        margin: 5px;
+    }
+    
+    /* Special Offers Styles */
+    .offer-card {
+        height: 300px;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .offer-content {
+        text-align: center;
+        color: white;
+        background-color: rgba(0,0,0,0.6);
+        padding: 20px;
+        border-radius: 8px;
+    }
+    
+    /* Testimonials Styles */
+    .testimonial-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+    }
+</style>
+
+<script>
+    $(document).ready(function(){
+        // Hero Slider
+        $('.hero-slider').owlCarousel({
+            items: 1,
+            loop: true,
+            autoplay: true,
+            autoplayTimeout: 5000,
+            animateOut: 'fadeOut'
+        });
+        
+        // Brand Slider
+        $('.brand-slider').owlCarousel({
+            loop: true,
+            margin: 20,
+            autoplay: true,
+            responsive:{
+                0:{
+                    items: 2
+                },
+                600:{
+                    items: 3
+                },
+                1000:{
+                    items: 5
+                }
+            }
+        });
+        document.addEventListener("DOMContentLoaded", function() {
+			const title = document.querySelector('.highlighted-title');
+			setTimeout(() => {
+				title.style.opacity = 1;
+			}, 500); // Adjust delay as needed
+		});
+		
+        // New Arrivals Slider
+        $('.new-arrivals-slider').owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: true,
+            responsive:{
+                0:{
+                    items: 1
+                },
+                600:{
+                    items: 2
+                },
+                1000:{
+                    items: 4
+                }
+            }
+        });
+        
+        // Testimonial Slider
+        $('.testimonial-slider').owlCarousel({
+            loop: true,
+            margin: 20,
+            autoplay: true,
+            responsive:{
+                0:{
+                    items: 1
+                },
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        // Hero section image rotation
+        const heroImages = [
+            '/api/placeholder/1920/1080',
+            '/api/placeholder/1920/1080',
+            '/api/placeholder/1920/1080'
+        ];
+        let currentImageIndex = 0;
+
+        function changeHeroImage() {
+            currentImageIndex = (currentImageIndex + 1) % heroImages.length;
+            $('.hero-section').css('background-image', `url(${heroImages[currentImageIndex]})`);
+        }
+
+        setInterval(changeHeroImage, 5000);
+
+        // Smooth scrolling
+        $('a[href^="#"]').on('click', function(event) {
+            var target = $(this.getAttribute('href'));
+            if( target.length ) {
+                event.preventDefault();
+                $('html, body').stop().animate({
+                    scrollTop: target.offset().top - 70
+                }, 1000);
+            }
+        });
+
+        // Newsletter form submission
+        $('#newsletter-form').on('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for subscribing to our newsletter!');
+            this.reset();
+        });
+
+        // Navbar background change on scroll
+        $(window).scroll(function() {
+            if ($(window).scrollTop() > 50) {
+                $('.navbar').addClass('bg-white').removeClass('bg-transparent');
+            } else {
+                $('.navbar').addClass('bg-transparent').removeClass('bg-white');
+            }
+        });
+    </script>
+</body>
+</html>
 </body>
 {%endblock content%}
 </html>

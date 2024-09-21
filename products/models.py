@@ -52,3 +52,24 @@ class ProductVariantImages(models.Model):
         return f"Image for {self.product_variant.product.product_name} - {self.product_variant.variant_name}"
 
 
+class ProductRating(models.Model):
+    product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)  
+    review = models.TextField(max_length=1000, null=True, blank=True) 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('product', 'user') 
+
+    def __str__(self):
+        return f"Rating {self.rating} for {self.product.product_name} by {self.user.username}"
+
+    def get_average_rating(self):
+        
+        total_rating = ProductRating.objects.filter(product=self.product).aggregate(models.Sum('rating'))['rating__sum']
+        total_reviews = ProductRating.objects.filter(product=self.product).count()
+        return total_rating / total_reviews if total_reviews > 0 else Decimal('0.0')
+
+

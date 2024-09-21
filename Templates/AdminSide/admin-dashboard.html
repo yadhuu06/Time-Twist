@@ -1,125 +1,292 @@
 {% extends "AdminSide/base.html" %}
 
-{% block title %}TimeTwist - Dashboard{% endblock %}
+{% block title %}TimeTwist - Sales Report{% endblock %}
 
 {% block content %}
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <title>TimeTwist - Sales Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .dashboard-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffa07a;
+            margin: 0;
+        }
+        .card {
+            background: rgba(42, 42, 42, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .top-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s ease;
+        }
+        .top-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .top-item-name {
+            font-weight: bold;
+            color: #4dc9f6;
+        }
+        .top-item-count {
+            background-color: rgba(77, 201, 246, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        #timeRange {
+            background-color: rgba(42, 42, 42, 0.7);
+            color: #e0e0e0;
+            border: 1px solid #4a4a4a;
+            border-radius: 5px;
+            padding: 5px 10px;
+            transition: all 0.3s ease;
+        }
+        #timeRange:hover {
+            background-color: rgba(74, 74, 74, 0.7);
+        }
+        .stats-card {
+            text-align: center;
+            padding: 20px;
+        }
+        .stats-card h6 {
+            color: #e0e0e0;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .stats-card p {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -10px;
+        }
+        .col-md-6, .col-md-4, .col-md-3 {
+            padding: 10px;
+            width: 100%;
+        }
+        @media (min-width: 768px) {
+            .col-md-6 { width: 50%; }
+            .col-md-4 { width: 33.333%; }
+            .col-md-3 { width: 25%; }
+        }
+    </style>
 </head>
-<body class="bg-dark text-light">
-    <div class="container-fluid">
-        <main class="px-md-4 w-100">
-            <!-- Page header -->
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h1 text-light">Admin Dashboard</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <select id="timeRange" class="form-select form-select-sm bg-dark text-light" onchange="updateDashboard()">
-                        <option value="weekly" {% if time_range == 'weekly' %}selected{% endif %}>Last 7 days</option>
-                        <option value="monthly" {% if time_range == 'monthly' %}selected{% endif %}>Last 30 days</option>
-                        <option value="yearly" {% if time_range == 'yearly' %}selected{% endif %}>Last 365 days</option>
-                    </select>
-                </div>
-            </div>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>Sales Overview</h1>
+            <select id="timeRange" onchange="updateDashboard()">
+                <option value="weekly" {% if time_range == 'weekly' %}selected{% endif %}>Last 7 days</option>
+                <option value="monthly" {% if time_range == 'monthly' %}selected{% endif %}>Last 30 days</option>
+                <option value="yearly" {% if time_range == 'yearly' %}selected{% endif %}>Last 365 days</option>
+            </select>
+        </div>
 
-            <!-- Cards -->
-            <div class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-3 mb-3">
-                <div class="col">
-                    <div class="card bg-dark text-light h-100 border border-secondary">
-                        <div class="card-body text-center">
-                            <h6 class="card-title text-uppercase">Total Orders</h6>
-                            <p class="card-text display-5">{{ total_orders }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card bg-dark text-light h-100 border border-secondary">
-                        <div class="card-body text-center">
-                            <h6 class="card-title text-uppercase">Pending Orders</h6>
-                            <p class="card-text display-5">{{ pending_orders }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card bg-dark text-light h-100 border border-secondary">
-                        <div class="card-body text-center">
-                            <h6 class="card-title text-uppercase">Completed Orders</h6>
-                            <p class="card-text display-5">{{ completed_orders }}</p>
-                        </div>
+        <div class="row" style="display: flex; flex-wrap: wrap;">
+            <div class="col-md-3" style="flex: 0 0 25%; max-width: 25%; padding: 5px;">
+                <div class="card stats-card" style="height: 130px; overflow: hidden;">
+                    <div class="card-body" style="padding: 14px;">
+                        <h6 style="color: #4dc9f6; margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Total Orders</h6>
+                        <p style="color: #4dc9f6; margin: 0; font-size: 18px;">{{ total_orders }}</p>
                     </div>
                 </div>
             </div>
-            
-            <!-- Charts -->
-            <div class="row g-3">
-                <div class="col-md-8">
-                    <div class="card bg-dark text-light border border-secondary">
-                        <div class="card-body">
-                            <h6 class="card-title text-uppercase">Order Trends</h6>
+            <div class="col-md-3" style="flex: 0 0 25%; max-width: 25%; padding: 5px;">
+                <div class="card stats-card" style="height: 130px; overflow: hidden;">
+                    <div class="card-body" style="padding: 14px;">
+                        <h6 style="color: #ff6384; margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Total Revenue</h6>
+                        <p style="color: #ff6384; margin: 0; font-size: 18px;">${{ total_revenue|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3" style="flex: 0 0 25%; max-width: 25%; padding: 5px;">
+                <div class="card stats-card" style="height: 130px; overflow: hidden;">
+                    <div class="card-body" style="padding: 14px;">
+                        <h6 style="color: #ffcd56; margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Pending Orders</h6>
+                        <p style="color: #ffcd56; margin: 0; font-size: 18px;">{{ pending_orders }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3" style="flex: 0 0 25%; max-width: 25%; padding: 5px;">
+                <div class="card stats-card" style="height: 130px; overflow: hidden;">
+                    <div class="card-body" style="padding: 14px;">
+                        <h6 style="color: #4bc0c0; margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Delivered Orders</h6>
+                        <p style="color: #4bc0c0; margin: 0; font-size: 18px;">{{ completed_orders }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase mb-4" style="color: #e0e0e0;">Order Trends</h6>
+                        <div class="chart-container">
                             <canvas id="orderTrendsChart"></canvas>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card bg-dark text-light border border-secondary">
-                        <div class="card-body">
-                            <h6 class="card-title text-uppercase">Order Status</h6>
-                            <canvas id="orderStatusChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase mb-4" style="color: #e0e0e0;">Revenue Trends</h6>
+                        <div class="chart-container">
+                            <canvas id="revenueTrendsChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Top Products and Variants -->
-            <div class="row g-3 mt-3">
-                <div class="col-md-6">
-                    <div class="card bg-dark text-light border border-secondary">
-                        <div class="card-body">
-                            <h6 class="card-title text-uppercase">Top 5 Selling Products</h6>
-                            <ul class="list-group list-group-flush">
-                                {% for product in top_products %}
-                                    <li class="list-group-item bg-dark text-light">
-                                        {{ product.product_variant__product__product_name }} -
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card bg-dark text-light border border-secondary">
-                        <div class="card-body">
-                            <h6 class="card-title text-uppercase">Top 5 Selling Variants</h6>
-                            <ul class="list-group list-group-flush">
-                                {% for variant in top_variants %}
-                                    <li class="list-group-item bg-dark text-light">
-                                        {{ variant.product_variant__variant_name }} - {{ variant.total_quantity }} sold
-                                    </li>
-                                {% endfor %}
-                            </ul>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase mb-4" style="color: #4dc9f6;">Top 5 Selling Products</h6>
+                        <div class="top-items-list">
+                            {% for product in top_products %}
+                                <div class="top-item">
+                                    <span class="top-item-name">{{ product.product_variant__product__product_name }}</span>
+                                    <span class="top-item-count">{{ product.total_quantity }} sold</span>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase mb-4" style="color: #ff6384;">Top 5 Selling Variants</h6>
+                        <div class="top-items-list">
+                            {% for variant in top_variants %}
+                                <div class="top-item">
+                                    <span class="top-item-name">{{ variant.product_variant__variant_name }}</span>
+                                    <span class="top-item-count">{{ variant.total_quantity }} sold</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase mb-4" style="color: #ffcd56;">Top 5 Selling Brands</h6>
+                        <div class="top-items-list">
+                            {% for brand in top_brands %}
+                                <div class="top-item">
+                                    <span class="top-item-name">{{ brand.product_variant__product__product_brand__brand_name }}</span>
+                                    <span class="top-item-count">{{ brand.total_quantity }} sold</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- JavaScript for Charts -->
     <script>
-        // Django variables passed to JavaScript
+        // Chart configurations
         const dates = {{ dates|safe }};
         const ordersData = {{ orders_data|safe }};
         const revenueData = {{ revenue_data|safe }};
-        const orderStatuses = {{ order_status_data|safe }};
+        
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#e0e0e0'
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#e0e0e0'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#e0e0e0'
+                    }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        };
 
         // Order Trends Chart
         const orderTrendsCtx = document.getElementById('orderTrendsChart').getContext('2d');
-        const orderTrendsChart = new Chart(orderTrendsCtx, {
+        new Chart(orderTrendsCtx, {
             type: 'line',
             data: {
                 labels: dates,
@@ -130,7 +297,18 @@
                     backgroundColor: 'rgba(77, 201, 246, 0.1)',
                     tension: 0.1,
                     fill: true
-                }, {
+                }]
+            },
+            options: chartOptions
+        });
+
+        // Revenue Trends Chart
+        const revenueTrendsCtx = document.getElementById('revenueTrendsChart').getContext('2d');
+        new Chart(revenueTrendsCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
                     label: 'Revenue',
                     data: revenueData,
                     borderColor: '#ff6384',
@@ -139,76 +317,57 @@
                     fill: true
                 }]
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            color: '#e0e0e0'
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: '#333'
-                        },
-                        ticks: {
-                            color: '#e0e0e0'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: '#333'
-                        },
-                        ticks: {
-                            color: '#e0e0e0'
-                        }
-                    }
-                },
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
-                }
-            }
-        });
-
-        // Order Status Chart
-        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
-        const orderStatusChart = new Chart(orderStatusCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pending', 'Processing', 'Shipped', 'Delivered'],
-                datasets: [{
-                    data: orderStatuses,
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#e0e0e0'
-                        }
-                    }
-                }
-            }
+            options: chartOptions
         });
 
         function updateDashboard() {
             const timeRange = document.getElementById('timeRange').value;
             window.location.href = `?time_range=${timeRange}`;
         }
+
+        // GSAP Animations
+        gsap.from(".card", {
+            duration: 1,
+            y: 50,
+            opacity: 0,
+            stagger: 0.2,
+            ease: "power3.out"
+        });
+
+        // Animated counter for stats
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Animate stats on page load
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const statElements = document.querySelectorAll('.stats-card p');
+            statElements.forEach(el => {
+                const finalValue = parseInt(el.innerText.replace(/\D/g,''));
+                animateValue(el, 0, finalValue, 2000);
+            });
+        });
+
+        // Interactive hover effects for top items
+        const topItems = document.querySelectorAll('.top-item');
+        topItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                gsap.to(item, {duration: 0.3, backgroundColor: 'rgba(255, 255, 255, 0.2)', ease: 'power2.out'});
+            });
+            item.addEventListener('mouseleave', () => {
+                gsap.to(item, {duration: 0.3, backgroundColor: 'rgba(255, 255, 255, 0)', ease: 'power2.out'});
+            });
+        });
     </script>
 </body>
+</html>
 {% endblock %}

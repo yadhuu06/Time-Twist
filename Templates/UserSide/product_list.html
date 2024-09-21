@@ -2,7 +2,6 @@
 <div class="row">
     <!-- Start of the for loop -->
     {% for product in products %}
-    
     <div class="col-lg-3 col-md-6">
         <div class="single-product">
             <!-- Product Image with violet background -->
@@ -29,7 +28,6 @@
                 <h6 style="color:blue;">{{ product.product_brand.brand_name }}</h6>
                 <h5>{{ product.product_name }}</h5>
                 
-
                 <div class="price">
                     {% if product.offer_price %}
                         <h4 style="color: green; font-weight: bold;">₹ {{ product.offer_price }}</h4>
@@ -61,22 +59,77 @@
     </div>
     {% endfor %}
     <!-- End of the for loop -->
+</div>
+
+<!-- Pagination -->
+<div class="pagination-container">
     <div class="pagination">
         <span class="step-links">
             {% if products.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ products.previous_page_number }}">previous</a>
+                <a href="?page={{ products.previous_page_number }}" class="page-link">&larr;</a>
             {% endif %}
-    
-            <span class="current">
-                Page {{ products.number }} of {{ products.paginator.num_pages }}.
-            </span>
-    
+
+            {% for num in products.paginator.page_range %}
+                {% if num == products.number %}
+                    <span class="page-link active">{{ num }}</span>
+                {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                    <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
             {% if products.has_next %}
-                <a href="?page={{ products.next_page_number }}">next</a>
-                <a href="?page={{ products.paginator.num_pages }}">last &raquo;</a>
+                <a href="?page={{ products.next_page_number }}" class="page-link">&rarr;</a>
             {% endif %}
-        </a>
         </span>
     </div>
 </div>
+
+<style>
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .pagination {
+        display: inline-flex;
+        background-color: #e9ecef;
+        border-radius: 0; /* Remove rounded corners */
+        overflow: hidden;
+    }
+    
+    .pagination .step-links {
+        display: flex;
+        align-items: center;
+    }
+    
+    .pagination .page-link {
+        color: #495057;
+        padding: 12px 18px; /* Increase padding to make square buttons */
+        text-decoration: none;
+        transition: background-color 0.3s, color 0.3s;
+        border: 1px solid #dee2e6;
+        margin: 0 5px; /* Increase distance between page links */
+        border-radius: 0; /* Ensure square shape */
+    }
+    
+    .pagination .page-link:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .pagination .page-link.active {
+        background-color: #ff7f0e; /* Set active page background to orange */
+        color: white; /* Set active text color to white */
+        border-color: #ff7f0e; /* Border for active page */
+    }
+    
+    .pagination .page-link:first-child {
+        border-radius: 0; /* No rounded corners */
+    }
+    
+    .pagination .page-link:last-child {
+        border-radius: 0; /* No rounded corners */
+    }
+</style>
+    

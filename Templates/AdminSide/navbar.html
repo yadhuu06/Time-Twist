@@ -87,6 +87,7 @@
     <link rel="stylesheet" href="{% static 'AdminSide/assets/css/style.css' %}">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="AdminSide/images/favicon.png" />
+    
   </head>
   <body>
     <div class="container-scroller">
@@ -361,7 +362,7 @@
                 <a class="nav-link" id="profileDropdown" href="#" data-toggle="dropdown">
                   <div class="navbar-profile">
                     <img class="img-xs rounded-circle" src="{% static 'AdminSide/images/faces/face15.jpg' %}" alt="">
-                    <p class="mb-0 d-none d-sm-block navbar-profile-name">Yadhu</p>
+                    <p class="mb-0 d-none d-sm-block navbar-profile-name">{{ user.first_name }}</p>
                     <i class="mdi mdi-menu-down d-none d-sm-block"></i>
                   </div>
                 </a>
@@ -379,7 +380,7 @@
                     </div>
                   </a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item preview-item">
+                  <a class="dropdown-item preview-item" href="{% url 'logout' %}">
                     <div class="preview-thumbnail">
                       <div class="preview-icon bg-dark rounded-circle">
                         <i class="mdi mdi-logout text-danger"></i>
@@ -399,3 +400,13 @@
             </button>
           </div>
         </nav>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Enable Bootstrap dropdowns
+    $('.dropdown-toggle').dropdown();
+});
+</script>

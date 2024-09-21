@@ -111,3 +111,6 @@ class CouponDeleteView(View):
 def generate_coupon_code(request):
     coupon_code = str(uuid.uuid4()).upper()[:8]
     return JsonResponse({'coupon_code': coupon_code})
+
+
+
