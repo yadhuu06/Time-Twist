@@ -16,7 +16,7 @@
             <div class="card-body">
                 <h4 class="card-title"><strong>Order Management</strong></h4>
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-hover custom-table">
                         <thead>
                             <tr>
                                 <th>
@@ -50,7 +50,7 @@
                                     <div class="badge badge-pill {% if order.status == 'Delivered' %}badge-success
                                         {% elif order.status == 'Shipped' %}badge-primary
                                         {% elif order.status == 'Returned' %}badge-danger
-                                        {% elif order.status == 'Rejected' %}badge-Warning
+                                        {% elif order.status == 'Rejected' %}badge-warning
                                         {% elif order.status == 'Cancelled' %}badge-danger
                                         {% elif order.status == 'Processing' %}badge-warning
                                         {% else %}badge-info{% endif %}">
@@ -70,10 +70,116 @@
     </div>
 </div>
 
-<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
+
+<!-- Custom CSS -->
 <style>
 body {
     font-family: 'Alegreya';font-size: 22px;
+    background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+}
+
+.card-body {
+    background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+    color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h4.card-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #d4af37;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.table.custom-table {
+    width: 100%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: #2c2c54;
+    color: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table.custom-table thead th {
+    background-color: #1a1a40;
+    color: #d4af37;
+    font-weight: bold;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #d4af37;
+}
+
+.table.custom-table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.table.custom-table tbody tr:hover {
+    background-color: #3a3a6f;
+}
+
+.table.custom-table td {
+    padding: 12px;
+    border-bottom: 1px solid #d4af37;
+    text-align: left;
+}
+
+.btn {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-outline-info {
+    color: #4caf50;
+    border-color: #4caf50;
+}
+
+.btn-outline-info:hover {
+    background-color: #43a047;
+    color: white;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+    h4.card-title {
+        font-size: 20px;
+    }
+    .table.custom-table th,
+    .table.custom-table td {
+        padding: 8px;
+    }
+    .btn {
+        font-size: 14px;
+    }
 }
 </style>
 {% endblock %}

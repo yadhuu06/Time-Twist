@@ -1,196 +1,119 @@
-{% extends "UserSide/base.html" %}
-{% block content %}
-<!-- Include the jsPDF and jsPDF-AutoTable libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.26/jspdf.plugin.autotable.min.js"></script>
-
-<!--================Order Details Area =================-->
-<section class="order_details section_gap">
-    <div class="container">
-        <h3 class="title_confirmation">Thank you. Your order has been received.</h3>
-        <div class="row order_d_inner">
-            <div class="col-lg-4">
-                <div class="details_item">
-                    <h4>Order Info</h4>
-                    <ul class="list">
-                        <li><span>Order number</span> : {{ order.order_id }}</li>
-                        <li><span>Date</span> : {{ order.created_at|date:"F j, Y, g:i a" }}</li>
-                        <li><span>Total</span> : Rs {{ order.total_price }}</li>
-                        
-                        <li><span>Shipping</span> : {{ order.shipping }}</li>
-                        <li><span>Payment method</span> : {{ order.payment.method }}</li>
-                        <li><span>Order Status</span> : 
-                            <span class="
-                                {% if order.status == 'Pending' %}
-                                    text-warning
-                                {% elif order.status == 'Completed' %}
-                                    text-success
-                                {% else %}
-                                    text-secondary
-                                {% endif %}
-                            ">
-                                <strong>{{ order.status }}</strong>
-                            </span></li>
-                        <li>
-                            <span>Payment status</span> : 
-                            <span class="
-                                {% if order.payment.status == 'Pending' %}
-                                   text-warning
-                                {% elif order.payment.status == 'Completed' %}
-                                    text-success
-                                {% else %}
-                                    text-secondary
-                                {% endif %}
-                            ">
-                            <strong>{{ order.payment.status }}</strong>
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="details_item">
-                    <h4>Billing Address</h4>
-                    <ul class="list">
-                        <li><span>Name</span> : {{ order.address.name }}</li>
-                        <li><span>Street</span> : {{ order.address.street_name }}</li>
-                        <li><span>House Name</span> : {{ order.address.house_name }}</li>
-                        <li><span>Pin Number</span> : {{ order.address.pin_number }}</li>
-                        <li><span>District</span> : {{ order.address.district }}</li>
-                        <li><span>State</span> : {{ order.address.state }}</li>
-                        <li><span>Phone Number</span> : {{ order.address.phone_number }}</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="details_item">
-                    <h4>Shipping Address</h4>
-                    <ul class="list">
-                        <!-- You may need a separate field in your Order model for shipping address or use the same as billing address -->
-                        <li><span>Name</span> : {{ order.address.name }}</li>
-                        <li><span>Street</span> : {{ order.address.street_name }}</li>
-                        <li><span>House Name</span> : {{ order.address.house_name }}</li>
-                        <li><span>Pin Number</span> : {{ order.address.pin_number }}</li>
-                        <li><span>District</span> : {{ order.address.district }}</li>
-                        <li><span>State</span> : {{ order.address.state }}</li>
-                        <li><span>Phone Number</span> : {{ order.address.phone_number }}</li>
-                    </ul>
-                </div>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/2.3.0/alpine.js" defer></script>
+</head>
+<body class="bg-gray-100" x-data="orderDetails()">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Order Details</h1>
+            <button @click="downloadPdf" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
+                Download PDF
+            </button>
         </div>
+        
+        <div id="orderDetails" class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800">Order #{{ order.order_id }}</h2>
+                    <span class="px-3 py-1 rounded-full text-sm font-semibold" :class="getStatusColor()">
+                        {{ order.status }}
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-50 p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-700">Order Summary</h3>
+                        <p class="mb-1"><span class="font-medium">Date:</span> {{ order.created_at|date:"F d, Y" }}</p>
+                        <p class="mb-1"><span class="font-medium">Total:</span> Rs {{ order.total_price }}</p>
+                        <p class="mb-1"><span class="font-medium">Coupon offer:</span> Rs {{ order.final_price}}</p>
+                        <p class="mb-1"><span class="font-medium">Payable/Paid:</span> Rs {{ order.Order_item.paid_price}}</p>
+                        <p><span class="font-medium">Shipping:</span> Rs {{ order.shipping }}</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-700">Shipping Address</h3>
+                        <p class="mb-1">{{ order.address.name }}</p>
+                        <p class="mb-1">{{ order.address.house_name }}, {{ order.address.street_name }}</p>
+                        <p class="mb-1">{{ order.address.district }}, {{ order.address.state }} {{ order.address.pin_number }}</p>
+                        <p><span class="font-medium">Phone:</span> {{ order.address.phone_number }}</p>
+                    </div>
+                </div>
 
-        <div class="order_details_table">
-            <h2>Order Details</h2>
-            <div class="table-responsive">
-                <table class="table" id="order-details-table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Product</th>
-                            <th scope="col">prices</th>
-                            <th scope="col">Quantity</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in order.items.all %}
-                        <tr>
-                            <td>
-                                <p>{{ item.product_variant.product.product_name }}</p>
-                            </td>
-                            <td>
-                                
-                                <p>Total Price: {{ order.total_price }}</p>
-                                <p> Buying Price: {{ order.final_price }}</p>
-                            
-                            </td>
-                            <td>
-                                <h5>x {{ item.quantity }}</h5>
-                            </td>
-                            
-                        </tr>
-                        {% endfor %}
-                        <tr>
-                            <td>
-                                <h4>Total</h4>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <p>Rs {{ order.total_price }}</p>
-                            </td>
-                        
-                            <td>
-                                <h4>Sub Total</h4>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <p>Rs {{ order.final_price }}</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h3 class="text-xl font-semibold mb-4 text-gray-800">Order Items</h3>
+                <div class="space-y-4">
+                    {% for item in order.items.all %}
+                    <div class="flex items-center bg-gray-50 p-4 rounded-lg shadow transition duration-300 hover:bg-gray-100" x-data="{ showDetails: false }">
+                        <img src="{{ item.product_variant.images.first.image.url }}" alt="{{ item.product_variant.product.product_name }}" class="w-20 h-20 object-cover rounded-md mr-4">
+                        <div class="flex-grow">
+                            <h4 class="font-semibold text-lg mb-1">{{ item.product_variant.product.product_name }}</h4>
+                            <p class="text-gray-600">{{ item.product_variant.variant_name }}</p>
+                            <p class="mt-1"><span class="font-medium">Quantity:</span> {{ item.quantity }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-lg">Rs {{ item.price }}</p>
+                          
+                        </div>
+                    </div>
+                    <div x-show="showDetails" class="bg-white p-4 rounded-lg shadow mt-2 border border-gray-200" x-cloak>
+                        <p class="mb-2"><span class="font-medium">Product Description:</span> {{ item.product_variant.product.product_description }}</p>
+                        <p class="mb-2"><span class="font-medium">Brand:</span> {{ item.product_variant.product.product_brand.brand_name }}</p>
+                        <p><span class="font-medium">Category:</span> {{ item.product_variant.product.product_category.name }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-8 bg-gray-50 p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">Payment Information</h3>
+                    <p class="mb-1"><span class="font-medium">Method:</span> {{ order.payment.method }}</p>
+                    <p class="mb-1"><span class="font-medium">Status:</span> {{ order.payment.status }}</p>
+                    <p><span class="font-medium">Amount:</span> Rs {{ order.payment.amount }}</p>
+                </div>
             </div>
-        </div>
-
-        <div class="details_item">
-            <button id="download-pdf" class="btn btn-primary">Download PDF</button>
         </div>
     </div>
-</section>
-<!--================End Order Details Area =================-->
 
-<script>
-document.getElementById('download-pdf').addEventListener('click', function () {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    // Add the company name
-    doc.setFontSize(16);
-    doc.setFont("helvetica", "bold");
-    doc.text("TimeTwist", 14, 20);
-
-    // Add the order details
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Order Number: {{ order.order_id }}`, 14, 30);
-    doc.text(`Date: {{ order.created_at|date:"F j, Y, g:i a" }}`, 14, 36);
-    doc.text(`Total: Rs {{ order.total_price }}`, 14, 42);
-    doc.text(`Payment Method: {{ order.payment.method }}`, 14, 48);
-    doc.text(`Payment Status: {{ order.payment.status }}`, 14, 54);
-
-    // Add the table of order items
-    doc.autoTable({
-        html: '#order-details-table',
-        startY: 60,
-        styles: {
-            fontSize: 10,
-            halign: 'center',
-            valign: 'middle',
-            fillColor: [255, 255, 255],
-            textColor: [0, 0, 0],
-        },
-        headStyles: {
-            fillColor: [0, 0, 0],
-            textColor: [255, 255, 255],
-            fontStyle: 'bold',
-            fontSize: 10,
-        },
-        bodyStyles: {
-            fillColor: [255, 255, 255],
-            textColor: [0, 0, 0],
-            fontSize: 10,
-        },
-        alternateRowStyles: {
-            fillColor: [240, 240, 240],
-        },
-        margin: { top: 60 },
-        tableLineColor: [0, 0, 0],
-        tableLineWidth: 0.75
-    });
-
-    // Save the PDF
-    doc.save('order_details.pdf');
-});
-</script>
-{% endblock %}
+    <script>
+        function orderDetails() {
+            return {
+                downloadPdf() {
+                    const { jsPDF } = window.jspdf;
+                    const element = document.getElementById('orderDetails');
+                    html2canvas(element).then(canvas => {
+                        const imgData = canvas.toDataURL('image/png');
+                        const pdf = new jsPDF({
+                            orientation: 'portrait',
+                            unit: 'px',
+                            format: [canvas.width, canvas.height]
+                        });
+                        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+                        pdf.save('order-summary.pdf');
+                    });
+                },
+                getStatusColor() {
+                    const status = '{{ order.status }}';
+                    switch(status.toLowerCase()) {
+                        case 'pending':
+                            return 'bg-yellow-200 text-yellow-800';
+                        case 'processing':
+                            return 'bg-blue-200 text-blue-800';
+                        case 'shipped':
+                            return 'bg-purple-200 text-purple-800';
+                        case 'delivered':
+                            return 'bg-green-200 text-green-800';
+                        case 'cancelled':
+                            return 'bg-red-200 text-red-800';
+                        default:
+                            return 'bg-gray-200 text-gray-800';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

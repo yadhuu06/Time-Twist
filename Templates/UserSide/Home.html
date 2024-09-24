@@ -185,44 +185,48 @@
 
 
 			<div class="row">
-				{% for product in products %}
-				<div class="col-lg-4 col-md-6 mb-4">
-					<div class="single-product">
-						<div class="product-img">
-							<div class="image-wrapper">
-								{% if product.variants.all %}
-									{% with product.variants.all|first as first_variant %}
-										{% if first_variant.images.all %}
-											{% with first_variant.images.all|first as first_image %}
-												<img class="product-image" src="{{ first_image.image.url }}" alt="{{ product.product_name }}">
-											{% endwith %}
-										{% else %}
-											<img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
-										{% endif %}
-									{% endwith %}
-								{% else %}
-									<img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
-								{% endif %}
-							</div>
-						</div>
-						<div class="product-details mt-3">
-							<h5>{{ product.product_name }}</h5>
-							<h6 class="text-primary">{{ product.product_brand.brand_name }}</h6>
-							<div class="price">
-								{% if product.offer_price %}
-									<h4 class="text-success font-weight-bold">₹ {{ product.offer_price }}</h4>
-								{% endif %}
-								<h6 class="text-muted">
-									<span class="text-decoration-line-through">₹ {{ product.price }}</span>
-								</h6>
-							</div>
-						</div>
-					</div>
-				</div>
-				{% endfor %}
-			</div>
-		</div>
-
+                {% for product in products %}
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <a href="{% url 'product_detail_user' product.id %}" class="text-decoration-none">
+                        <div class="single-product">
+                            <div class="product-img">
+                                <div class="image-wrapper">
+                                    {% if product.variants.all %}
+                                        {% with product.variants.all|first as first_variant %}
+                                            {% if first_variant.images.all %}
+                                                {% with first_variant.images.all|first as first_image %}
+                                                    <img class="product-image" src="{{ first_image.image.url }}" alt="{{ product.product_name }}">
+                                                {% endwith %}
+                                            {% else %}
+                                                <img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        <img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
+                                    {% endif %}
+                                </div>
+                            </div>
+            
+                            <div class="product-details mt-3">
+                                <h5>{{ product.product_name }}</h5>
+                                <h6 class="text-primary">{{ product.product_brand.brand_name }}</h6>
+                                <div class="price">
+                                    {% if product.offer_price %}
+                                        <h4 class="text-success font-weight-bold">₹ {{ product.offer_price }}</h4>
+                                    {% endif %}
+                                    <h6 class="text-muted">
+                                        <span class="text-decoration-line-through">₹ {{ product.price }}</span>
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                {% endfor %}
+            </div>
+            
         <div class="container-fluid my-5">
             <h2 class="text-center interactive-header">Our Brands</h2>
             <div class="brand-logos-wrapper">
@@ -382,7 +386,28 @@
             <!-- Include Font Awesome -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
           </div>
-          
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if messages %}
+        const messages = [
+            {% for message in messages %}
+                { level: "{{ message.tags|default_if_none:'info' }}", text: "{{ message|escapejs }}" },
+            {% endfor %}
+        ];
+        messages.forEach(function(message) {
+            Swal.fire({
+                toast: true,
+                position: 'center',
+                icon: message.level,
+                title: message.text,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    {% endif %}
+});
+</script>
      
 
 
@@ -399,7 +424,7 @@
 			background-color: rgba(255, 255, 255, 0.9);
 			backdrop-filter: blur(10px);
 		}
-		@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
 
 .highlighted-title {
     font-family: 'Cinzel', serif;

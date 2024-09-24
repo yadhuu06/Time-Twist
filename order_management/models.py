@@ -8,7 +8,7 @@ import uuid
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ('creditCard', 'Credit Card'),
-        ('paypal', 'PayPal'),
+        ('Razopay ', 'Razopay'),
         ('cashOnDelivery', 'Cash on Delivery'),
     ]
 

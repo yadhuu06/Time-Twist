@@ -1,30 +1,21 @@
-<!-- brand.html -->
 {% extends "AdminSide/base.html" %}
-
 
 {% block title %}Brands Page{% endblock %}
 
-
 {% block content %}
 
-
-
-  
-<div style="display: flex; flex-direction: row; align-items: center; font-family: Montserrat;">
-    <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="{% url 'brand:add_brand' %}">+ Add New Brand</a>
-    <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">BRANDS</h3>
-    
-</div>
-
-
-<div class="container">
+<div class="container-fluid">
     <div class="row">
-        <div class="col-md-10 offset-md-1">
-            <div class="card">
+        <div class="col-12">
+            <div class="card custom-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="brand-title">BRANDS</h3>
+                    <a class="btn add-brand-button" href="{% url 'brand:add_brand' %}">+ Add New Brand</a>
+                </div>
                 <div class="card-body">
-                    <div class="table">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
                                 <tr>
                                     <th scope="col">Brand Name</th>
                                     <th scope="col">Brand Description</th>
@@ -39,8 +30,12 @@
                                     <td>{{ brand.description }}</td>
                                     <td>{{ brand.status }}</td>
                                     <td>
-                                        <a href="{% url 'brand:edit_brand' brand.id %}" class="btn btn-sm btn-primary">Edit</a>
+                                        <a href="{% url 'brand:edit_brand' brand.id %}" class="btn btn-primary btn-sm">Edit</a>
                                     </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No brands available.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -52,16 +47,16 @@
     </div>
 </div>
 
-
 <script>
-    // Hide messages after 20 seconds (20000 milliseconds)
+    // Hide messages after 20 seconds
     setTimeout(function() {
         var messages = document.getElementById('messages');
         if (messages) {
             messages.style.display = 'none';
         }
-    }, 20000); /
+    }, 20000);
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
@@ -87,11 +82,110 @@
         {% endif %}
     });
 </script>
-<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
-<style>
-body {
-    font-family: 'Alegreya';font-size: 22px;
-}
-</style>
-{% endblock %}
 
+<link href="https://fonts.googleapis.com/css?family=Alegreya" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Alegreya', serif;
+        font-size: 22px;
+        background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+    }
+
+    /* Header and Button Styling */
+    .custom-card {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background-color: #1a1a40;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    .card-header {
+        background-color: #1a1a40;
+        color: #d4af37;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .brand-title {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.5rem;
+        color: #d4af37;
+        margin: 0;
+    }
+
+    .add-brand-button {
+        background-color: #d4af37;
+        color: #ffffff;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .add-brand-button:hover {
+        background-color: #c49a28;
+    }
+
+    /* Table Styling */
+    .custom-table {
+        background-color: #2c2c54;
+        color: white;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .custom-table thead {
+        background-color: #1a1a40;
+        color: #d4af37;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: #3b3b6b;
+    }
+
+    .custom-table th, .custom-table td {
+        text-align: center;
+        padding: 15px;
+        border-color: #3b3b6b;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        padding: 5px 10px;
+        font-weight: bold;
+    }
+
+    /* Responsiveness */
+    @media (max-width: 768px) {
+        .brand-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .brand-title {
+            margin-top: 10px;
+            margin-left: 0;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .btn-primary {
+            font-size: 0.8rem;
+        }
+
+        .btn-success {
+            font-size: 0.9rem;
+        }
+
+        .brand-title {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+{% endblock %}

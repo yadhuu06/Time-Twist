@@ -2,19 +2,18 @@
 {% load static %}
 
 {% block content %}
-<div class="sp" style="margin-top: 60px;"></div>
 <div class="container my-5 pt-5">
-    <h1 class="mb-4 text-center"><b><strong>Your Shopping Cart</strong></b></h1>
+    <h1 class="mb-4 text-center"><b>Your Shopping Cart</b></h1>
     
     {% if cart_items %}
         <div class="row g-4">
             <!-- Cart Items Section -->
             <div class="col-lg-8">
-                <div class="card shadow-sm border-0">
+                <div class="card shadow border-0">
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Product</th>
                                         <th class="text-center">Quantity</th>
@@ -34,28 +33,26 @@
                                                 {% endif %}
                                                 <div>
                                                     <strong>{{ item.product.product_name }}</strong><br>
-                                                    <small class="text-muted">Varient:  {{ item.variant.variant_name }}</small>
+                                                    <small class="text-muted">Variant: {{ item.variant.variant_name }}</small>
                                                     <br>
-                                                    <small class="text-muted">Stock left: <span class="text-success" id="">{{ item.variant.offer_price }}</span></small>
+                                                    <small class="text-muted">Stock left: <span class="text-success" id="stock-{{ item.id }}">{{ item.variant.variant_stock }}</span></small>
                                                     <br>
-                                                    <small class="text-muted">price: <span class="text-success" id="stock-{{ item.id }}">{{ item.variant.variant_stock }}</span></small>
-                                                
-                                            
+                                                    <small class="text-muted">Price: ₹<span class="text-success">{{ item.variant.offer_price }}</span></small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <div class="input-group" style="width: 120px; margin: auto;">
-                                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity({{ item.id }}, -1)">-</button>
-                                                <input type="text" class="form-control form-control-sm text-center" id="quantity-{{ item.id }}" value="{{ item.quantity }}" readonly>
-                                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity({{ item.id }}, 1)">+</button>
+                                            <div class="input-group input-group-sm" style="width: 120px; margin: auto;">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity({{ item.id }}, -1)">-</button>
+                                                <input type="text" class="form-control text-center" id="quantity-{{ item.id }}" value="{{ item.quantity }}" readonly>
+                                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity({{ item.id }}, 1)">+</button>
                                             </div>
                                         </td>
                                         <td class="text-end" style="min-width: 100px;">₹<span id="subtotal-{{ item.id }}">{{ item.variant.offer_price }}</span></td>
                                         <td class="text-end">
-                                            <a href="{% url 'cart:remove_cart_item' item.id %}" class="btn btn-sm btn-outline-danger" title="Remove item">
+                                            <button onclick="removeItem({{ item.id }})" class="btn btn-sm btn-outline-danger" title="Remove item">
                                                 <i class="fa fa-trash"></i>
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -63,7 +60,7 @@
                             </table>
                         </div>
                         <div class="d-flex justify-content-start mt-3">
-                            <a href="{% url 'shop_view' %}" class="genric-btn primary e-large">Continue Shopping</a>
+                            <a href="{% url 'shop_view' %}" class="btn btn-primary">Continue Shopping</a>
                         </div>
                     </div>
                 </div>
@@ -71,8 +68,8 @@
             
             <!-- Order Summary Section -->
             <div class="col-lg-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-primary text-white">
+                <div class="card shadow border-0">
+                    <div class="card-header text-white">
                         <h5 class="card-title mb-0">Order Summary</h5>
                     </div>
                     <div class="card-body">
@@ -91,7 +88,7 @@
                         </div>
                        
                         <div class="d-grid">
-                            <a href="{% url 'checkout' %}" class="btn btn-outline-primary">
+                            <a href="{% url 'checkout' %}" class="btn btn-primary">
                                 <strong>Proceed To Checkout</strong>
                             </a>
                         </div>
@@ -99,17 +96,15 @@
                 </div>
             </div>
         </div>
-        {% else %}
-        <div class="alert alert-info text-center" role="alert" style="height: 500px; display: flex; align-items: center; justify-content: center; position: relative; color: white;">
-            <div class="background-image" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('{% static 'UserSide/img/empty-cart.png' %}'); background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 0.2;">
-            </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert" style="height: 500px; display: flex; align-items: center; justify-content: center; position: relative;">
+            <div class="background-image" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('{% static 'UserSide/img/empty-cart.png' %}'); background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 0.2;"></div>
             <div class="cart-content" style="position: relative; z-index: 1; text-align: center; padding: 20px;">
-                <h2 class="mb-6"><strong>Your cart is currently empty.</strong></h2>
-                <a href="{% url 'shop_view' %}" class="genric-btn primary" style="margin-top: 20px;">Start Shopping Now</a>
+                <h2 class="mb-4"><strong>Your cart is currently empty.</strong></h2>
+                <a href="{% url 'shop_view' %}" class="btn btn-outline-warning btn-sm">Start Shopping Now</a>
             </div>
         </div>
     {% endif %}
-    
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -129,6 +124,11 @@
                 icon: 'warning',
                 title: 'Stock Limit Reached',
                 text: `Only ${availableStock} items are available in stock.`,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
             });
         }
 
@@ -148,17 +148,22 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update only the subtotal for this item
                 quantityInput.value = newQuantity;
                 document.getElementById(`subtotal-${itemId}`).innerText = data.subtotal;
-
-                // Recalculate the cart total and shipping charge
                 updateCartTotal();
+                
+                // Animate the quantity change
+                $(quantityInput).fadeOut(100).fadeIn(100);
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
                     text: data.error || 'Failed to update quantity. Please try again.',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
                 });
             }
         })
@@ -168,33 +173,59 @@
                 icon: 'error',
                 title: 'Oops...',
                 text: 'An error occurred. Please try again.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
             });
         });
     }
 
-    // Function to update the total cart value
     function updateCartTotal() {
         let total = 0;
-
-        // Sum up all the subtotals
         const subtotals = document.querySelectorAll('[id^="subtotal-"]');
         subtotals.forEach(function(subtotalElement) {
             total += parseFloat(subtotalElement.innerText);
         });
 
-        // Update the subtotal on the page
-        document.getElementById('cart-total').innerText = total.toFixed(2);
+        const cartTotalElement = document.getElementById('cart-total');
+        const oldTotal = parseFloat(cartTotalElement.innerText);
+        cartTotalElement.innerText = total.toFixed(2);
 
-        // Calculate shipping charge: ₹40 if total is less than ₹10,000
+        // Animate the total change
+        if (oldTotal !== total) {
+            $(cartTotalElement).fadeOut(100).fadeIn(100);
+        }
+
         let shippingCharge = total < 10000 ? 40 : 0;
-        document.getElementById('shipping-charge').innerText = shippingCharge.toFixed(2);
+        const shippingChargeElement = document.getElementById('shipping-charge');
+        shippingChargeElement.innerText = shippingCharge.toFixed(2);
 
-        // Update the final total (subtotal + shipping)
         const finalTotal = total + shippingCharge;
-        document.getElementById('cart-total-final').innerText = finalTotal.toFixed(2);
+        const finalTotalElement = document.getElementById('cart-total-final');
+        finalTotalElement.innerText = finalTotal.toFixed(2);
+
+        // Animate the final total change
+        $(finalTotalElement).fadeOut(100).fadeIn(100);
     }
 
-    // Function to get the CSRF token for making POST requests
+    function removeItem(itemId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `{% url 'cart:remove_cart_item' 999999 %}`.replace('999999', itemId);
+            }
+        });
+    }
+
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -210,11 +241,9 @@
         return cookieValue;
     }
 
-    // Call updateCartTotal() on page load to ensure totals are correct
-    document.addEventListener('DOMContentLoaded', updateCartTotal);
-    
-    // Show alerts for messages, if any
-    document.addEventListener('DOMContentLoaded', (event) => {
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCartTotal();
+        
         {% if messages %}
             const messages = [
                 {% for message in messages %}
@@ -227,16 +256,16 @@
             messages.forEach(message => {
                 Swal.fire({
                     toast: true,
-                    position: 'top-right',
+                    position: 'top-end',
                     icon: message.level === 'success' ? 'success' : 'error',
                     title: message.text,
                     showConfirmButton: false,
-                    timer: 3000
+                    timer: 3000,
+                    timerProgressBar: true,
                 });
             });
         {% endif %}
     });
+    
 </script>
-
-<div class="space" style="margin-top: 200px;"></div>
 {% endblock %}

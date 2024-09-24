@@ -281,66 +281,105 @@
         var couponModal = new bootstrap.Modal(document.getElementById('couponModal'));
         couponModal.show();
     });
-
-    // Handle coupon application
+    
     document.querySelectorAll('.apply-coupon-btn').forEach(function (button) {
         button.addEventListener('click', function () {
             var couponCard = this.closest('.coupon-card');
             var couponId = couponCard.getAttribute('data-coupon-id');
             var couponCode = couponCard.getAttribute('data-coupon-code');
-            var couponDiscount = couponCard.getAttribute('data-coupon-discount');
-            var couponMin = couponCard.getAttribute('data-coupon-min');
-            var couponMax = couponCard.getAttribute('data-coupon-max');
-
-            // Set the applied coupon details
-            document.getElementById('appliedCoupon').value = couponCode;
-            document.getElementById('appliedCouponDetails').innerText = 'Coupon applied: ' + couponCode + ' - Discount: ' + couponDiscount + '%';
-            document.getElementById('discountSection').style.display = 'block';
-
-            // Calculate discount and update amounts (example calculation, adjust as needed)
-            var subtotal = parseFloat(document.getElementById('subtotalAmount').innerText.replace('Rs', ''));
-            var discountAmount = subtotal * (couponDiscount / 100);
-            var discountedTotal = subtotal - discountAmount;
-
-            if (discountedTotal < couponMin) {
-                discountedTotal = subtotal;
-                document.getElementById('appliedCouponDetails').innerText += ' (Not valid for this amount)';
-                document.getElementById('discountSection').style.display = 'none';
-            } else if (discountedTotal > couponMax) {
-                discountedTotal = couponMax;
+            var couponDiscount = parseFloat(couponCard.getAttribute('data-coupon-discount'));
+            var couponMin = parseFloat(couponCard.getAttribute('data-coupon-min'));
+            var couponMax = parseFloat(couponCard.getAttribute('data-coupon-max'));
+    
+            var subtotal = parseFloat(document.getElementById('subtotalAmount').innerText.replace('Rs', '').trim());
+    
+            if (subtotal >= couponMin && subtotal <= couponMax) {
+                // Calculate discount
+                var discountAmount = subtotal * (couponDiscount / 100);
+                var discountedTotal = subtotal - discountAmount;
+    
+                // Update UI
+                document.getElementById('appliedCoupon').value = couponCode;
+                document.getElementById('appliedCouponDetails').innerText = 'Coupon applied: ' + couponCode + ' - Discount: ' + couponDiscount + '%';
+                document.getElementById('discountSection').style.display = 'flex';
+                document.getElementById('discountAmount').innerText = 'Rs ' + discountAmount.toFixed(2);
+                document.getElementById('payableAmount').innerText = 'Rs ' + discountedTotal.toFixed(2);
+                document.getElementById('couponDetails').style.display = 'flex';
+    
+                // Close the modal
+                var couponModal = bootstrap.Modal.getInstance(document.getElementById('couponModal'));
+                couponModal.hide();
+            } else {
+                alert('This coupon is not applicable for the current order amount.');
             }
-
-            document.getElementById('discountAmount').innerText = 'Rs ' + discountAmount.toFixed(2);
-            document.getElementById('payableAmount').innerText = 'Rs ' + discountedTotal.toFixed(2);
         });
     });
-
-    // Handle remove coupon button
+    
     document.getElementById('removeCouponBtn').addEventListener('click', function () {
+        // Clear coupon details
         document.getElementById('appliedCoupon').value = '';
         document.getElementById('appliedCouponDetails').innerText = '';
         document.getElementById('discountSection').style.display = 'none';
-        document.getElementById('payableAmount').innerText = document.getElementById('subtotalAmount').innerText;
+        document.getElementById('couponDetails').style.display = 'none';
+        document.getElementById('discountAmount').innerText = 'Rs 0';
+    
+        // Reset payable amount and recalculate
+        updatePayableAmount();
     });
+    
     function updatePayableAmount() {
         let subtotal = parseFloat(document.getElementById('subtotalAmount').innerText.replace('Rs', '').trim());
         let shipping = 0;
-
+    
         if (subtotal < 10000) {
             shipping = 40;
             document.getElementById('shippingAmount').innerText = 'Rs ' + shipping;
         } else {
             document.getElementById('shippingAmount').innerText = 'Rs 0';
         }
-
+    
         // Calculate the new payable amount by adding shipping
         let payable = subtotal + shipping;
-        document.getElementById('payableAmount').innerText = 'Rs ' + payable;
+    
+        // If a coupon is applied, recalculate the discount
+        if (document.getElementById('discountSection').style.display !== 'none') {
+            let discountPercent = parseFloat(document.getElementById('appliedCouponDetails').innerText.split('Discount: ')[1].replace('%', ''));
+            let discountAmount = subtotal * (discountPercent / 100);
+            payable -= discountAmount;
+            document.getElementById('discountAmount').innerText = 'Rs ' + discountAmount.toFixed(2);
+        } else {
+            // Ensure discount is set to 0 when no coupon is applied
+            document.getElementById('discountAmount').innerText = 'Rs 0';
+        }
+    
+        document.getElementById('payableAmount').innerText = 'Rs ' + payable.toFixed(2);
     }
-
+    
     // Call updatePayableAmount on page load
     document.addEventListener('DOMContentLoaded', function() {
         updatePayableAmount();
     });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if messages %}
+        const messages = [
+            {% for message in messages %}
+                { level: "{{ message.tags|default_if_none:'info' }}", text: "{{ message|escapejs }}" },
+            {% endfor %}
+        ];
+        messages.forEach(function(message) {
+            Swal.fire({
+                toast: true,
+                position: 'center',
+                icon: message.level,
+                title: message.text,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    {% endif %}
+});
 </script>
 {% endblock %}

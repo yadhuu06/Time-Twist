@@ -14,7 +14,7 @@ media/
 
 # Virtual environment
 enviornment/
-
+.env
 # IDEs and editors
 .vscode/
 .idea/

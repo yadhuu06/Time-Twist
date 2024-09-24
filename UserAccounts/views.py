@@ -143,7 +143,7 @@ def verify_otp(request):
 
         if otp_generation_time_str is None:
             messages.error(request, "Session expired. Please try again.")
-            return render(request, 'UserSide/parent/otp.html')
+            return render(request, 'UserSide/user-login/otp.html')
         
         otp_generation_time = datetime.strptime(otp_generation_time_str, '%Y-%m-%d %H:%M:%S')
         otp_generation_time = timezone.make_aware(otp_generation_time, timezone.get_current_timezone())
@@ -182,7 +182,7 @@ def verify_otp(request):
             else:
                 messages.error(request, "Failed to verify OTP. Please try again.")
 
-            return render(request, 'UserSide/user-loginotp.html')
+            return render(request, 'UserSide/user-login/otp.html')
     else:
         return redirect('home_view')
 
@@ -242,7 +242,6 @@ def logout_view(request):
     return redirect('login_view')   
 
 def forgot_password(request):
-    print("hello")
     return render(request,'UserSide/user-login/forgot_password.html')
 
 

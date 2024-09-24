@@ -266,6 +266,7 @@ def sales_report(request):
     start_date = None
     end_date = None
 
+    # Date range calculation based on report type
     if start_date_str and end_date_str:
         try:
             if report_type == 'daily':
@@ -273,18 +274,21 @@ def sales_report(request):
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
             elif report_type == 'monthly':
                 start_date = datetime.strptime(start_date_str, '%Y-%m').date().replace(day=1)
-                end_date = (datetime.strptime(end_date_str, '%Y-%m').date() + relativedelta(months=1) - timedelta(days=1))
+                end_date = (datetime.strptime(end_date_str, '%Y-%m').date().replace(day=1) +
+                            relativedelta(months=1) - timedelta(days=1))
             elif report_type == 'yearly':
                 start_date = datetime.strptime(start_date_str, '%Y').date().replace(month=1, day=1)
                 end_date = datetime.strptime(end_date_str, '%Y').date().replace(month=12, day=31)
 
             if start_date and end_date:
+                # Ensure end_date includes the whole day
                 end_date = end_date + timedelta(days=1)
                 orders = orders.filter(created_at__range=[start_date, end_date])
         except ValueError:
             start_date_str = ''
             end_date_str = ''
 
+    # Apply aggregation based on the report type
     if report_type == 'monthly':
         orders = orders.annotate(report_date=TruncMonth('created_at')).order_by('-report_date', '-created_at')
     elif report_type == 'yearly':
@@ -305,6 +309,7 @@ def sales_report(request):
         total_coupon_discount=Sum('coupon_discount')
     )
 
+    # Pagination
     paginator = Paginator(orders, 10)
     page_number = request.GET.get('page', 1)
     try:
@@ -312,8 +317,9 @@ def sales_report(request):
     except (EmptyPage, PageNotAnInteger):
         page_obj = paginator.page(1)
 
+    # Format start and end date for display
     start_date_str = start_date.strftime('%Y-%m-%d') if start_date else ''
-    end_date_str = end_date.strftime('%Y-%m-%d') if end_date else ''
+    end_date_str = (end_date - timedelta(days=1)).strftime('%Y-%m-%d') if end_date else ''
 
     context = {
         'page_obj': page_obj,

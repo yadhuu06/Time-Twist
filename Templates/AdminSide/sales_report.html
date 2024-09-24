@@ -9,30 +9,30 @@
 <section class="content-main">
     <div class="content-header">
         <div>
-            <h2 class="content-title card-title">Sales Report</h2>
-            <p>Detailed information about your orders</p>
+            <h2 class="content-title card-title fade-in">Sales Report</h2>
+            <p class="fade-in">Detailed information about your orders</p>
         </div>
-        <div class="d-flex gap-2">
-            <button id="download-pdf" class="btn btn-primary">
+        <div class="d-flex gap-2 fade-in">
+            <button id="download-pdf" class="btn btn-primary btn-custom">
                 <i class="text-muted material-icons md-post_add"></i>Download as PDF
             </button>
-            <button id="download-excel" class="btn btn-primary">
+            <button id="download-excel" class="btn btn-primary btn-custom">
                 <i class="text-muted material-icons md-post_add"></i>Download as Excel
             </button>
         </div>
     </div>
 
     <!-- Date Filter Section -->
-    <div class="mb-4">
-        <form method="get" action="{% url 'sales-report' %}" class="row g-2">
-            <div class="col-auto d-flex align-items-center">
-                <h5 class="mb-0">Start Date:</h5>
+    <div class="mb-4 fade-in">
+        <form method="get" action="{% url 'sales-report' %}" class="row g-2 align-items-center">
+            <div class="col-auto">
+                <label class="mb-0 font-weight-bold" for="start_date">Start Date:</label>
             </div>
             <div class="col-auto">
                 <input type="date" name="start_date" value="{{ start_date }}" class="form-control" placeholder="Start date">
             </div>
-            <div class="col-auto d-flex align-items-center">
-                <h5 class="mb-0">End Date:</h5>
+            <div class="col-auto">
+                <label class="mb-0 font-weight-bold" for="end_date">End Date:</label>
             </div>
             <div class="col-auto">
                 <input type="date" name="end_date" value="{{ end_date }}" class="form-control" placeholder="End date">
@@ -45,16 +45,16 @@
                 </select>
             </div>
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Search</button>
+                <button type="submit" class="btn btn-primary btn-custom">Search</button>
             </div>
         </form>
     </div>
 
     <!-- Summary Section -->
-    <div class="mb-4">
-        <div class="row">
+    <div class="mb-4 fade-in">
+        <div class="row g-4">
             <div class="col-md-4">
-                <div class="card bg-dark text-light border-light">
+                <div class="card bg-dark text-light border-light card-hover shadow-lg">
                     <div class="card-body text-center">
                         <h5 class="card-title text-primary font-weight-bold">Number of Orders</h5>
                         <p class="card-text display-4 font-weight-bold">{{ page_obj.paginator.count }}</p>
@@ -62,7 +62,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card bg-dark text-light border-light">
+                <div class="card bg-dark text-light border-light card-hover shadow-lg">
                     <div class="card-body text-center">
                         <h5 class="card-title text-success font-weight-bold">Total Order Amount</h5>
                         <p class="card-text display-4 font-weight-bold">₹{{ total_order_amount }}</p>
@@ -71,7 +71,7 @@
             </div>
             
             <div class="col-md-4">
-                <div class="card bg-dark text-light border-light">
+                <div class="card bg-dark text-light border-light card-hover shadow-lg">
                     <div class="card-body text-center">
                         <h5 class="card-title text-primary font-weight-bold">Total Discount</h5>
                         <p class="card-text display-4 font-weight-bold">₹{{ total_discount }}</p>
@@ -83,12 +83,12 @@
     </div>
 
     <!-- Orders Table Section -->
-    <div class="card mb-4">
+    <div class="card mb-4 fade-in">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table" id="sales-table">
+                <table class="table table-hover" id="sales-table">
                     <thead>
-                        <tr>
+                        <tr class="bg-dark text-primary">
                             <th>Date</th>
                             <th>Order ID</th>
                             <th>Customer</th>
@@ -107,7 +107,7 @@
                             <td>{{ order.user.first_name }}</td>
                             <td>₹{{ order.total_price|floatformat:0 }}</td>
                             <td>₹{{ order.final_price|floatformat:0 }}</td>
-                            <td>₹{{ order.discount|floatformat:0 }}</td> <!-- Displaying the calculated discount -->
+                            <td>₹{{ order.discount|floatformat:0 }}</td>
                             <td>
                                 {% if order.offer_price != 0.00 %}
                                     ₹{{ order.offer_price|floatformat:0 }}
@@ -123,14 +123,13 @@
                         </tr>
                         {% endfor %}
                     </tbody>
-                    
                 </table>
             </div>
         </div>
     </div>
 
     <!-- Pagination -->
-    <div class="pagination-area mt-30 mb-50">
+    <div class="pagination-area mt-30 mb-50 fade-in">
         <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-start">
                 {% for page_num in page_obj.paginator.page_range %}
@@ -142,6 +141,52 @@
         </nav>
     </div>
 </section> <!-- content-main end// -->
+
+<!-- Custom CSS for Styling -->
+<style>
+    .body{
+        background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+    }
+    .fade-in {
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .card-hover:hover {
+        transform: scale(1.05);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .btn-custom {
+        position: relative;
+        overflow: hidden;
+        transition: background 0.3s ease-in-out;
+    }
+
+    .btn-custom:hover {
+        background-color: #0069d9;
+        color: #fff;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0069d9;
+        border-color: #0069d9;
+    }
+
+    .table thead th {
+        text-align: center;
+        font-weight: bold;
+    }
+</style>
 
 <!-- PDF and Excel Export Scripts -->
 <script>

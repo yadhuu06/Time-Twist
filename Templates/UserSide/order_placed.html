@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,98 +6,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f0f4f8; /* Soft and light background */
-            font-family: 'Arial', sans-serif;
+            background-color: #f1f4f9;
+            font-family: 'Roboto', sans-serif;
         }
         .confirmation-box {
-            max-width: 600px;
-            margin: 50px auto;
-            background-color: #ffffff; /* Clean white background for box */
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            max-width: 550px;
+            margin: 80px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-        .confirmation-icon {
-            font-size: 50px;
-            color: #28a745; /* Bright green for success icon */
+        .confirmation-icon img {
+            width: 100px;
+            height: 100px;
             margin-bottom: 20px;
         }
         .confirmation-header {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
-            color: #333333; /* Dark text for readability */
-            margin-bottom: 10px;
+            color: #343a40;
+            margin-bottom: 15px;
         }
         .confirmation-message {
-            font-size: 16px;
-            color: #555555; /* Slightly lighter text for secondary message */
-            margin-bottom: 20px;
+            font-size: 18px;
+            color: #6c757d;
+            margin-bottom: 25px;
         }
         .order-id {
             font-weight: bold;
-            color: #007bff; /* Accent color for order ID */
+            color: #007bff;
+            font-size: 20px;
         }
-        .btn-check-orders, .btn-view-summary, .btn-continue-shopping {
-            display: block;
+        .btn {
             width: 100%;
-            margin-top: 20px;
             padding: 12px;
-            border-radius: 5px;
+            border-radius: 25px;
             font-weight: bold;
             font-size: 16px;
-            text-decoration: none;
             text-align: center;
-        }
-        .btn-check-orders, .btn-view-summary {
-            background-color: transparent;
-            border: 2px solid #007bff; /* Blue border */
-            color: #007bff; /* Blue text */
+            margin-top: 15px;
             transition: all 0.3s ease;
         }
-        .btn-check-orders:hover, .btn-view-summary:hover {
+        .btn-check-orders, .btn-view-summary {
             background-color: #007bff;
-            color: #fff; /* Inverse color on hover */
+            border: none;
+            color: #ffffff;
+        }
+        .btn-check-orders:hover, .btn-view-summary:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
         }
         .btn-continue-shopping {
-            background-color: #28a745; /* Bright green background */
+            background-color: #28a745;
             color: white;
             border: none;
-            transition: background-color 0.3s ease;
         }
         .btn-continue-shopping:hover {
-            background-color: #218838; /* Darker green on hover */
+            background-color: #218838;
+            transform: translateY(-3px);
+        }
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
         }
     </style>
-    
 </head>
 <body>
 
 <div class="container">
-    <div class="confirmation-box">
-        <div class="confirmation-icon">
-            <img src="https://img.icons8.com/ios-filled/50/26e07f/checkmark.png" alt="Confirmation Icon" />
-        </div>  
-        <h2 class="my-4">ORDER CONFIRMED</h2>
-        <p>Thank you for the order. Your order has been confirmed!</p>
-        <p>The order ID is: <span class="order-id">{{order.order_id}}</span>, the order will be delivered within <b> 7 days</b>.</p>
-        <a href="{% url 'order_management:my_orders' %}" class="btn btn-outline-warning btn-check-orders">Check Orders</a>
-        <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-outline-success btn-check-orders">View Summary</a>
-
-        <a href="{% url 'shop_view' %}" class="btn btn-outline-warning mt-3">
-            Continue Shopping
-        </a>
+    <div class="confirmation-box animate__animated animate__fadeInUp">
+        <div class="confirmation-icon animate__animated animate__bounceIn animate__delay-1s">
+            <img src="{% static 'UserSide/img/confirm_order.png' %}" alt="Confirmation Icon">
+        </div>
+        <h2 class="confirmation-header animate__animated animate__fadeInDown animate__delay-1s">ORDER CONFIRMED</h2>
+        <p class="confirmation-message animate__animated animate__fadeIn animate__delay-2s">Thank you for your order. We're excited to fulfill it for you!</p>
+        <p class="animate__animated animate__fadeIn animate__delay-2s">Order ID: <span class="order-id">{{order.order_id}}</span></p>
+        <p class="animate__animated animate__fadeIn animate__delay-2s">Estimated delivery: <b>Within 7 days</b></p>
+        <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-view-summary animate__animated animate__fadeInUp animate__delay-3s">View Order Summary</a>
+        <a href="{% url 'order_management:my_orders' %}" class="btn btn-check-orders animate__animated animate__fadeInUp animate__delay-3s">Check All Orders</a>
+        <a href="{% url 'shop_view' %}" class="btn btn-continue-shopping animate__animated animate__fadeInUp animate__delay-3s">Continue Shopping</a>
     </div>
 </div>
+
+<div class="celebration" id="celebration"></div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.12.0/tsparticles.confetti.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const duration = 3 * 1000,
+        animationEnd = Date.now() + duration,
+        defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+    }, 250);
+
     {% if messages %}
         const messages = [
             {% for message in messages %}
@@ -106,11 +137,16 @@ document.addEventListener('DOMContentLoaded', function() {
         messages.forEach(function(message) {
             Swal.fire({
                 toast: true,
-                position: 'center',
+                position: 'top-end',
                 icon: message.level,
                 title: message.text,
                 showConfirmButton: false,
-                timer: 3000
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
             });
         });
     {% endif %}

@@ -3,13 +3,13 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="mb-4 text-center">Coupon Management</h1>
-
-    <button class="btn btn-primary" id="showAddCouponForm">Add New Coupon</button>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Existing Coupons</h2>
+        <button class="btn btn-dark" id="showAddCouponForm">Add New Coupon</button>
+    </div>
 
     <!-- Coupon List -->
     <div id="couponList">
-        <h2>Existing Coupons</h2>
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -45,6 +45,7 @@
             </tbody>
         </table>
     </div>
+</div>
 
     <!-- Coupon Form (for both Add and Edit) -->
     <div id="couponForm" style="display: none;">
@@ -216,6 +217,7 @@ $(document).ready(function() {
 body {
     font-family: 'Alegreya';
     font-size: 22px;
+    background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
 }
 </style>
 {% endblock %}

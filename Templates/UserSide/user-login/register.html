@@ -6,29 +6,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Signup</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .form-container {
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        input, button {
+            height: 45px;
+        }
+        .img-card {
+            margin-top: -150px;
+            margin-left: 50px;
+            max-width: 600px;
+            border-radius: 1px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        .img-container img {
+            object-fit: cover;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .form-container {
+                width: 90%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container-fluid vh-100">
-        <div class="row h-100">
-            <!-- Left side image -->
-            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center p-0">
-                <img src="{% static 'UserSide/img/reg.jpg' %}" class="img-fluid h-100 w-100 object-fit-cover" alt="Image">
+    <div class="container-fluid vh-100 d-flex">
+        <div class="row h-100 w-100">
+            <!-- Left side image as small card -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                <div class="img-card">
+                    <div class="img-container">
+                        <img src="{% static 'UserSide/img/reg.jpg' %}" class="img-fluid" alt="Image">
+                    </div>
+                </div>
             </div>
 
             <!-- Right side form -->
             <div class="col-lg-6 d-flex align-items-center justify-content-center">
-                <div class="w-75">
-                    <div class="text-center mb-5">
-     
+                <div class="form-container w-75">
+                    <div class="text-center mb-4">
                         <h2 class="fw-bold">Account Signup</h2>
                         <p class="text-muted">Create your account in just a few steps</p>
                         {% if messages %}
-							<ul class="messages">
-								{% for message in messages %}
-									<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-								{% endfor %}
-							</ul>
-						{% endif %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
                     </div>
 
                     <form action="{% url 'Register' %}" method="post">
@@ -64,18 +101,12 @@
                             <input type="password" id="id_confirm_password" class="form-control" name="confirm_password" required minlength="6">
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 mb-3">Create Account</button>
+                        <button type="submit" class="btn btn-primary w-100">Create Account</button>
 
-                        <div class="text-center">
-                            <button class="btn btn-outline-secondary w-100">
-                                <img src="{% static 'path/to/google-icon.png' %}" alt="Google" style="height: 20px;"> Continue with Google
-                            </button>
-                        </div>
+                        <p class="text-center mt-4">
+                            Already have an account? <a href="{% url 'login_view' %}">Sign in</a>
+                        </p>
                     </form>
-
-                    <p class="text-center mt-3">
-                        Already have an account? <a href="{% url 'login_view' %}">Sign in</a>
-                    </p>
                 </div>
             </div>
         </div>
@@ -84,4 +115,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

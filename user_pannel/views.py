@@ -140,14 +140,20 @@ def user_profile(request):
 @never_cache
 @login_required
 def shop_view(request):
+    print("haiiiiii")
     if request.user.is_authenticated:
         category_filter = request.GET.get('category')
         brand_filter = request.GET.get('brand')
         price_sort = request.GET.get('priceSort')
         name_sort = request.GET.get('nameSort')
         featured = request.GET.get('featured')
-        products = Products.objects.filter(is_active=True)
         
+        
+        products = Products.objects.filter(is_active=True, product_brand__status=True)
+
+        
+     
+ 
 
         if category_filter:
             products = products.filter(product_category=category_filter)

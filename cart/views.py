@@ -195,7 +195,7 @@ def edit_address(request, address_id):
 def add_to_wishlist(request, product_id):
    
     product = get_object_or_404(Products, id=product_id)
-    p
+    
     
     wishlist, created = Wishlist.objects.get_or_create(user=request.user, product=product)
     

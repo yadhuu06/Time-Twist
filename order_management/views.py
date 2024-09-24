@@ -35,6 +35,11 @@ def place_order(request):
         payment_method = request.POST.get('paymentMethod')
         address_id = request.POST.get('address')
         applied_coupon_id = request.POST.get('applied_coupon')
+        print(payment_method)
+        print(applied_coupon_id)
+        print()
+        print()
+        
 
         if not payment_method or not address_id:
             messages.error(request, 'Please select both a payment method and a delivery address.')
@@ -84,9 +89,9 @@ def place_order(request):
             if payment_method == 'razorpay':
                 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
                 razorpay_order = razorpay_client.order.create({
-                    'amount': int(total_price * 100),  # Razorpay amount is in paise
+                    'amount': int(total_price * 100), 
                     'currency': 'INR',
-                    'payment_capture': '1'  # Auto-capture
+                    'payment_capture': '1'  
                 })
 
                 request.session['razorpay_order_id'] = razorpay_order['id']
@@ -154,6 +159,7 @@ def place_order(request):
                     user=request.user,
                     amount=total_price
                 )
+                
                 order = Order.objects.create(
                     user=request.user,
                     address=selected_address,
@@ -306,7 +312,7 @@ def verify_payment(request):
             try:
                 order = Order.objects.get(order_id=order_payment_id)
             except Order.DoesNotExist:
-                print(f"Order with ID {order_payment_id} does not exist.")  # Debugging statement
+                print(f"Order with ID {order_payment_id} does not exist.")  
                 messages.error(request, 'Order not found.')
                 return redirect('checkout')
 
@@ -346,7 +352,7 @@ def my_orders(request):
 
 @user_passes_test(is_admin)
 def order_details_admin(request, order_id):
-    order = get_object_or_404(Order, order_id=order_id)  # Fetch the specific order by order_id
+    order = get_object_or_404(Order, order_id=order_id)  
     return render(request, 'AdminSide/order_details.html', {'order': order})
 
 @active_user_required
@@ -359,13 +365,14 @@ def order_details_user(request,order_id):
 def cancel_order(request, order_id):
     
     order = get_object_or_404(Order, order_id=order_id)
+    
 
     if order.status == 'Delivered':
         messages.error(request, "Order cannot be canceled.")
         return redirect('order_management:my_orders')
 
     wallet = None 
-
+    
     if order.payment.method != 'cashOnDelivery':
         wallet, created = Wallet.objects.get_or_create(user=order.user)
 

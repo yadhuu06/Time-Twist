@@ -211,7 +211,6 @@ def edit_product(request, product_id):
     
 @never_cache  
 @admin_required
-
 def add_productVarient(request, Products_id):
     if request.method == "POST":
         variant_name = request.POST.get('variant_name', '').strip()
