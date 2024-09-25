@@ -1,148 +1,220 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enter OTP</title>
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="{% static 'path/to/your/css/styles.css' %}">
     <style>
+        /* General body styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-image: url('{% static 'UserSide/img/otp.jpg' %}');
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-color: #f9f9f9;
+        }
+
+        /* Container for OTP verification */
+        .container {
+            display: flex;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* Image section styles */
+        .image-section {
+            width: 50%;
+            background-color: #000;
+            padding: 0;
             position: relative;
         }
 
-        .otp-form {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
+        .image-section img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
         }
 
-        .otp-form h2 {
-            margin-bottom: 20px;
-            text-align: center;
-            color: #ffeb3b;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: bold;
-            font-size: 2em;
+        /* OTP input and button section styles */
+        .otp-section {
+            padding: 40px;
+            background: white;
+            width: 50%;
+            box-sizing: border-box;
         }
 
-        .otp-form input {
-            width: calc(100% - 22px);
+        .otp-section h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .otp-section p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .otp-section label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .otp-section input {
+            width: 100%;
             padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             font-size: 16px;
-            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            outline: none;
+            transition: border-color 0.3s ease;
         }
 
-        .otp-form button {
-            width: calc(100% - 22px);
-            background: #007bff;
+        .otp-section input:focus {
+            border-color: #ffcd00;
+        }
+
+        .otp-section button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
             border: none;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 16px;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        .otp-form button:hover {
-            background: #0056b3;
+        .otp-section button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
-        .logo {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            height: 80px;
+        .otp-section button:hover:enabled {
+            background-color: #0056b3;
         }
 
-        #otp-timer {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        #time-exceeded-message {
-            display: none;
-            color: red;
-            text-align: center;
-            margin-top: 10px;
+        /* Countdown timer and Resend OTP button */
+        .otp-timer {
+            color: #666;
+            margin-top: 5px;
+            font-size: 14px;
         }
 
         .resend-otp {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background: #f00;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            display: none; /* Initially hide the button */
+            color: #007bff;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline;
         }
 
         .resend-otp:hover {
-            background: #c00;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <img src="{% static 'UserSide/img/Glow Gears11.png' %}" alt="Glow Gears Logo" class="logo">
-    {% if messages%}
-    <div class="otp-form">
-        <h2>Enter OTP</h2>
-        {% for message in messages %}
-            <p>{{message}}<p>
-        {% endfor %}
-    {% endif %}
-        <form action="{% url 'verify_otp' %}" method="post" id="otp-form">
-            {% csrf_token %}
-            <input type="text" name="otp" maxlength="6" pattern="\d{6}" placeholder="Enter 6-digit OTP" required>
-            <button type="submit">Verify OTP</button>
-        </form>
-        <p id="otp-timer">Time remaining: <span id="timer">60</span> seconds</p>
-        <p id="time-exceeded-message">Time limit exceeded. Please request a new OTP.</p>
-        <a href="{% url 'resend_otp' %}" class="resend-otp" id="resend-otp-btn">Resend OTP</a>
+
+<!-- OTP Verification Container -->
+<div class="container">
+    <!-- Left Image Section -->
+    <div class="image-section">
+        <img src="{% static 'UserSide/img/back1.jpg' %}" alt="Watch Image">
     </div>
 
-    <script>
-        let timeLeft = localStorage.getItem('timeLeft') ? parseInt(localStorage.getItem('timeLeft')) : 60;
-        const timerElement = document.getElementById('timer');
-        const timeExceededMessage = document.getElementById('time-exceeded-message');
-        const resendOtpBtn = document.getElementById('resend-otp-btn');
+    <!-- Right OTP Section -->
+    <div class="otp-section">
+        <h2>OTP Verification</h2>
+        <p>Enter the 6-digit OTP that you will receive on your registered email.</p>
+        <form id="otp-form" method="POST" action="{% url 'verify_otp' %}">
+            {% csrf_token %}
+            <label for="otp-input">OTP</label>
+            <input type="text" id="otp-input" name="otp" placeholder="Enter 6-digit OTP" maxlength="6" required>
+            
+            <!-- Success and error messages will be rendered from backend -->
+            
 
-        function countdown() {
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <p class="otp-timer">Valid for: <span id="timer">00:00</span></p>
+                <p class="resend-otp" id="resend-otp-btn" style="display: none;">
+                    <a href="{% url 'resend_otp' %}">Resend OTP</a>
+                </p>
+            </div>
+            <button type="submit" id="validate-otp-btn">Validate OTP</button>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for handling only the countdown timer -->
+<script>
+    let timeLeft = 60; // Start at 60 seconds for resend button
+    const timerElement = document.getElementById('timer');
+    const resendOtpBtn = document.getElementById('resend-otp-btn');
+    let countdownInterval;
+
+    function startCountdown() {
+        timeLeft = 60; // Reset to 60 seconds
+        resendOtpBtn.style.display = 'none'; // Hide the Resend OTP button initially
+
+        countdownInterval = setInterval(function () {
+            let seconds = timeLeft;
+
+            // Display the countdown in "00" format
+            timerElement.textContent = `00:${seconds < 10 ? '0' + seconds : seconds}`;
+
             if (timeLeft <= 0) {
-                clearInterval(timer);
-                timeExceededMessage.style.display = 'block';
-                resendOtpBtn.style.display = 'inline-block'; 
-                localStorage.removeItem('timeLeft');
-            } else {
-                timerElement.textContent = timeLeft + ' seconds';
-                timeLeft--;
-                localStorage.setItem('timeLeft', timeLeft);
+                clearInterval(countdownInterval);
+                resendOtpBtn.style.display = 'inline'; // Show Resend OTP button
+                timerElement.textContent = "00:00";
+                return;
             }
-        }
 
-        const timer = setInterval(countdown, 1000);
+            timeLeft--;
+        }, 1000);
+    }
 
-        window.onload = function() {
-            if (timeLeft <= 0) {
-                timeExceededMessage.style.display = 'block';
-                resendOtpBtn.style.display = 'inline-block'; // Show the resend button if time exceeded
-            }
-        }
-    </script>
+    // Start the countdown when the page loads
+    window.onload = startCountdown;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><!-- Add JavaScript for SweetAlert notifications for messages -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
 </body>
 </html>

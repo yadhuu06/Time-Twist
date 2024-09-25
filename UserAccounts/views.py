@@ -28,6 +28,12 @@ from django.core.mail import send_mail
 from django.contrib.auth.forms import PasswordResetForm,SetPasswordForm
 from django.contrib.auth import update_session_auth_hash
 from django.utils.translation import gettext as _
+from django.contrib.auth import login
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .forms import EmailAuthenticationForm
+from django.utils import timezone
+from datetime import datetime, timedelta
 
 
 
@@ -75,7 +81,8 @@ def Register(request):
         msg.send()
         messages.success(request, 'OTP has been sent to your email. Please verify to complete registration.')
         request.session['otp'] = str(otp)
-        request.session['time'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+        request.session['time'] = timezone.now().isoformat()
+
         request.session['Fname'] = Fname
         request.session['Lname'] = Lname
         request.session['email'] = email
@@ -131,10 +138,16 @@ def resend_otp(request):
         return render(request, 'UserSide/user-login/otp.html')
     
     request.session['otp'] = str(otp)
-    request.session['time'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+    request.session['time'] = timezone.now().isoformat()
+
 
     return render(request, 'UserSide/user-login/otp.html')
+
+
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< verify the otp >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
+
+from django.utils import timezone
+from datetime import datetime, timedelta
 
 def verify_otp(request):
     if request.method == 'POST':
@@ -144,12 +157,26 @@ def verify_otp(request):
         if otp_generation_time_str is None:
             messages.error(request, "Session expired. Please try again.")
             return render(request, 'UserSide/user-login/otp.html')
-        
-        otp_generation_time = datetime.strptime(otp_generation_time_str, '%Y-%m-%d %H:%M:%S')
-        otp_generation_time = timezone.make_aware(otp_generation_time, timezone.get_current_timezone())
+
+        # Ensure the string has timezone info (e.g., with a UTC offset)
+        try:
+            otp_generation_time = datetime.fromisoformat(otp_generation_time_str)  # Handles timezone-aware datetime strings
+        except ValueError:
+            # In case the saved string is naive (no timezone), make it timezone aware
+            otp_generation_time = datetime.strptime(otp_generation_time_str, '%Y-%m-%d %H:%M:%S')
+            otp_generation_time = timezone.make_aware(otp_generation_time, timezone.get_current_timezone())
+
+        # Get current time in the same timezone
         current_time = timezone.now()
+
+        # Debug prints
+        print(f"Current time: {current_time}")
+        print(f"OTP generation time: {otp_generation_time}")
+
+        # Calculate time difference
         time_difference = current_time - otp_generation_time
 
+        # Allow OTP validation within 10 minutes (600 seconds)
         if time_difference <= timedelta(seconds=600):
             validation_on_time = True
         else:
@@ -160,12 +187,12 @@ def verify_otp(request):
             lname = request.session.get('Lname')
             email = request.session.get('email')
             password = request.session.get('pass1')
-            phone = request.session.get('phone')
+            
 
             User = get_user_model()
 
             try:
-                user = User.objects.create_user(email=email, first_name=fname, last_name=lname, phone_number=phone, password=password)
+                user = User.objects.create_user(email=email, first_name=fname, last_name=lname, password=password)
                 user.is_active = True
                 user.save()
 
@@ -175,7 +202,7 @@ def verify_otp(request):
                 return redirect('login_view')  
             except IntegrityError:
                 messages.error(request, "This email is already registered. Please use a different email.")
-                return redirect('register') 
+                return redirect('Register') 
         else:
             if not validation_on_time:
                 messages.error(request, "OTP has expired. Please request a new one.")

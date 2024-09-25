@@ -58,14 +58,8 @@
                 <div class="form-container w-75">
                     <div class="text-center mb-4">
                         <h2 class="fw-bold">Account Signup</h2>
-                        <p class="text-muted">Create your account in just a few steps</p>
-                        {% if messages %}
-                        <ul class="messages">
-                            {% for message in messages %}
-                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
+                        
+                        
                     </div>
 
                     <form action="{% url 'Register' %}" method="post">
@@ -86,10 +80,10 @@
                             <input type="email" id="id_email" class="form-control" name="email" required>
                         </div>
 
-                        <div class="mb-3">
+                        {% comment %} <div class="mb-3">
                             <label for="id_phone" class="form-label">Phone Number</label>
                             <input type="tel" id="id_phone" class="form-control" name="phone" required pattern="\d{10}" title="Phone number must be 10 digits">
-                        </div>
+                        </div> {% endcomment %}
 
                         <div class="mb-3">
                             <label for="id_password" class="form-label">Password</label>
@@ -112,6 +106,29 @@
         </div>
     </div>
 
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    { level: "{{ message.tags|default_if_none:'info' }}", text: "{{ message|escapejs }}" },
+                {% endfor %}
+            ];
+            messages.forEach(function(message) {
+                Swal.fire({
+                    toast: true,
+                    position: 'center',
+                    icon: message.level,
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
 </body>
 </html>

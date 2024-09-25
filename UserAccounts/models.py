@@ -27,7 +27,7 @@ class User(AbstractBaseUser):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=15)
+    phone_number = models.CharField(max_length=15, blank=True, null=True) 
     is_active = models.BooleanField(default=False)  
     is_admin = models.BooleanField(default=False)  
     is_blocked = models.BooleanField(default=False)  
@@ -35,7 +35,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number']
+    REQUIRED_FIELDS = ['first_name', 'last_name' ]
 
     def __str__(self):
         return self.email
