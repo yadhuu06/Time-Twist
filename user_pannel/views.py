@@ -152,9 +152,6 @@ def shop_view(request):
         products = Products.objects.filter(is_active=True, product_brand__status=True)
 
         
-     
- 
-
         if category_filter:
             products = products.filter(product_category=category_filter)
 

@@ -383,14 +383,14 @@ def cancel_order(request, order_id):
                 product_variant.variant_stock += item.quantity
                 product_variant.save()
                 if wallet:
-                    wallet.balance += item.paid_price
+                    wallet.balance += order.final_price-order.shipping
                     wallet.save()
 
                     WalletTransaction.objects.create(
                         wallet=wallet,
                         amount=item.paid_price,
                         description=f"Refund for item {item.product_variant} in Order {order.order_id} cancellation",
-                        transaction_type="credit"
+                        transaction_type="Credit"
                     )
 
             order.status = 'Cancelled'

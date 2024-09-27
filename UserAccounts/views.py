@@ -248,14 +248,16 @@ def login_view(request):
 @login_required
 def home_view(request):
     if request.user.is_authenticated:
-          products = Products.objects.filter(is_active=True,featured=True).prefetch_related('variants__images')
+          featured = Products.objects.filter(is_active=True,featured=True)[:4].prefetch_related('variants__images')
+          new_launch = Products.objects.filter(is_active=True).order_by('-id')[:5].prefetch_related('variants__images')
+
           user_details = {
               'first_name': request.user.first_name,
               'last_name': request.user.last_name,
               'email': request.user.email,
             'phone_number': request.user.phone_number
           }  
-          response = render(request, 'UserSide/home.html', {'products': products,'user_details': user_details})
+          response = render(request, 'UserSide/home.html', {'featured': featured,'new_launch':new_launch,'user_details': user_details})
           response['Cache-Control'] = 'no-store'
           return response   
     else:

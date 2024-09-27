@@ -2,7 +2,7 @@
 {% block title %}User List{% endblock %}
 
 {% block content %}
-
+<div class="content">
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
         <div class="card-body">
@@ -14,7 +14,7 @@
                         <tr>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Phone Number</th>
+                            
                             <th>Active</th>
                             <th>Actions</th>
                         </tr>
@@ -24,7 +24,7 @@
                         <tr>
                             <td>{{ user.first_name }} {{ user.last_name }}</td>
                             <td>{{ user.email }}</td>
-                            <td>{{ user.phone_number }}</td>
+                            
                             <td>{{ user.is_active|yesno:"Yes,No" }}</td>
                             <td>
                                 <form method="post" action="{% url 'Block_user' %}" id="block-form-{{ user.id }}">

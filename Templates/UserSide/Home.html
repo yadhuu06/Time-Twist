@@ -2,7 +2,230 @@
 {% load static %}
 
 {%block content%}
-<body>
+<div style="margin: 130px;">
+   
+</div>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiss Time House - Luxury Watches</title>
+	
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    
+</head>
+
+
+
+    <!-- Hero section with changing images -->
+	<section id="home" class="hero-section">
+		<div class="hero-overlay"></div>
+		<div class="container hero-content">
+			<h3 class="display-3 fw-bold mb-4">Discover Timeless Elegance</h3>
+			<p class="lead mb-5">Explore our curated collection of luxury timepieces</p>
+			<a href="{% url 'shop_view' %}" style="
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #8b0000, #ff0000);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: inline-block;
+    text-decoration: none;" 
+    onmouseover="this.style.background='linear-gradient(135deg, #ff0000, #8b0000)'; 
+                 this.style.transform='translateY(-3px)';
+                 this.style.boxShadow='0 8px 20px rgba(0, 0, 0, 0.3)';"
+    onmouseout="this.style.background='linear-gradient(135deg, #8b0000, #ff0000)';
+                this.style.transform='translateY(0)';
+                this.style.boxShadow='0 4px 10px rgba(0, 0, 0, 0.2)';">
+    Explore Collection
+</a>
+
+
+
+		</div>
+	</section>
+	<!-- Swiper CSS -->
+<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+<!-- Swiper JS -->
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+
+    <!-- Featured products section -->
+	<section id="featured" class="featured-products py-5">
+		<div class="container">
+			<h2 class="text-center mb-5 featured-heading-brand">Featured Watches</h2>
+            <div class="row">
+                {% for product in featured %}
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="{% url 'product_detail_user' product.id %}" class="text-decoration-none product-card">
+                        <div class="single-product">
+                            <div class="product-img-wrapper">
+                                <div class="product-details-overlay">
+                                    <h5>{{ product.product_name }}</h5>
+                                    <h6 class="text-primary">{{ product.product_brand.brand_name }}</h6>
+                                    <div class="price">
+                                        {% if product.offer_price %}
+                                            <h4 class="text-success font-weight-bold">₹ {{ product.offer_price }}</h4>
+                                        {% endif %}
+                                        <h6 class="text-muted">
+                                            <span class="text-decoration-line-through">₹ {{ product.price }}</span>
+                                        </h6>
+                                    </div>
+                                </div>
+                                <div class="product-img">
+                                    <div class="image-wrapper">
+                                        {% if product.variants.all %}
+                                            {% with product.variants.all|first as first_variant %}
+                                                {% if first_variant.images.all %}
+                                                    {% with first_variant.images.all|first as first_image %}
+                                                        <img class="product-image" src="{{ first_image.image.url }}" alt="{{ product.product_name }}">
+                                                    {% endwith %}
+                                                {% else %}
+                                                    <img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% else %}
+                                            <img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            
+
+
+
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var swiper = new Swiper('.swiper-container', {
+                        slidesPerView: 4,
+                        spaceBetween: 30,
+                        loop: true,
+                        autoplay: {
+                            delay: 3000,
+                            disableOnInteraction: false,
+                        },
+                        breakpoints: {
+                            // when window width is >= 640px
+                            640: {
+                              slidesPerView: 2,
+                              spaceBetween: 20
+                            },
+                            // when window width is >= 768px
+                            768: {
+                              slidesPerView: 3,
+                              spaceBetween: 30
+                            },
+                            // when window width is >= 1024px
+                            1024: {
+                              slidesPerView: 4,
+                              spaceBetween: 30
+                            }
+                        }
+                    });
+                });
+                </script>
+                
+<style>/* Product Card */
+    .product-card {
+        display: block;
+        text-align: center;
+        color: #000;
+        position: relative; 
+    }
+    
+    .single-product {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        transition: all 0.3s ease-in-out;
+        height: 350px; /* Adjust the height for your card */
+    }
+    
+    /* Image Wrapper */
+    .product-img-wrapper {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    /* Product Image */
+    .product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ensure the image maintains aspect ratio */
+        transition: transform 0.3s ease-in-out;
+        z-index: 1;
+    }
+    
+    /* Hover Effect */
+    .product-card:hover .product-img img {
+        transform: scale(1.1); /* Zoom in on hover */
+    }
+    
+    /* Product Details Overlay */
+    .product-details-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 15px;
+        text-align: left;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        z-index: 2; 
+    }
+    
+    /* Show Overlay on Hover */
+    .product-card:hover .product-details-overlay {
+        opacity: 1;
+    }
+    
+    /* Product Name and Price Styling */
+    .product-details-overlay h5, 
+    .product-details-overlay h6, 
+    .product-details-overlay .price {
+        margin: 0;
+        font-size: 16px;
+        color: #fff;
+    }
+    
+    /* Grid Layout: 4 Products in a Row */
+    @media (min-width: 992px) {
+        .col-lg-3 {
+            flex: 0 0 25%;
+            max-width: 25%;
+        }
+    }
+    
+    /* Adjust the height of the card content to be fixed */
+    .single-product .image-wrapper {
+        height: 220px; /* Set height for image section */
+    }
+    
+    .product-details-overlay {
+        height: 130px; /* Remaining height for the details */
+    }
+    </style>
+
+
+
 
 	
 	</div>
@@ -85,7 +308,7 @@
 							</div>
 							<div class="col-lg-7">
 								<div class="banner-img">
-									<img class="img-fluid" src="{% static 'img/banner/banner-img.png' %}" alt="HELLO">
+									hello
 								</div>
 							</div>
 						</div>
@@ -120,108 +343,22 @@
         color: #ffffff; /* Ending color */
     }
 }
+.container-fluid {
+    margin-top: 20px;
+    background-color: #f5f5dc;;}
+.brand-logos-wrapper{
+    margin-top: 20px;
+    background-color: #f5f5dc;;
+}
 </style>
 	<!-- End category Area -->
 
-	<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swiss Time House - Luxury Watches</title>
-	
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    
-</head>
 
-
-
-    <!-- Hero section with changing images -->
-	<section id="home" class="hero-section">
-		<div class="hero-overlay"></div>
-		<div class="container hero-content">
-			<h3 class="display-3 fw-bold mb-4">Discover Timeless Elegance</h3>
-			<p class="lead mb-5">Explore our curated collection of luxury timepieces</p>
-			<a href="{% url 'shop_view' %}" style="
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #ffffff;
-    background: linear-gradient(135deg, #8b0000, #ff0000);
-    border: none;
-    border-radius: 8px;
-    padding: 12px 30px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    display: inline-block;
-    text-decoration: none;" 
-    onmouseover="this.style.background='linear-gradient(135deg, #ff0000, #8b0000)'; 
-                 this.style.transform='translateY(-3px)';
-                 this.style.boxShadow='0 8px 20px rgba(0, 0, 0, 0.3)';"
-    onmouseout="this.style.background='linear-gradient(135deg, #8b0000, #ff0000)';
-                this.style.transform='translateY(0)';
-                this.style.boxShadow='0 4px 10px rgba(0, 0, 0, 0.2)';">
-    Explore Collection
-</a>
-
-
-		</div>
-	</section>
-	
-
-    <!-- Featured products section -->
-	<section id="featured" class="featured-products py-5">
-		<div class="container">
-			<h2 class="text-center mb-5 featured-heading-brand">Featured Watches</h2>
-
-
-			<div class="row">
-                {% for product in products %}
-                
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <a href="{% url 'product_detail_user' product.id %}" class="text-decoration-none">
-                        <div class="single-product">
-                            <div class="product-img">
-                                <div class="image-wrapper">
-                                    {% if product.variants.all %}
-                                        {% with product.variants.all|first as first_variant %}
-                                            {% if first_variant.images.all %}
-                                                {% with first_variant.images.all|first as first_image %}
-                                                    <img class="product-image" src="{{ first_image.image.url }}" alt="{{ product.product_name }}">
-                                                {% endwith %}
-                                            {% else %}
-                                                <img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
-                                            {% endif %}
-                                        {% endwith %}
-                                    {% else %}
-                                        <img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
-                                    {% endif %}
-                                </div>
-                            </div>
-            
-                            <div class="product-details mt-3">
-                                <h5>{{ product.product_name }}</h5>
-                                <h6 class="text-primary">{{ product.product_brand.brand_name }}</h6>
-                                <div class="price">
-                                    {% if product.offer_price %}
-                                        <h4 class="text-success font-weight-bold">₹ {{ product.offer_price }}</h4>
-                                    {% endif %}
-                                    <h6 class="text-muted">
-                                        <span class="text-decoration-line-through">₹ {{ product.price }}</span>
-                                    </h6>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                
-                {% endfor %}
-            </div>
-            
         <div class="container-fluid my-5">
-            <h2 class="text-center interactive-header">Our Brands</h2>
+
+            <div class="new_launchhh"><h2 >Our Brands</h2></div>
+
+
             <div class="brand-logos-wrapper">
               <button id="prev" class="btn btn-light"><i class="fas fa-chevron-left"></i></button>
               <div class="brand-logos d-flex">
@@ -232,7 +369,7 @@
                 </div>
                 <div class="card mx-3">
                   <div class="card-body p-2">
-                    <img src="{% static 'UserSide/img/th.png' %}" alt="Brand 2" class="brand-logo img-fluid">
+                    <img src="{% static 'UserSide/img/tdr.png' %}" alt="Brand 2" class="brand-logo img-fluid">
                   </div>
                 </div>
                 <div class="card mx-3">
@@ -263,6 +400,242 @@
               </div>
               <button id="next" class="btn btn-light"><i class="fas fa-chevron-right"></i></button>
             </div>
+
+
+            <div class="new_launchhh">
+                <h2>New Launch</h2>
+            </div>
+
+            <style>.new_launchhh {
+                margin-top: 20px;
+                background-color: #f5f5dc;;  /* Set the background to white */
+                padding: 20px;
+                text-align: center;
+                border-radius: 10px;
+            }
+            
+            .new_launchhh h2 {
+                font-family: 'Cinzel', serif;  /* Match your font preference */
+                font-size: 3.5rem;
+                background: linear-gradient(to right, #000000, #8B0000, #1a1a1a);  /* Gradient for the text */
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;  /* Make the text transparent so the gradient is visible */
+                background-clip: text;
+                text-fill-color: transparent;
+                transition: background 3s ease-in-out;  /* Smooth gradient transition */
+                text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);  /* Optional shadow to make text stand out */
+            }
+            
+            /* Optional hover effect */
+            .new_launchhh:hover h2 {
+                font-weight: bold;  /* Make text bold */
+                font-size: 3.7rem;  /* Slightly increase font size */
+                
+            }
+            </style>
+            
+   
+
+
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    .gallery-container {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        width: 100%;
+                        height: 500px; /* Adjust based on content height */
+                        overflow: hidden;
+                        padding: 20px;
+                        position: relative;
+                    }
+                
+                    /* Fixed card layout */
+                    .gallery-card {
+                        position: relative;
+                        overflow: hidden;
+                        margin: 10px;
+                        transition: transform 0.3s ease;
+                        background-color: #fff;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        border-radius: 10px;
+                        height: 70%; /* Height for left and right cards */
+                    }
+                
+                    .gallery-card.left, .gallery-card.right {
+                        flex: 0 0 20%; /* Width ratio for left and right */
+                    }
+                
+                    .gallery-card.center {
+                        flex: 0 0 60%; /* Width ratio for center */
+                        height: 100%; /* Center card is 30% taller */
+                    }
+                
+                    .gallery-card img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: contain; /* Keep aspect ratio */
+                        display: block;
+                    }
+                
+                    .item-content {
+                        text-align: center;
+                        padding: 10px;
+                        opacity: 0; /* Initially hidden */
+                        transition: opacity 0.3s ease; /* Smooth transition */
+                        position: absolute; /* Position overlay on top */
+                        top: 50%; /* Start from the middle */
+                        left: 0;
+                        right: 0;
+                        height: 50%; /* Overlay covers the bottom half */
+                        background-color: rgba(0, 0, 0, 0.8); /* Dark background on hover */
+                        border-radius: 0 0 10px 10px; /* Round bottom corners only */
+                        display: flex;
+                        flex-direction: column; /* Center content vertically */
+                        justify-content: center; /* Center vertically */
+                        align-items: center; /* Center horizontally */
+                    }
+                
+                    .gallery-card:hover .item-content {
+                        opacity: 1; /* Show on hover */
+                    }
+                
+                    .item-title {
+                        font-size: 1.5em;
+                        margin: 10px 0;
+                        color: #fff; /* White text for better contrast */
+                    }
+                
+                    .item-brand {
+                        font-size: 1.2em;
+                        margin-bottom: 5px;
+                        color: #ddd; /* Light grey for contrast */
+                    }
+                
+                    .item-price {
+                        font-size: 1.2em;
+                        margin-bottom: 15px;
+                        color: #fff; /* White text for better contrast */
+                    }
+                
+                    .item-price .offer-price {
+                        color: #4CAF50;
+                    }
+                
+                    .item-price .original-price {
+                        text-decoration: line-through;
+                        color: #a0a0a0;
+                        margin-left: 10px;
+                    }
+                
+                    .item-button {
+                        background-color: #d62828;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        text-decoration: none;
+                        margin-top: 10px; /* Space between text and button */
+                    }
+                
+                    .item-button:hover {
+                        background-color: #b22222;
+                    }
+                
+                    .bg {
+                        background-color: #f5f5dc;
+                    }
+                </style>
+                
+            </head>
+            <body>
+            <div class="bg">
+            <div class="gallery-container">
+                <!-- Three fixed cards -->
+                <div class="gallery-card left" id="card-left">
+                    <!-- Product data will be injected here -->
+                </div>
+                <div class="gallery-card center" id="card-center">
+                    <!-- Product data will be injected here -->
+                </div>
+                <div class="gallery-card right" id="card-right">
+                    <!-- Product data will be injected here -->
+                </div>
+            </div>
+        </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const products = [
+                        {% for product in new_launch %}
+                            {
+                                productName: "{{ product.product_name }}",
+                                productBrand: "{{ product.product_brand.brand_name }}",
+                                offerPrice: "{{ product.offer_price }}",
+                                price: "{{ product.price }}",
+                                offerPercentage: "{{ product.offer_percentage }}",
+                                imageUrl: "{% with product.variants.all|first as first_variant %}{% if first_variant and first_variant.images.all %}{{ first_variant.images.first.image.url }}{% else %}{% static 'UserSide/img/No_Images_available.png' %}{% endif %}{% endwith %}",
+                                detailUrl: "{% url 'product_detail_user' product.id %}"
+                            }{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ];
+            
+                    const leftCard = document.getElementById('card-left');
+                    const centerCard = document.getElementById('card-center');
+                    const rightCard = document.getElementById('card-right');
+            
+                    let currentIndex = 0;
+            
+                    function updateCards() {
+                        const leftIndex = (currentIndex - 1 + products.length) % products.length;
+                        const centerIndex = currentIndex;
+                        const rightIndex = (currentIndex + 1) % products.length;
+            
+                        leftCard.innerHTML = generateCardHtml(products[leftIndex]);
+                        centerCard.innerHTML = generateCardHtml(products[centerIndex]);
+                        rightCard.innerHTML = generateCardHtml(products[rightIndex]);
+                    }
+            
+                    function generateCardHtml(product) {
+                        return `
+                            <img src="${product.imageUrl}" alt="${product.productName}">
+                            <div class="item-content">
+                                <h3 class="item-title">${product.productName}</h3>
+                                <p class="item-brand">${product.productBrand}</p>
+                                <p class="item-price">
+                                    <span style="color: #4CAF50;">Save ${product.offerPercentage}%</span><br>
+                                    <span class="offer-price">₹${product.offerPrice}</span>
+                                    <span class="original-price">₹${product.price}</span>
+                                </p>
+                                <a href="${product.detailUrl}" class="item-button">Explore Now</a>
+                            </div>
+                        `;
+                    }
+            
+                    function showNextProduct() {
+                        currentIndex = (currentIndex + 1) % products.length;
+                        updateCards();
+                    }
+            
+                    // Start the looping
+                    updateCards();
+                    setInterval(showNextProduct, 3000); // Loop every 3 seconds
+                });
+            </script>
+            
+            </body>
+            </html>
+            
+
+
+
+            
+
+
           <style>/* Navigation button styling */
             .btn {
               font-size: 2rem;
@@ -395,7 +768,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: message.level,
                 title: message.text,
                 showConfirmButton: false,
-                timer: 3000
+                timer: 4000
             });
         });
     {% endif %}

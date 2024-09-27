@@ -32,15 +32,21 @@ class RegisterForm(forms.Form):
         
 
 class EmailAuthenticationForm(AuthenticationForm):
+   
     username = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
     password = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    print(username)
+    print(password)
 
     def clean(self):
         cleaned_data = super().clean()
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
 
+
         if username and password:
+            print(username)
+            print(password)
             self.user_cache = authenticate(self.request, username=username, password=password)
             
             if self.user_cache is None:

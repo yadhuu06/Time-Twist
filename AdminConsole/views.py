@@ -26,6 +26,12 @@ from django.utils import timezone
 from datetime import timedelta
 from django.views.decorators.cache import never_cache
 from order_management.models import Order, OrderItem  # Adjust the imports based on your app structure
+from django.shortcuts import render
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Sum, F
+from django.db.models.functions import TruncDay, TruncMonth, TruncYear
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 
 def is_admin(user):
@@ -215,7 +221,7 @@ def update_return_status(request):
                     product_variant.save()
 
                 wallet, _ = Wallet.objects.get_or_create(user=return_item.user)
-                wallet.balance += total_refund_amount
+                wallet.balance += order.final_price-shipping
                 wallet.save()
 
                 WalletTransaction.objects.create(
@@ -247,12 +253,6 @@ def update_return_status(request):
             return JsonResponse({'status': 'error', 'message': f'An unexpected error occurred: {str(e)}'}, status=500)
 
 
-from django.shortcuts import render
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Sum, F
-from django.db.models.functions import TruncDay, TruncMonth, TruncYear
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 
 
 @user_passes_test(is_admin)

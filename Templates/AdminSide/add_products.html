@@ -7,75 +7,82 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        body {
-            background-color: #333; 
-            color: white; 
-            font-family: 'Roboto', sans-serif;
-        }
+    <style>body {
+        background-image: url('{% static 'AdminSide/assets/images/mb1.jpg' %}'); 
+        color: white; 
+        font-family: 'Roboto', sans-serif;
+        background-repeat: no-repeat;
+        background-size: cover; /* Ensures the image covers the entire element */
+        background-position: center;
+    }
     
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-        }
+    .container {
+        max-width: 600px;
+        margin: 50px auto;
+    }
     
-        .card {
-            margin-top: -40px;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            background-color: beige;
-        }
+    .card {
+        margin-top: -40px;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        background-color: rgba(0, 0, 0, 0.4); /* Increased transparency */
+        color: #fff; /* Ensures text inside the card is white */
+    }
     
-        .card-header {
-            background-color: #007bff;
-            color: #fff;
-            font-size: 1.4rem;
-            font-weight: 600;
-            padding: 15px 20px;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            text-align: center;
-        }
+    .card-header {
+        background-color: ;
+        color: #fff;
+        font-size: 1.4rem;
+        font-weight: 600;
+        padding: 15px 20px;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        text-align: center;
+    }
     
-        .card-body {
-            padding: 30px;
-        }
+    .card-body {
+        padding: 30px;
+    }
     
-        .form-group {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-        }
+    .form-group {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
     
-        .form-group label {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0; 
-            flex: 0 0 35%;
-            max-width: 35%;
-        }
+    .form-group label {
+        font-weight: 500;
+        color: #fff; /* White text for labels */
+        margin-bottom: 0; 
+        flex: 0 0 35%;
+        max-width: 35%;
+    }
     
-        .form-group .form-control {
-            flex: 1;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            padding: 12px;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
+    .form-group .form-control {
+        flex: 1;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        padding: 12px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        background-color: rgba(255, 255, 255, 0.2); /* Transparent input fields */
+        color: white; /* White text inside input fields */
+    }
     
-        .form-group .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
+    .form-group .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        background-color: rgba(255, 255, 255, 0.3); /* Slightly less transparent when focused */
+    }
     
-        .input-group-text {
-            background-color: #e9ecef;
-            border: 1px solid #ced4da;
-            border-radius: 8px 0 0 8px;
-        }
+    .input-group-text {
+        background-color: rgba(255, 255, 255, 0.2); /* Transparent input group */
+        border: 1px solid #ced4da;
+        border-radius: 8px 0 0 8px;
+        color: white;
+    }
     
-          .btn-primary {
+    .btn-primary {
         background-color: #007bff;
         border: none;
         border-radius: 8px;
@@ -87,34 +94,38 @@
         max-width: 200px; /* Optional: Set a maximum width */
         margin: 0 auto; /* Center the button horizontally */
         display: block; /* Ensures the margin auto works */
+        color: white; /* White text on button */
     }
-
+    
     .btn-primary:hover {
         background-color: #0056b3;
     }
     
-        .form-check {
-            margin-bottom: 15px;
-        }
+    .form-check {
+        margin-bottom: 15px;
+    }
     
-        .form-check-label {
-            font-weight: 400;
-            color: #333;
-        }
+    .form-check-label {
+        font-weight: 400;
+        color: white; /* White text for check labels */
+    }
     
-        .input-group {
-            margin-bottom: 15px;
-        }
+    .input-group {
+        margin-bottom: 15px;
+    }
     
-        .fas {
-            margin-right: 8px;
-        }
+    .fas {
+        margin-right: 8px;
+    }
     
-        textarea.form-control {
-            height: auto;
-            resize: vertical;
-        }
+    textarea.form-control {
+        height: auto;
+        resize: vertical;
+        background-color: rgba(255, 255, 255, 0.2); /* Transparent textarea */
+        color: white; /* White text inside textarea */
+    }
     </style>
+
     
     
 </head>

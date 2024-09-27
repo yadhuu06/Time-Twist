@@ -3,6 +3,7 @@
 {% block title %}Category Page{% endblock %}
 
 {% block content %}
+<div class="content">
 <!-- Page Header Section -->
 <div style="display: flex; flex-direction: row; align-items: center; font-family: 'Alegreya';">
     <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" aria-expanded="false" href="{% url 'catogory:add_catogory' %}">+ Add New Category</a>
@@ -171,5 +172,5 @@ h4.card-title {
     }
 }
 </style>
-
+</div>
 {% endblock %}
