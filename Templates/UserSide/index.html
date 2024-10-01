@@ -1,738 +1,168 @@
-{% extends "UserSide/base.html" %}
-{% load static %}
+</script>
 
-{%block content%}
-
-
-
-	<!-- start banner Area -->
-	<section class="banner-area">
-		<div class="container">
-			<div class="row fullscreen align-items-center justify-content-start">
-				<div class="col-lg-12">
-					<div class="active-banner-slider owl-carousel">
-						<!-- single-slide -->
-						<div class="row single-slide align-items-center d-flex">
-							<div class="col-lg-5 col-md-6">
-								<div class="banner-content">
-									<h1> G-SHOCK New <br>Collection!</h1>
-									<p>At TIME TWIST, We curate a stunning collection of watches that blend style with functionality. Whether you're seeking a classic timepiece for everyday wear or a statement watch for special occasions, our handpicked selection ensures there's something for every taste.</p>
-								
-									<div class="add-bag d-flex align-items-center">
-										<a class="add-btn" href=""><span class="lnr lnr-cross"></span></a>
-										<span class="add-text text-uppercase">Add to Bag</span>
-									</div>
-								</div>
-							</div>
-							<div class="col-lg-7">
-								<div class="banner-img">
-									<img class="img-fluid" src="{% static 'AdminSide/assets/images/pngwing.com.png' %}" alt="hellll">
-								</div>
-							</div>
-						</div>
-						<!-- single-slide -->
-						<div class="row single-slide">
-							<div class="col-lg-5">
-								
-									<div class="banner-content">
-										<h1> G-SHOCK New <br>Collection!</h1>
-										<p>At GLOW GEAR, we curate a stunning collection of watches that blend style with functionality. Whether you're seeking a classic timepiece for everyday wear or a statement watch for special occasions, our handpicked selection ensures there's something for every taste.</p>
-									
-									</div>
-									<div class="add-bag d-flex align-items-center">
-										<a class="add-btn" href=""><span class="lnr lnr-cross"></span></a>
-										<span class="add-text text-uppercase">Add to Bag</span>
-									</div>
-								</div>
-							</div>
-							<div class="col-lg-7">
-								<div class="banner-img">
-									<img class="img-fluid" src="{% static 'UserSide\img\banner\banner-bg.jpg' %}" alt="hiiii">
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- End banner Area -->
-
-	<!-- start features Area -->
-	<section class="features-area section_gap">
-		<div class="container">
-			<div class="row features-inner">
-				<!-- single features -->
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
-							<img src="{% static 'UserSide/img/features/f-icon1.png' %}" alt="bb">
-						</div>
-						<h6>Free Delivery</h6>
-						<p>Free Shipping on all order under 10k</p>
-					</div>
-				</div>
-				<!-- single features -->
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
-							<img src="{% static 'UserSide/img/features/f-icon2.png' %}" alt="">
-						</div>
-						<h6>Return Policy</h6>
-						<p>7 Day Returns Available</p>
-					</div>
-				</div>
-				<!-- single features -->
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
-							<img src="{% static 'UserSide/img/features/f-icon3.png' %}" alt="">
-						</div>
-						<h6>24/7 Support</h6>
-						<p>We Ensure 24/7 Support</p>
-					</div>
-				</div>
-				<!-- single features -->
-				<div class="col-lg-3 col-md-6 col-sm-6">
-					<div class="single-features">
-						<div class="f-icon">
-							<img src="{% static 'UserSide/img/features/f-icon4.png' %}" alt="">
-						</div>
-						<h6>Secure Payment</h6>
-						<p>We Assure Payment Security</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- end features Area -->
+<section id="featured" class="featured-products py-5">
+    <div class="container">
+        <h2 class="text-center mb-5 featured-heading-brand">Recently Watched</h2>
+        <div class="row">
+            {% for product in recently_viewed %}
+            <div class="col-lg-3 col-md-6 mb-4">
+                <a href="{% url 'product_detail_user' product.id %}" class="text-decoration-none product-card">
+                    <div class="single-product">
+                        <div class="product-img-wrapper">
+                            <div class="product-details-overlay">
+                                <h5>{{ product.product.product_name }}</h5>
+                                <h6 class="text-primary">{{ product.product_brand.brand_name }}</h6>
+                                <div class="price">
+                                    {% if product.product.offer_price %}
+                                        <h4 class="text-success font-weight-bold">₹ {{ product.offer_price }}</h4>
+                                    {% endif %}
+                                    <h6 class="text-muted">
+                                        <span class="text-decoration-line-through">₹ {{ product.product.price }}</span>
+                                    </h6>
+                                </div>
+                            </div>
+                            <div class="product-img">
+                                <div class="image-wrapper">
+                                    {% if product.product.variants.all %}
+                                        {% with product.product.variants.all|first as first_variant %}
+                                            {% if first_variant.ProductVariantImages.all %}
+                                                {% with first_variant.ProductVariantImages.all|first as first_image %}
+                                                    <img class="product-image" src="{{ first_image.image.url }}" alt="{{ product.product_name }}">
+                                                {% endwith %}
+                                            {% else %}
+                                                <img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        <img class="product-image" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.product_name }}">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
 
 
 
-	<!-- start product Area -->
-	<section class="owl-carousel active-product-area section_gap">
-		<!-- single product slide -->
-		<div class="single-product-slider">			
-			<div class="container">
-				<div class="row justify-content-center">
-					<div class="col-lg-6 text-center">
-						<div class="section-title">
-							<h1></h1>
-							<p>															
-							</p>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<!-- Start of the for loop -->
-					{% for product in products %}
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<!-- Product Image with violet background -->
-							<div class="violet-bg">
-								{% if product.variants.all %}
-									{% with product.variants.all|first as first_variant %}
-										{% if first_variant.images.all %}
-											{% with first_variant.images.all|first as first_image %}
-												<img class="img-fluid product-image product-image-home" src="{{ first_image.image.url }}" alt="No image">
-											{% endwith %}
-										{% else %}
-											<img class="img-fluid product-image product-image-home" src="{% static 'path/to/default-image.jpg' %}" alt="No image">
-										{% endif %}
-									{% endwith %}
-								{% else %}
-									<img class="img-fluid product-image product-image-home" src="{% static 'path/to/default-image.jpg' %}" alt="No image">
-								{% endif %}
-							</div>
-							<div class="SPACE" style="margin-top: 45px;"></div>
 
-							<!-- Product Details -->
-							<div class="product-details">
-								<h5>{{ product.product_name }}</h5>
-								<h6 style="color:blue;">{{ product.product_brand.brand_name }}</h6>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var swiper = new Swiper('.swiper-container', {
+                    slidesPerView: 4,
+                    spaceBetween: 30,
+                    loop: true,
+                    autoplay: {
+                        delay: 3000,
+                        disableOnInteraction: false,
+                    },
+                    breakpoints: {
+                        // when window width is >= 640px
+                        640: {
+                          slidesPerView: 2,
+                          spaceBetween: 20
+                        },
+                        // when window width is >= 768px
+                        768: {
+                          slidesPerView: 3,
+                          spaceBetween: 30
+                        },
+                        // when window width is >= 1024px
+                        1024: {
+                          slidesPerView: 4,
+                          spaceBetween: 30
+                        }
+                    }
+                });
+            });
+            </script>
+            
+<style>/* Product Card */
+.product-card {
+    display: block;
+    text-align: center;
+    color: #000;
+    position: relative; 
+}
 
-								<div class="price">
-									{% if product.offer_price %}
-									<h4 style="color: green; font-weight: bold;">₹ {{ product.offer_price }}</h4>
+.single-product {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+    height: 350px; /* Adjust the height for your card */
+}
 
-									{% endif %}
-									<h6 class="l-through" style="color: black;">
-										<span class="red-line">₹ {{ product.price }}</span>
-									</h6>
-									
-								</div>
-								<div class="prd-bottom">
-									<a href="{% url 'cart:add_cart' product.id %}" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">buy now</p>
-									</a>
-									<a href="{% url 'product_detail_user' product.id %}" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">Details</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					{% endfor %}
-					<!-- End of the for loop -->
-				</div>
-				
-				
-			</div>
-		</div>
-		<!-- single product slide -->
-		<div class="single-product-slider">
-			<div class="container">
-				<div class="row justify-content-center">
-					<div class="col-lg-6 text-center">
-						<div class="section-title">
-							<h1>Coming Products</h1>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-								dolore
-								magna aliqua.</p>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'UserSide/img/b11.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
+/* Image Wrapper */
+.product-img-wrapper {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
 
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'UserSide/img/b11.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
+/* Product Image */
+.product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure the image maintains aspect ratio */
+    transition: transform 0.3s ease-in-out;
+    
+}
 
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'AdminSide/img/product/p3.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
+/* Hover Effect */
+.product-card:hover .product-img img {
+    transform: scale(1.1); /* Zoom in on hover */
+}
 
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'AdminSide/img/product/p5.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
+/* Product Details Overlay */
+.product-details-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 15px;
+    text-align: left;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 2; 
+}
 
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'AdminSide/img/product/p1.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
+/* Show Overlay on Hover */
+.product-card:hover .product-details-overlay {
+    opacity: 1;
+}
 
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'AdminSide/img/product/p4.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
+/* Product Name and Price Styling */
+.product-details-overlay h5, 
+.product-details-overlay h6, 
+.product-details-overlay .price {
+    margin: 0;
+    font-size: 16px;
+    color: #fff;
+}
 
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'AdminSide/img/product/p1.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
+/* Grid Layout: 4 Products in a Row */
+@media (min-width: 992px) {
+    .col-lg-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+}
 
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- single product -->
-					<div class="col-lg-3 col-md-6">
-						<div class="single-product">
-							<img class="img-fluid" src="{% static 'AdminSide/img/product/p8.jpg' %}" alt="">
-							<div class="product-details">
-								<h6>addidas New Hammer sole
-									for Sports person</h6>
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<div class="prd-bottom">
+/* Adjust the height of the card content to be fixed */
+.single-product .image-wrapper {
+    height: 220px; /* Set height for image section */
+}
 
-									<a href="" class="social-info">
-										<span class="ti-bag"></span>
-										<p class="hover-text">add to bag</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-heart"></span>
-										<p class="hover-text">Wishlist</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-sync"></span>
-										<p class="hover-text">compare</p>
-									</a>
-									<a href="" class="social-info">
-										<span class="lnr lnr-move"></span>
-										<p class="hover-text">view more</p>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- end product Area -->
+.product-details-overlay {
+    height: 130px; /* Remaining height for the details */
+}
+</style>
 
-	<!-- Start exclusive deal Area -->
-	<section class="exclusive-deal-area">
-		<div class="container-fluid">
-			<div class="row justify-content-center align-items-center">
-				<div class="col-lg-6 no-padding exclusive-left">
-					<div class="row clock_sec clockdiv" id="clockdiv">
-						<div class="col-lg-12">
-							<h1>Exclusive Hot Deal Ends Soon!</h1>
-							<p>Who are in extremely love with eco friendly system.</p>
-						</div>
-						<div class="col-lg-12">
-							<div class="row clock-wrap">
-								<div class="col clockinner1 clockinner">
-									<h1 class="days">150</h1>
-									<span class="smalltext">Days</span>
-								</div>
-								<div class="col clockinner clockinner1">
-									<h1 class="hours">23</h1>
-									<span class="smalltext">Hours</span>
-								</div>
-								<div class="col clockinner clockinner1">
-									<h1 class="minutes">47</h1>
-									<span class="smalltext">Mins</span>
-								</div>
-								<div class="col clockinner clockinner1">
-									<h1 class="seconds">59</h1>
-									<span class="smalltext">Secs</span>
-								</div>
-							</div>
-						</div>
-					</div>
-					<a href="" class="primary-btn">Shop Now</a>
-				</div>
-				<div class="col-lg-6 no-padding exclusive-right">
-					<div class="active-exclusive-product-slider">
-						<!-- single exclusive carousel -->
-						<div class="single-exclusive-slider">
-							<img class="img-fluid" src="{% static 'UserSide/img/b11.jpg' %}" alt="">
-							<div class="product-details">
-								<div class="price">
-									<h6>Rs 11999</h6>
-									<h6 class="l-through">17999</h6>
-								</div>
-								<h4>Titan New Hammer sole
-									Arriving Soon</h4>
-								<div class="add-bag d-flex align-items-center justify-content-center">
-									{% comment %} <a class="add-btn" href=""><span class="ti-bag"></span></a>
-									<span class="add-text text-uppercase">Add to Bag</span> {% endcomment %}
-								</div>
-							</div>
-						</div>
-						<!-- single exclusive carousel -->
-						<div class="single-exclusive-slider">
-							<img class="img-fluid" src="{% static 'UserSide/img/b11.jpg' %}" alt="">
-							<div class="product-details">
-								<div class="price">
-									<h6>$150.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-								<h4>addidas New Hammer sole
-									for Sports person</h4>
-								<div class="add-bag d-flex align-items-center justify-content-center">
-									<a class="add-btn" href=""><span class="ti-bag"></span></a>
-									<span class="add-text text-uppercase">Add to Bag</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- End exclusive deal Area -->
 
-	<!-- Start brand Area -->
-	<section class="brand-area section_gap">
-		<div class="container">
-			<div class="row">
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'UserSide/img/rolex.png' %}" alt="">
-				</a>
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'UserSide/img/r.png' %}" alt="">
-				</a>
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'UserSide/img/casio.png' %}" alt="">
-				</a>
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'UserSide/img/tu.png' %}" alt="">
-				</a>
-				<a class="col single-img" href="#">
-					<img class="img-fluid d-block mx-auto" src="{% static 'UserSide/img/tissot.png' %}" alt="">
-				</a>
-			</div>
-		</div>
-	</section>
-	<!-- End brand Area -->
 
-	<!-- Start related-product Area -->
-	<section class="related-product-area section_gap_bottom">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-lg-6 text-center">
-					<div class="section-title">
-						<h1>Deals of the Week</h1>
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-							magna aliqua.</p>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-9">
-					<div class="row">
-						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-							<div class="single-related-product d-flex">
-								<a href="#"><img src="{% static 'AdminSide/img/r1.jpg' %}" alt=""></a>
-								<div class="desc">
-									<a href="#" class="title">Black lace Heels</a>
-									<div class="price">
-										<h6>$189.00</h6>
-										<h6 class="l-through">$210.00</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-							<div class="single-related-product d-flex">
-								<a href="#"><img src="{% static 'AdminSide/img/r2.jpg' %}" alt=""></a>
-								<div class="desc">
-									<a href="#" class="title">Black lace Heels</a>
-									<div class="price">
-										<h6>$189.00</h6>
-										<h6 class="l-through">$210.00</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-							<div class="single-related-product d-flex">
-								<a href="#"><img src="{% static 'AdminSide/img/r3.jpg' %}" alt=""></a>
-								<div class="desc">
-									<a href="#" class="title">Black lace Heels</a>
-									<div class="price">
-										<h6>$189.00</h6>
-										<h6 class="l-through">$210.00</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-							<div class="single-related-product d-flex">
-								<a href="#"><img src="{% static 'AdminSide/img/r5.jpg' %}" alt=""></a>
-								<div class="desc">
-									<a href="#" class="title">Black lace Heels</a>
-									<div class="price">
-										<h6>$189.00</h6>
-										<h6 class="l-through">$210.00</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-							<div class="single-related-product d-flex">
-								<a href="#"><img src="{% static 'AdminSide/img/r6.jpg' %}" alt=""></a>
-								<div class="desc">
-									<a href="#" class="title">Black lace Heels</a>
-									<div class="price">
-										<h6>$189.00</h6>
-										<h6 class="l-through">$210.00</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-							<div class="single-related-product d-flex">
-								<a href="#"><img src="{% static 'AdminSide/img/r7.jpg' %}" alt=""></a>
-								<div class="desc">
-									<a href="#" class="title">Black lace Heels</a>
-									<div class="price">
-										<h6>$189.00</h6>
-										<h6 class="l-through">$210.00</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-6">
-							<div class="single-related-product d-flex">
-								<a href="#"><img src="{% static 'AdminSide/img/r9.jpg' %}" alt=""></a>
-								<div class="desc">
-									<a href="#" class="title">Black lace Heels</a>
-									<div class="price">
-										<h6>$189.00</h6>
-										<h6 class="l-through">$210.00</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-6">
-							<div class="single-related-product d-flex">
-								<a href="#"><img src="{% static 'AdminSide/img/r10.jpg' %}" alt=""></a>
-								<div class="desc">
-									<a href="#" class="title">Black lace Heels</a>
-									<div class="price">
-										<h6>$189.00</h6>
-										<h6 class="l-through">$210.00</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-6">
-							<div class="single-related-product d-flex">
-								<a href="#"><img src="{% static 'AdminSide/img/r11.jpg' %}" alt=""></a>
-								<div class="desc">
-									<a href="#" class="title">Black lace Heels</a>
-									<div class="price">
-										<h6>$189.00</h6>
-										<h6 class="l-through">$210.00</h6>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-3">
-					<div class="ctg-right">
-						<a href="#" target="_blank">
-							<img class="img-fluid d-block mx-auto" src="{% static 'AdminSide/img/category/c5.jpg' %}" alt="">
-						</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- End related-product Area -->
-
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<script>
-		document.addEventListener('DOMContentLoaded', (event) => {
-			{% if messages %}
-				const messages = [
-					{% for message in messages %}
-						{
-							level: "{{ message.tags }}",
-							text: "{{ message }}"
-						},
-					{% endfor %}
-				];
-				messages.forEach(message => {
-					Swal.fire({
-						toast: true,
-						position: 'top-right',
-						icon: message.level === 'success' ? 'success' : 'error',
-						title: message.text,
-						showConfirmButton: false,
-						timer: 3000
-					});
-				});
-			{% endif %}
-		});
-	</script>
-</body>
- {% endblock %}
-</html>

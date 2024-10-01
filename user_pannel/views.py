@@ -10,12 +10,13 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.template.loader import render_to_string
 from django.http import JsonResponse
-from cart.models import CartItem  
+from cart.models import CartItem  ,RecentlyViewed
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from UserAccounts.models import User
 from coupon .models import Coupon,UserCoupon
 import datetime
 from django.views.decorators.cache import never_cache
+from django.utils import timezone
 
 
 
@@ -219,12 +220,31 @@ def shop_view(request):
 @never_cache  
 @login_required
 def product_detail_user(request, id):
+    user=request.user
     try:
         product = Products.objects.get(id=id)
         variants = product.variants.filter(is_active=True).prefetch_related('images')
-        cart_items = CartItem.objects.filter(cart__user=request.user, product=product)
-
+        cart_items = CartItem.objects.filter(cart__user=user, product=product)
+        
         variant_data = []
+        recently_viewed, created = RecentlyViewed.objects.get_or_create(user=user, product=product)
+        if created:
+
+            viewed_products = RecentlyViewed.objects.filter(user=user).order_by('-timestamp')
+
+            if viewed_products.count() > 10:
+               viewed_products.last().delete()
+
+        else:
+            recently_viewed.timestamp = timezone.now()
+            recently_viewed.save()
+            
+        recently_viewed= RecentlyViewed.objects.filter(user=user).order_by('-timestamp')
+        
+        for product in recently_viewed:
+            p=product.product.product_name
+            print(p)
+        
         for variant in variants:
             variant_in_cart = any(cart_item.variant.id == variant.id for cart_item in cart_items)
             variant_data.append({
@@ -243,9 +263,12 @@ def product_detail_user(request, id):
 
     context = {
         'product': product,
-        'variants': variant_data
+        'variants': variant_data,
+        'recently_viewed':recently_viewed        
     }
     return render(request, 'UserSide/product_detailss.html', context)
+
+
 
 @login_required
 def checkout(request):

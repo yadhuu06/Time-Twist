@@ -60,14 +60,14 @@ def Register(request):
         otp = random.randint(100000, 999999)
         print(otp)        
         image_url = static('UserSide/img/mymail.jpeg')
-        subject = 'Greetings from GlowGear'
+        subject = 'Greetings from TimeTwist'
         from_email = 'yadhupaikkattu3232@gmail.com'
         to_email = [email]
         text_content = f'Your Registration OTP Code is {otp}'
         html_content = f'''
             <html>
                 <body>
-                    <h1>Welcome to GlowGear!</h1>
+                    <h1>Welcome to Time Twist!</h1>
                     <h5>The Right Time TO Purchase</h5>
                     <h4>Your Registration OTP Code is: <strong>{otp}</strong></h4>
                     <h4>Thank You For Choosing Us</h4>

@@ -15,20 +15,43 @@ from django.db import transaction
 import re
 from decimal import Decimal
 from django.views.decorators.cache import never_cache
+from django.core.paginator import Paginator
+from django.shortcuts import render
+from django.db.models import Q
+from django.db.models import Q
+from django.core.paginator import Paginator
+from django.shortcuts import render
+from .models import Products
 
-# from django.shortcuts import render, redirect, get_object_or_404
-# from django.contrib import messages
-# from django.utils import timezone
-# from django.core.exceptions import ValidationError
-# from .models import Category, Brand, Products
-# from utils.decorators import admin_required
-# import re
 
 
-admin_required
+
+
+@admin_required
 def products_list(request):
-    products=Products.objects.all().order_by('id')
-    return render(request,'AdminSide/product_list.html',{"products":products})
+    query = request.GET.get('q'," ")  # Get the search query from the request
+    products_list = Products.objects.all().order_by('id')
+    print(query)
+
+    # Search functionality
+    if query:
+        # Use Q objects to filter products where the name or brand starts with, ends with, or contains the query.
+        products_list = products_list.filter(
+            Q(product_name__icontains=query) |  # Contains anywhere
+            Q(product_name__startswith=query) |  # Starts with
+            Q(product_name__endswith=query) |  # Ends with
+            Q(product_brand__brand_name__icontains=query) |  # Brand contains
+            Q(product_brand__brand_name__startswith=query) |  # Brand starts with
+            Q(product_brand__brand_name__endswith=query)  # Brand ends with
+        )
+
+    # Pagination
+    paginator = Paginator(products_list, 6)  # Show 6 products per page
+    page_number = request.GET.get('page')
+    products = paginator.get_page(page_number)
+
+    return render(request, 'AdminSide/product_list.html', {"products": products, "query": query})
+
 
 def is_valid_product_name(name):
     if not name.strip():
@@ -37,10 +60,9 @@ def is_valid_product_name(name):
         return False
     return True
 
-@admin_required
-def products_list(request):
-    products = Products.objects.all().order_by('id')
-    return render(request, 'AdminSide/product_list.html', {"products": products})
+
+
+
 @never_cache
 @admin_required
 def add_products(request):
@@ -418,6 +440,8 @@ def product_detail(request, id):
     variants = ProductVariant.objects.filter(product=products.id)
     return render(request, 'AdminSide/product_details.html', {'products': products, 'images': images, 'variants': variants})
 
+
+@admin_required
 def list_productVarient(request, Products_id):
     product = get_object_or_404(Products, id=Products_id)
     variants = ProductVariant.objects.filter(product=product)

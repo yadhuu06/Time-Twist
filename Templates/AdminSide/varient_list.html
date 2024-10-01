@@ -1,86 +1,87 @@
 {% extends "AdminSide/base.html" %}
 {% load static %}
 {% block title %}Variant Page{% endblock %}
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet"> <!-- Default font -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
 
 {% block content %}
 <div class="content">
-<div class="container mt-5">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 class="text-center text-gold"> {{ product.product_name }}</h3>
-        <a class="btn btn-success" href="{% url 'products:add_productVarient' product.id %}">+ Add Variant</a>
-    </div>
-
- 
-
-    
-   
-<div class="col-lg-12 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title"></h4>
-        <p class="card-description"> available  <code>Variants are:</code>
-        </p>
-        <div class="table-responsive">
-          <table class="table table-hover">
-       
-              </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th>Variant Name</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Color</th>
-                    <th>Status?</th>
-                    <th>Images</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for variant in variants %}
-                <tr>
-                    <td class="high-visibility-cell">{{ variant.variant_name }}</td>
-                    <td class="high-visibility-cell">${{ variant.price }}</td>
-                    <td class="high-visibility-cell">{{ variant.variant_stock }}</td>
-                    <td>
-                        <div style="width: 30px; height: 30px; background-color: {{ variant.colour_code }}; border-radius: 50%;"></div>
-                    </td>
-                    <td>{{ variant.is_active|yesno:"Yes,No" }}</td>
-                    <td>
-                        {% for image in variant.images.all %}
-                        <img src="{{ image.image.url }}" alt="Variant Image" style="width: 50px; height: 50px;">
-                        {% empty %}
-                        <img src="{% static 'UserSide/img/No_Images_available.png' %}" alt="No Image" style="width: 50px; height: 50px;">
-                        {% endfor %}
-                    </td>
-                    <td>
-                        <a href="{% url 'products:edit_productVariant' variant.id %}" class="btn btn-warning btn-sm">Edit</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="8" class="text-center">No variants available for this product.</td>
-                </tr>
-                {% endfor %}
-  
-          </table>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-gold">{{ product.product_name }}</h3>
+            <a class="btn btn-success" href="{% url 'products:add_productVarient' product.id %}">+ Add Variant</a>
         </div>
-      </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Product Variants</h4>
+                <p class="card-description">Available <code>Variants are:</code></p>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Variant Name</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Color</th>
+                                <th>Status</th>
+                                <th>Images</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for variant in variants %}
+                            <tr>
+                                <td class="high-visibility-cell">{{ variant.variant_name }}</td>
+                                <td class="high-visibility-cell">${{ variant.price }}</td>
+                                <td class="high-visibility-cell">{{ variant.variant_stock }}</td>
+                                <td>
+                                    <div class="color-circle" style="background-color: {{ variant.colour_code }};"></div>
+                                </td>
+                                <td>{{ variant.is_active|yesno:"Active,Inactive" }}</td>
+                                <td class="text-center">
+                                    {% for image in variant.images.all %}
+                                    <img src="{{ image.image.url }}" alt="Variant Image" class="variant-image" data-bs-toggle="modal" data-bs-target="#imageModal" data-src="{{ image.image.url }}">
+                                    {% empty %}
+                                    <img src="{% static 'UserSide/img/No_Images_available.png' %}" alt="No Image" class="variant-image">
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'products:edit_productVariant' variant.id %}" class="btn btn-warning btn-sm">Edit</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">No variants available for this product.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 
+<!-- Bootstrap Modal for Images -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Variant Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" alt="Variant Image" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
 
-
-<script>
-    // Hide messages after 20 seconds (20000 milliseconds)
-    setTimeout(function() {
-        var messages = document.getElementById('messages');
-        if (messages) {
-            messages.style.display = 'none';
-        }
-    }, 3000);
-</script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
         {% if messages %}
@@ -88,7 +89,7 @@
                 {% for message in messages %}
                     {
                         level: "{{ message.tags }}",
-                        text: "{{ message }}"
+                        text: "{{ message }}",
                     },
                 {% endfor %}
             ];
@@ -103,12 +104,196 @@
                 });
             });
         {% endif %}
+
+        // Set up click event for images
+        document.querySelectorAll('.variant-image').forEach(image => {
+            image.addEventListener('click', function() {
+                const modalImage = document.getElementById('modalImage');
+                modalImage.src = this.dataset.src; // Get image URL from data attribute
+            });
+        });
     });
 </script>
-<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
-<style>
-body {
-    font-family: 'Alegreya';font-size: 22px;
-}
-</style>
+
+
+
+<style>/* General body styling */
+    body {
+        font-family: 'Roboto', sans-serif; /* Default font */
+        font-size: 16px;
+        background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+        color: #e0e0e0;
+    }
+    
+    /* Content area */
+    .content {
+        padding: 2rem 0;
+    }
+    
+    .container {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Title styling */
+    h3.text-gold {
+        color: #ffd700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Success button */
+    .btn-success {
+        background-color: #4CAF50;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .btn-success:hover {
+        background-color: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Card styling */
+    .card {
+        background-color: rgba(26, 26, 64, 0.8);
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    .card-title {
+        color: #ffd700;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .card-description {
+        color: #a0a0a0;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Table styling */
+    .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .table {
+        color: #e0e0e0;
+        margin-bottom: 0;
+        table-layout: fixed;
+        width: 100%;
+    }
+    
+    .table thead th {
+        background-color: #2c2c54;
+        color: #00ffff;
+        border-bottom: 2px solid #4a4a8a;
+        font-size: 1rem;
+        padding: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(74, 74, 138, 0.3);
+    }
+    
+    .table td {
+        padding: 12px;
+        vertical-align: middle;
+        text-align: center;
+    }
+    
+    .high-visibility-cell {
+        font-weight: bold;
+        color: #ffffff;
+    }
+    
+    /* Edit button */
+    .btn-warning {
+        background-color: #ffc107;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .btn-warning:hover {
+        background-color: #e0a800;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Color circle styling */
+    .color-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-block;
+        border: 2px solid #ffffff;
+    }
+    
+    /* Image styling */
+    .variant-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+        border: 2px solid #ffffff;
+        cursor: pointer; /* Indicate that the image is clickable */
+    }
+    
+    /* Bootstrap Modal Styling */
+    .modal-content {
+        background-color: rgba(26, 26, 64, 0.9);
+        color: #ffffff;
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid #4a4a8a;
+    }
+    
+    .modal-title {
+        color: #ffd700;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+    
+        h3.text-gold {
+            font-size: 2rem;
+        }
+    
+        .table {
+            font-size: 0.9rem;
+        }
+    
+        .btn-success, .btn-warning {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+        }
+    }
+    </style>
+
 {% endblock %}

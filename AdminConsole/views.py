@@ -20,7 +20,7 @@ from datetime import datetime, timedelta, date
 import json
 from django.db import models  # Import models
 from django.db.models import Count, Sum
-from django.db.models.functions import TruncDate  # Import TruncDate for date truncation
+from django.db.models.functions import TruncDate 
 from django.shortcuts import render
 from django.utils import timezone
 from datetime import timedelta
@@ -77,13 +77,12 @@ def admin_page(request):
         orders.filter(status='Delivered').count()
     ]
 
-# Get top 5 selling products
     top_products = OrderItem.objects.filter(order__created_at__gte=start_date) \
                                 .values('product_variant__product__product_name') \
                                 .annotate(total_quantity=Sum('quantity')) \
                                 .order_by('-total_quantity')[:5]
 
-# Get top 5 selling variants
+
     top_variants = OrderItem.objects.filter(order__created_at__gte=start_date) \
                                 .values('product_variant__variant_name') \
                                 .annotate(total_quantity=Sum('quantity')) \
@@ -156,10 +155,39 @@ def Block_user(request):
     user.save()
     return redirect('users_list')
 
+
+
+
 @user_passes_test(is_admin)
 def admin_order_list(request):
+    # Get filter option from GET request
+    status_filter = request.GET.get('status', 'all')  # Default to 'all'
+    
+    # Base queryset with sorting
     orders = Order.objects.all().order_by('-created_at')
-    return render(request, 'AdminSide/admin_order_list.html', {'orders': orders})
+    
+    # Filter by status if selected
+    if status_filter != 'all':
+        orders = orders.filter(status=status_filter)
+    
+    # Pagination setup
+    paginator = Paginator(orders, 8)  # Show 8 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'AdminSide/admin_order_list.html', {
+        'orders': page_obj,
+        'status_filter': status_filter
+    })
+
+
+
+
+
+
+
+
+
 
 @user_passes_test(lambda user: user.is_superuser)
 def change_order_status(request, order_id):

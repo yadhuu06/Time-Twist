@@ -2,94 +2,86 @@
 {% load static %}
 {% block content %}
 <div class="content">
-<!-- Include necessary libraries for PDF and Excel export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.26/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <!-- Include necessary libraries for PDF and Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.26/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title card-title fade-in">Sales Report</h2>
-            <p class="fade-in">Detailed information about your orders</p>
-        </div>
-        <div class="d-flex gap-2 fade-in">
-            <button id="download-pdf" class="btn btn-primary btn-custom">
-                <i class="text-muted material-icons md-post_add"></i>Download as PDF
-            </button>
-            <button id="download-excel" class="btn btn-primary btn-custom">
-                <i class="text-muted material-icons md-post_add"></i>Download as Excel
-            </button>
-        </div>
-    </div>
-
-    <!-- Date Filter Section -->
-    <div class="mb-4 fade-in">
-        <form method="get" action="{% url 'sales-report' %}" class="row g-2 align-items-center">
-            <div class="col-auto">
-                <label class="mb-0 font-weight-bold" for="start_date">Start Date:</label>
-            </div>
-            <div class="col-auto">
-                <input type="date" name="start_date" value="{{ start_date }}" class="form-control" placeholder="Start date">
-            </div>
-            <div class="col-auto">
-                <label class="mb-0 font-weight-bold" for="end_date">End Date:</label>
-            </div>
-            <div class="col-auto">
-                <input type="date" name="end_date" value="{{ end_date }}" class="form-control" placeholder="End date">
-            </div>
-            <div class="col-auto">
-                <select name="report_type" class="form-select">
+    <section class="content-main">
+        <!-- Header with filters and buttons -->
+        <div class="content-header">
+            <div class="d-flex gap-2 align-items-center">
+                <!-- Report Frequency Selector -->
+                <select id="report_frequency" name="report_frequency" class="form-select">
                     <option value="daily" {% if report_type == 'daily' %}selected{% endif %}>Daily</option>
                     <option value="monthly" {% if report_type == 'monthly' %}selected{% endif %}>Monthly</option>
                     <option value="yearly" {% if report_type == 'yearly' %}selected{% endif %}>Yearly</option>
                 </select>
-            </div>
-            <div class="col-auto">
-                <button type="submit" class="btn btn-primary btn-custom">Search</button>
-            </div>
-        </form>
-    </div>
 
-    <!-- Summary Section -->
-    <div class="mb-4 fade-in">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card bg-dark text-light border-light card-hover shadow-lg">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-primary font-weight-bold">Number of Orders</h5>
-                        <p class="card-text display-4 font-weight-bold">{{ page_obj.paginator.count }}</p>
-                    </div>
+                <!-- Date Filters -->
+                <div class="d-flex gap-2">
+                    <label for="start_date" class="sr-only">From</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}" required>
+
+                    <label for="end_date" class="sr-only">To</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}" required>
+
+                    <!-- Submit Button -->
+                    <button id="submit-btn" type="button" class="btn-icon" title="Generate Report">
+                        <i class="material-icons">search</i>
+                    </button>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-dark text-light border-light card-hover shadow-lg">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-success font-weight-bold">Total Order Amount</h5>
-                        <p class="card-text display-4 font-weight-bold">₹{{ total_order_amount }}</p>
-                    </div>
-                </div>
+
+            <!-- Download Buttons for PDF and Excel -->
+            <div class="d-flex gap-2">
+                <button id="download-pdf" class="btn-icon" title="Download PDF">
+                    <i class="material-icons">picture_as_pdf</i>
+                </button>
+
+                <button id="download-excel" class="btn-icon" title="Download Excel">
+                    <i class="material-icons">grid_on</i>
+                </button>
             </div>
-            
-            <div class="col-md-4">
-                <div class="card bg-dark text-light border-light card-hover shadow-lg">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-primary font-weight-bold">Total Discount</h5>
-                        <p class="card-text display-4 font-weight-bold">₹{{ total_discount }}</p>
-                    </div>
-                </div>
-            </div>
-            
         </div>
-    </div>
 
-    <!-- Orders Table Section -->
-    <div class="card mb-4 fade-in">
+        <!-- Summary Section -->
+        <div id="summary-section" class="mb-4 fade-in">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card summary-card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Number of Orders</h5>
+                            <p id="order-count" class="card-text display-4">{{ page_obj.paginator.count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card summary-card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Revenue</h5>
+                            <p id="total-amount" class="card-text display-4">₹{{ total_order_amount|floatformat:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card summary-card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Total Discount</h5>
+                            <p id="total-discount" class="card-text display-4">₹{{ total_discount|floatformat:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table Section -->
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover" id="sales-table">
                     <thead>
-                        <tr class="bg-dark text-primary">
+                        <tr>
                             <th>Date</th>
                             <th>Order ID</th>
                             <th>Customer</th>
@@ -104,13 +96,13 @@
                         {% for order in page_obj %}
                         <tr>
                             <td>{{ order.created_at|date:"Y-m-d" }}</td>
-                            <td>{{ order.id }}</td>
-                            <td>{{ order.user.first_name }}</td>
+                            <td>{{ order.order_id }}</td>
+                            <td>{{ order.user.first_name }} {{ order.user.last_name }}</td>
                             <td>₹{{ order.total_price|floatformat:0 }}</td>
                             <td>₹{{ order.final_price|floatformat:0 }}</td>
                             <td>₹{{ order.discount|floatformat:0 }}</td>
                             <td>
-                                {% if order.offer_price != 0.00 %}
+                                {% if order.offer_price != 0 %}
                                     ₹{{ order.offer_price|floatformat:0 }}
                                 {% else %}
                                     No coupon
@@ -127,66 +119,163 @@
                 </table>
             </div>
         </div>
-    </div>
 
-    <!-- Pagination -->
-    <div class="pagination-area mt-30 mb-50 fade-in">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                {% for page_num in page_obj.paginator.page_range %}
-                <li class="page-item {% if page_obj.number == page_num %}active{% endif %}">
-                    <a class="page-link" href="?page={{ page_num }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if report_type %}&report_type={{ report_type }}{% endif %}">{{ page_num }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </nav>
-    </div>
-</section> <!-- content-main end// -->
+        <!-- Pagination -->
+        <div id="pagination-area" class="pagination-area mt-30 mb-50 fade-in">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-start">
+                    {% for page_num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == page_num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ page_num }}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if report_type %}&report_type={{ report_type }}{% endif %}">{{ page_num }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+    </section>
+</div>
 
-<!-- Custom CSS for Styling -->
+<!-- CSS Section -->
 <style>
-    .body{
+    body {
         background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+        color: #e0e0e0;
     }
-    .fade-in {
-        animation: fadeIn 1s ease-in-out;
+    .content-main {
+        background: linear-gradient(135deg, rgba(0, 0, 139, 0.3), rgba(138, 43, 226, 0.3));
+        border-radius: 15px;
+        padding: 30px;
+        margin-top: 20px;
+        transition: transform 0.3s ease;
+    }
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .d-flex.gap-2 {
+        gap: 10px;
+    }
+    .form-control, .form-select {
+        width: auto;
+        min-width: 160px;
+        background-color: #2c2c54;
+        border: 1px solid #4a4a8a;
+        color: white;
+    }
+    .btn-icon {
+        background-color: #4a4a8a;
+        border: none;
+        padding: 10px;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-icon:hover {
+        background-color: #6a6aaa;
+    }
+    .btn-icon .material-icons {
+        font-size: 1.5rem;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
 
-    .card-hover:hover {
-        transform: scale(1.05);
-        transition: transform 0.3s ease-in-out;
-    }
+    /* Styles for Summary Section */
+#summary-section {
+    margin-bottom: 2rem;
+    animation: fadeIn 0.5s ease-in-out;
+}
 
-    .btn-custom {
-        position: relative;
-        overflow: hidden;
-        transition: background 0.3s ease-in-out;
-    }
+.summary-card {
+    background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);/* Dark background for cards */
+    border-radius: 10px;
+    border: none;
+    
+    transition: transform 0.3s ease;
+}
 
-    .btn-custom:hover {
-        background-color: #0069d9;
-        color: #fff;
-    }
+.summary-card:hover {
+    transform: translateY(-5px);
+}
 
-    .table-hover tbody tr:hover {
-        background-color: #f1f1f1;
-        cursor: pointer;
-    }
+.summary-card .card-body {
+    padding: 1.5rem;
+}
 
-    .pagination .page-item.active .page-link {
-        background-color: #0069d9;
-        border-color: #0069d9;
-    }
+.summary-card .card-title {
+    font-size: 1.25rem;
+    color: yellow;
+    margin-bottom: 0.5rem;
+}
 
-    .table thead th {
-        text-align: center;
-        font-weight: bold;
-    }
+.summary-card .card-text {
+    font-size: 2.5rem;
+    color: #f0f0f0; /* Light text for contrast */
+    font-weight: bold;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Styles for Orders Table Section */
+.table-responsive {
+    margin-top: 20px;
+    background-color: rgba(255, 255, 255, 0.05); /* Subtle background for table */
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+#sales-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    color: #e0e0e0; /* Light color text for table rows */
+}
+
+#sales-table thead th {
+    background-color: #4c4c6c; /* Dark background for table headers */
+    color: white;
+    font-size: 1rem;
+    text-align: left;
+    padding: 10px;
+}
+
+#sales-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Light separator lines */
+    transition: background-color 0.3s;
+}
+
+#sales-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Highlight effect */
+}
+
+#sales-table tbody td {
+    padding: 15px;
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+/* Style adjustments for table data */
+#sales-table tbody td:nth-child(4),
+#sales-table tbody td:nth-child(5),
+#sales-table tbody td:nth-child(6) {
+    font-weight: bold;
+    color: #ffcc00; /* Highlighting financial data in gold */
+}
+
+#sales-table tbody td:nth-child(7) {
+    color: #00ccff; /* Coupon section in a light blue */
+}
+
+#sales-table tbody td:nth-child(8) {
+    color: #00ff66; /* Payment method highlighted in green */
+}
+
 </style>
 
 <!-- PDF and Excel Export Scripts -->
@@ -195,71 +284,50 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const table = document.getElementById('sales-table');
-        
-        // Add title
+
+        // Add title and summary
         doc.setFontSize(16);
-        doc.setFont("helvetica", "bold");
         doc.text("Sales Report", 14, 20);
-        
-        // Add summary
         doc.setFontSize(12);
-        doc.setFont("helvetica", "normal");
         doc.text(`Number of Orders: {{ page_obj.paginator.count }}`, 14, 30);
-        doc.text(`Total Order Amount: ₹{{ total_order_amount }}`, 14, 36);
-        doc.text(`Total Discount: ₹{{ total_discount }}`, 14, 42);
-        
-        // Add the table
+        doc.text(`Total Order Amount: ₹{{ total_order_amount|floatformat:0 }}`, 14, 36);
+        doc.text(`Total Discount: ₹{{ total_discount|floatformat:0 }}`, 14, 42);
+
+        // Add table
         doc.autoTable({
             html: table,
             startY: 50,
-            styles: {
-                fontSize: 10,
-                halign: 'center',
-                valign: 'middle',
-                fillColor: [255, 255, 255],
-                textColor: [0, 0, 0],
-            },
-            headStyles: {
-                fillColor: [0, 0, 0],
-                textColor: [255, 255, 255],
-                fontStyle: 'bold',
-                fontSize: 10,
-            },
-            bodyStyles: {
-                fillColor: [255, 255, 255],
-                textColor: [0, 0, 0],
-                fontSize: 10,
-            },
-            alternateRowStyles: {
-                fillColor: [240, 240, 240],
-            },
-            margin: { top: 50 },
-            tableLineColor: [0, 0, 0],
-            tableLineWidth: 0.75
         });
-        
-        // Save the PDF
+
         doc.save('sales_report.pdf');
     });
 
     document.getElementById('download-excel').addEventListener('click', function () {
         const table = document.getElementById('sales-table');
         const ws = XLSX.utils.table_to_sheet(table);
-        
+
         // Add summary at the top
         XLSX.utils.sheet_add_aoa(ws, [
             ["Sales Report"],
             ["Number of Orders", "{{ page_obj.paginator.count }}"],
-            ["Total Order Amount", "₹{{ total_order_amount }}"],
-            ["Total Discount", "₹{{ total_discount }}"]
+            ["Total Order Amount", "₹{{ total_order_amount|floatformat:0 }}"],
+            ["Total Discount", "₹{{ total_discount|floatformat:0 }}"]
         ], { origin: 'A1' });
-        
-        // Create a new workbook and append the sheet
+
+        // Create workbook and save Excel
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
-
-        // Save the Excel file
         XLSX.writeFile(wb, "sales_report.xlsx");
     });
+
+    // Filter by date and report type
+    document.getElementById('submit-btn').addEventListener('click', function () {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        const reportType = document.getElementById('report_frequency').value;
+        const url = `?start_date=${startDate}&end_date=${endDate}&report_type=${reportType}`;
+        window.location.href = url;
+    });
 </script>
+
 {% endblock %}

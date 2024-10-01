@@ -3,191 +3,253 @@
 {% block title %}Products Page{% endblock %}
 
 {% block content %}
-
 <div class="content">
-<div style="display: flex; flex-direction: row; align-items: center; font-family: 'Montserrat', sans-serif;">
-    <a class="nav-link btn btn-custom-create" id="createbuttonDropdown" aria-expanded="false" href="{% url 'products:add_products' %}">+ Add New Products</a>
-    <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">Products</h3>
-</div>
+    <div style="display: flex; flex-direction: row; align-items: center; font-family: 'Montserrat', sans-serif;">
+        <a class="nav-link btn btn-custom-create" id="createbuttonDropdown" aria-expanded="false" href="{% url 'products:add_products' %}">
+            <i class="fas fa-plus"></i> Add New Product
+        </a>
+        <h3 style="margin-left: 250px; margin-right: auto; text-align: center; color: #d4af37;">Products</h3>
+        
+        <!-- Search Bar -->
+        <form method="get" action="{% url 'products:products_list' %}" class="form-inline my-2 my-lg-0">
+            <div class="input-group">
+                <input type="text" name="q" value="{{ query }}" class="form-control custom-search-input" placeholder="Search Products...">
+                <div class="input-group-append">
+                    <button class="btn btn-custom-search" type="submit"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
 
-<div class="col-lg-12 grid-margin stretch-card">
-    <div class="card custom-card">
-        <div class="card-body">
-            <h4 class="card-title" style="color: #d4af37;">Product List</h4>
-            <p class="card-description" style="color: #555;">Available <code>Products are:</code></p>
-            <div class="table-responsive">
-                <table class="table table-hover custom-table">
-                    <thead class="custom-table-header">
-                        <tr>
-                            <th style="color: yellow;">Product Name</th>
-                            <th>Product Price</th>
-                            <th>Brand</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                            <th>Variants</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for p in products %}
-                        <tr>
-                            <td class="high-visibility-cell">{{ p.product_name }}</td>
-                            <td class="high-visibility-cell">Rs: {{ p.price }}</td>
-                            <td class="high-visibility-cell">{{ p.product_brand.brand_name }}</td>
-                            <td>{{ p.is_active|yesno:"Active,Inactive" }}</td>
-                            <td>
-                                <a href="{% url 'products:edit_product' p.id %}" class="btn btn-dark btn-icon-text custom-edit-btn">Edit</a>
-                            </td>
-                            <td>
-                                <form method="get" action="{% url 'products:list_productVarient' p.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm custom-variant-btn">Variants</button>
-                                </form>
-                            </td>
-                            <td>
-                                <a href="{% url 'products:product_detail' p.id %}" class="btn btn-sm custom-detail-btn">Detail</a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center">No products available.</td>
-                        </tr>
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card custom-card">
+            <div class="card-body">
+                <h4 class="card-title" style="color: #d4af37;">Product List</h4>
+                <p class="card-description" style="color: #555;">Available <code>Products are:</code></p>
+                <div class="table-responsive">
+                    <table class="table table-hover custom-table">
+                        <thead class="custom-table-header">
+                            <tr>
+                                <th style="color: yellow;">Product Name</th>
+                                <th>Product Price</th>
+                                <th>Brand</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                                <th>Variants</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in products %}
+                            <tr>
+                                <td class="high-visibility-cell">{{ p.product_name }}</td>
+                                <td class="high-visibility-cell">Rs: {{ p.price }}</td>
+                                <td class="high-visibility-cell">{{ p.product_brand.brand_name }}</td>
+                                <td>
+                                    <span style="color: {% if p.is_active %}green{% else %}red{% endif %};">
+                                        {{ p.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                </td>
+                                
+                                <td>
+                                    <a href="{% url 'products:edit_product' p.id %}" class="btn custom-edit-btn">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                                <td>
+                                    <form method="get" action="{% url 'products:list_productVarient' p.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm custom-variant-btn">
+                                            <i class="fas fa-list"></i> Variants
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <a href="{% url 'products:product_detail' p.id %}" class="btn btn-sm custom-detail-btn">
+                                        <i class="fas fa-info-circle"></i> Detail
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">No products available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center custom-pagination">
+                        {% if products.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.previous_page_number }}&q={{ query }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% for num in products.paginator.page_range %}
+                        <li class="page-item {% if products.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}&q={{ query }}">{{ num }}</a>
+                        </li>
                         {% endfor %}
-                    </tbody>
-                </table>
+                        {% if products.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.next_page_number }}&q={{ query }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+
             </div>
         </div>
     </div>
-</div>
 
-<!-- SweetAlert Messages -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        {% if messages %}
-            const messages = [
-                {% for message in messages %}
-                    {
-                        level: "{{ message.tags }}",
-                        text: "{{ message }}",
-                    },
-                {% endfor %}
-            ];
-            messages.forEach(message => {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-right',
-                    icon: message.level === 'success' ? 'success' : 'error',
-                    title: message.text,
-                    showConfirmButton: false,
-                    timer: 3000
+    <!-- SweetAlert Messages -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            {% if messages %}
+                const messages = [
+                    {% for message in messages %}
+                        {
+                            level: "{{ message.tags }}",
+                            text: "{{ message }}",
+                        },
+                    {% endfor %}
+                ];
+                messages.forEach(message => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-right',
+                        icon: message.level === 'success' ? 'success' : 'error',
+                        title: message.text,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 });
-            });
-        {% endif %}
-    });
-</script>
+            {% endif %}
+        });
+    </script>
 
-<!-- Custom Styles -->
-<link href="https://fonts.googleapis.com/css?family=Alegreya" rel="stylesheet">
-<style>
-    body {
-        font-family: 'Alegreya', serif;
-        font-size: 22px;
-        background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
-    }
-    
-    .btn-custom-create {
-        background-color: #555;
-        color: white;
-        border: none;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
-    .btn-custom-create:hover {
-        background-color: #333;
-    }
+    <!-- Custom Styles -->
+    <link href="https://fonts.googleapis.com/css?family=Alegreya" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-    .custom-card {
-        border: 1px solid #d4af37;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        overflow: hidden;
-        background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
-        color: #ffffff;
-    
-    }
-
-    .custom-table {
-        border-collapse: collapse;
-        width: 100%;
-        margin: 20px 0;
-    }
-
-    .custom-table th, .custom-table td {
-        border-bottom: 1px solid #ddd;
-        padding: 12px;
-        text-align: center;
-    }
-
-    .custom-table-header {
-        background-color: #1a1a40;
-        color: yellow; 
-    }
-
-    .high-visibility-cell {
-        font-weight: bold;
-    }
-
-    .custom-edit-btn {
-        background-color: #555;
-        color: white;
-        border: none;
-    }
-    .custom-edit-btn:hover {
-        background-color: #333;
-    }
-
-    .custom-variant-btn {
-        background-color: #6c757d;
-        color: white;
-        border: none;
-    }
-    .custom-variant-btn:hover {
-        background-color: #495057;
-    }
-
-    .custom-detail-btn {
-        background-color: #ffcc00;
-        color: black;
-        border: none;
-    }
-    .custom-detail-btn:hover {
-        background-color: #e6b800;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: #f1f1f1;
-    }
-
-    .btn {
-        transition: all 0.3s ease;
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 768px) {
+    <style>
         body {
-            font-size: 18px;
+            font-family: 'Alegreya', serif;
+            font-size: 22px;
+            background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
         }
-        h4.card-title {
-            font-size: 20px;
+
+        .btn-custom-create {
+            background-color: #d4af37;
+            color: white;
+            border: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
         }
-        .custom-table th,
-        .custom-table td {
-            padding: 8px;
+        .btn-custom-create:hover {
+            background-color: #b38627;
         }
-        .btn {
-            font-size: 14px;
+
+        .custom-card {
+            border: 1px solid #d4af37;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+            color: #ffffff;
         }
-    }
-</style>
+
+        .custom-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .custom-table th, .custom-table td {
+            border-bottom: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .custom-table-header {
+            background-color: #1a1a40;
+            color: yellow;
+        }
+
+        .high-visibility-cell {
+            font-weight: bold;
+            color: white;
+        }
+
+        .custom-edit-btn, .custom-variant-btn, .custom-detail-btn {
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .custom-edit-btn i, .custom-variant-btn i, .custom-detail-btn i {
+            color: white;
+        }
+
+        .custom-edit-btn:hover i, .custom-variant-btn:hover i, .custom-detail-btn:hover i {
+            color: #000;
+        }
+
+        .custom-edit-btn:hover {
+            background-color: transparent;
+        }
+        .custom-variant-btn:hover {
+            background-color: transparent;
+        }
+        .custom-detail-btn:hover {
+            background-color: transparent;
+        }
+
+        .custom-search-input {
+            border: 2px solid #d4af37;
+            border-radius: 0;
+        }
+        .btn-custom-search {
+            background-color: #d4af37;
+            border: none;
+            color: white;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        
+        }
+
+        .custom-pagination .page-link {
+            color: #d4af37;
+            border: 1px solid #d4af37;
+        }
+
+        .custom-pagination .page-item.active .page-link {
+            background-color: #d4af37;
+            color: white;
+            border-color: #d4af37;
+        }
+
+        .custom-pagination .page-link:hover {
+            background-color: #b38627;
+            border-color: #b38627;
+            color: white;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            body { font-size: 18px; }
+            h4.card-title { font-size: 20px; }
+            .custom-table th, .custom-table td { padding: 8px; }
+            .btn { font-size: 14px; }
+        }
+    </style>
 {% endblock %}

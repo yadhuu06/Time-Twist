@@ -169,7 +169,7 @@
         height: 100%;
         object-fit: cover; /* Ensure the image maintains aspect ratio */
         transition: transform 0.3s ease-in-out;
-        z-index: 1;
+        
     }
     
     /* Hover Effect */
@@ -222,104 +222,8 @@
     .product-details-overlay {
         height: 130px; /* Remaining height for the details */
     }
-    </style>
 
-
-
-
-	
-	</div>
-	<section class="banner-area">
-		<div class="container">
-			<div class="row fullscreen align-items-center justify-content-start">
-				<div class="col-lg-12">
-					<div class="active-banner-slider owl-carousel">
-						<!-- single-slide -->
-						<div class="row single-slide align-items-center d-flex">
-							<div class="col-lg-5 col-md-6">
-								<div class="banner-content">
-									<h1 class="highlighted-title">G-SHOCK New <br>Collection!</h1>
-
-									<p style="
-    font-size: 1.5rem; 
-    font-weight: bold; 
-    text-align: center; 
-    animation: fade-in 2s ease-in-out forwards, color-change 3s ease-in-out infinite; 
-    opacity: 0; 
-    color: #000000; 
-    margin: 20px 0; 
-">
-    New Exiting  Models Are Just arrived!
-</p>
-<a href="{% url 'shop_view' %}" style="
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #ffffff;
-    background: linear-gradient(135deg, #ff7f0e, #ff4500); /* Orange gradient */
-    border: none;
-    border-radius: 8px;
-    padding: 12px 30px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease, opacity 0.4s ease; /* Added opacity transition */
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    display: inline-block;
-    text-decoration: none;
-    opacity: 0.8;"  /* Set initial opacity */
-    
-    onmouseover="this.style.background='linear-gradient(135deg, #ff4500, #ff7f0e)'; 
-                 this.style.transform='translateY(-3px)';
-                 this.style.boxShadow='0 8px 20px rgba(0, 0, 0, 0.3)';
-                 this.style.opacity='1';"  /* Fade in on hover */
-    
-    onmouseout="this.style.background='linear-gradient(135deg, #ff7f0e, #ff4500)';
-                this.style.transform='translateY(0)';
-                this.style.boxShadow='0 4px 10px rgba(0, 0, 0, 0.2)';
-                this.style.opacity='0.8';">  <!-- Fade back when not hovered -->
-    Explore Collection
-</a>
-
-
-
-								</div>
-							</div>
-							<div class="col-lg-7">
-								<div class="banner-img">
-									<img class="img-fluid" style="margin-top: 50px !important;" 
-     src="{% static 'AdminSide/assets/images/pngwing.com.png' %}" 
-     alt="HAI">
-
-								</div>
-							</div>
-						</div>
-						<div class="space"></div>
-						<!-- single-slide -->
-						<div class="row single-slide">
-							<div class="col-lg-5">
-								<div class="banner-content">
-									<h1 class="highlighted-title">G-SHOCK New <br>Collections Arrived!!!!</h1>
-
-									
-									<div class="add-bag d-flex align-items-center">
-										<a class="add-btn" href=""><span class="lnr lnr-cross"></span></a>
-										<span class="add-text text-uppercase">Add to Bag</span>
-									</div>
-								</div>
-							</div>
-							<div class="col-lg-7">
-								<div class="banner-img">
-									hello
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- End banner Area -->
-
-<style>/* Fade-in animation */
+    * Fade-in animation */
 @keyframes fade-in {
     0% {
         opacity: 0;
@@ -345,15 +249,20 @@
 }
 .container-fluid {
     margin-top: 20px;
-    background-color: #f5f5dc;;}
+
 .brand-logos-wrapper{
     margin-top: 20px;
-    background-color: #f5f5dc;;
+    
 }
+
+
+
+
 </style>
 	<!-- End category Area -->
 
-
+    <div class="bnd"style=    background-color: red;
+    height: 40vh;>
         <div class="container-fluid my-5">
 
             <div class="new_launchhh"><h2 >Our Brands</h2></div>
@@ -401,17 +310,17 @@
               <button id="next" class="btn btn-light"><i class="fas fa-chevron-right"></i></button>
             </div>
 
-
+        </div>
             <div class="new_launchhh">
                 <h2>New Launch</h2>
             </div>
 
             <style>.new_launchhh {
                 margin-top: 20px;
-                background-color: #f5f5dc;;  /* Set the background to white */
-                padding: 20px;
+                /* Set the background to white */
+               
                 text-align: center;
-                border-radius: 10px;
+                
             }
             
             .new_launchhh h2 {
@@ -437,11 +346,7 @@
    
 
 
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          
                 <style>
                     .gallery-container {
                         display: flex;
@@ -753,6 +658,249 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
           </div>
           <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+          <div class="new_lau">
+          <h2>We Offers</h2>
+          
+          <style>.new_lau {
+            margin-top: 20px;
+            background-color: #f5f5dc;;  /* Set the background to white */
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+        }
+        
+        .new_lau h2 {
+            font-family: 'Cinzel', serif;  /* Match your font preference */
+            font-size: 3.5rem;
+            background: linear-gradient(to right, #000000, #8B0000, #1a1a1a);  /* Gradient for the text */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;  /* Make the text transparent so the gradient is visible */
+            background-clip: text;
+            text-fill-color: transparent;
+            transition: background 3s ease-in-out;  /* Smooth gradient transition */
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);  /* Optional shadow to make text stand out */
+        }
+        
+        /* Optional hover effect */
+        .new_lau:hover h2 {
+            font-weight: bold;  /* Make text bold */
+            font-size: 3.7rem;  /* Slightly increase font size */
+            
+        }
+        </style>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                background-color: #f9f9f9;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
+            .features {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                padding: 40px 5%;
+                max-width: 100%;
+                margin: 0 auto;
+            }
+            .feature-container {
+                width: 23%;
+                margin-bottom: 30px;
+                text-align: center;
+                cursor: pointer;
+                background-color: #fff;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .feature-container:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            }
+            .feature-icon {
+                font-size: 40px;
+                margin-bottom: 15px;
+                color: #3498db;
+                transition: transform 0.3s ease;
+            }
+            .feature-container:hover .feature-icon {
+                transform: scale(1.15);
+            }
+            .feature-description {
+                font-size: 16px;
+                color: #333;
+                font-weight: bold;
+            }
+            #animation-area {
+                position: relative;
+                background-color: #f0f0f0;
+                padding: 30px 5%;
+                margin: 40px auto;
+                max-width: 100%;
+                text-align: center;
+            }
+            #truck-container {
+                display: none;
+                position: relative;
+                margin: 0 auto;
+                width: 100%;
+                height: 80px;
+                overflow: hidden;
+            }
+            #truck {
+                font-size: 50px;
+                color: #3498db;
+                position: absolute;
+                left: -60px;
+                transition: left 5s linear;
+            }
+            .feature-content {
+                margin-top: 20px;
+                padding: 15px;
+                background-color: #fff;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                color: #2c3e50;
+                display: none;
+                animation: fadeIn 1s ease-in-out forwards;
+            }
+            @keyframes fadeIn {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+            .animated-icon {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 40px;
+                color: #3498db;
+                opacity: 0;
+                transition: all 1s ease-in-out;
+            }
+            @media (max-width: 1024px) {
+                .feature-container {
+                    width: 48%;
+                }
+            }
+            @media (max-width: 768px) {
+                .feature-container {
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <section class="features">
+            <div class="feature-container" onclick="animateFeature('delivery')">
+                <i class="feature-icon fas fa-truck"></i>
+                <div class="feature-description">Free Delivery</div>
+            </div>
+            <div class="feature-container" onclick="animateFeature('returns')">
+                <i class="feature-icon fas fa-undo"></i>
+                <div class="feature-description">7 Day Returns</div>
+            </div>
+            <div class="feature-container" onclick="animateFeature('support')">
+                <i class="feature-icon fas fa-headset"></i>
+                <div class="feature-description">24/7 Customer Support</div>
+            </div>
+            <div class="feature-container" onclick="animateFeature('warranty')">
+                <i class="feature-icon fas fa-shield-alt"></i>
+                <div class="feature-description">1 Year Warranty</div>
+            </div>
+        </section>
+    
+        <div id="animation-area">
+            <div id="truck-container">
+                <i id="truck" class="fas fa-truck"></i>
+            </div>
+            <div id="feature-content" class="feature-content"></div>
+            <i id="animated-icon" class="animated-icon"></i>
+        </div>
+    
+        <script>
+            function animateFeature(feature) {
+                const truckContainer = document.getElementById('truck-container');
+                const featureContent = document.getElementById('feature-content');
+                const animatedIcon = document.getElementById('animated-icon');
+    
+                // Reset animations
+                truckContainer.style.display = 'none';
+                featureContent.style.display = 'none';
+                animatedIcon.style.opacity = '0';
+                animatedIcon.style.transform = 'translate(-50%, -50%)';
+    
+                switch(feature) {
+                    case 'delivery':
+                        animateDelivery();
+                        break;
+                    case 'returns':
+                        animateIcon('fa-undo', "7 Days Return Policy!");
+                        break;
+                    case 'support':
+                        animateIcon('fa-headset', "24/7 Customer Support!");
+                        break;
+                    case 'warranty':
+                        animateIcon('fa-shield-alt', "1 Year Warranty on all Products!");
+                        break;
+                }
+            }
+    
+            function animateDelivery() {
+                const truck = document.getElementById('truck');
+                const truckContainer = document.getElementById('truck-container');
+                const featureContent = document.getElementById('feature-content');
+    
+                truckContainer.style.display = 'block';
+                truck.style.left = '-60px';
+    
+                setTimeout(() => {
+                    truck.style.left = '100%';
+                }, 50);
+    
+                setTimeout(() => {
+                    truckContainer.style.display = 'none';
+                    featureContent.textContent = "Free Delivery on All Orders Under 10K!";
+                    featureContent.style.display = 'block';
+                }, 5000);
+            }
+    
+            function animateIcon(iconClass, content) {
+                const animatedIcon = document.getElementById('animated-icon');
+                const featureContent = document.getElementById('feature-content');
+    
+                animatedIcon.className = `animated-icon fas ${iconClass}`;
+                animatedIcon.style.opacity = '1';
+    
+                setTimeout(() => {
+                    animatedIcon.style.opacity = '0';
+                    featureContent.textContent = content;
+                    featureContent.style.display = 'block';
+                }, 2000);
+            }
+        </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     {% if messages %}
@@ -1323,3 +1471,8 @@ body {
 </body>
 {%endblock content%}
 </html>
+
+
+
+
+

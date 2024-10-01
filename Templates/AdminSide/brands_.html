@@ -1,4 +1,5 @@
 {% extends "AdminSide/base.html" %}
+{% load static %}
 
 {% block title %}Brands Page{% endblock %}
 
@@ -19,6 +20,7 @@
                                 <tr>
                                     <th scope="col">Brand Name</th>
                                     <th scope="col">Brand Description</th>
+                                   <!-- New Column for Brand Image -->
                                     <th scope="col">Active?</th>
                                     <th scope="col">Action</th>
                                 </tr>
@@ -28,6 +30,7 @@
                                 <tr>
                                     <td>{{ brand.brand_name }}</td>
                                     <td>{{ brand.description }}</td>
+                                    
                                     <td>{{ brand.status }}</td>
                                     <td>
                                         <a href="{% url 'brand:edit_brand' brand.id %}" class="btn btn-primary btn-sm">Edit</a>
@@ -35,7 +38,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="4" class="text-center">No brands available.</td>
+                                    <td colspan="5" class="text-center">No brands available.</td>  <!-- Adjust colspan to 5 for new image column -->
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -65,7 +68,7 @@
                 {% for message in messages %}
                     {
                         level: "{{ message.tags }}",
-                        text: "{{ message }}"
+                        text: "{{ message }}",
                     },
                 {% endfor %}
             ];
@@ -76,7 +79,7 @@
                     icon: message.level === 'success' ? 'success' : 'error',
                     title: message.text,
                     showConfirmButton: false,
-                    timer: 3000
+                    timer: 3000,
                 });
             });
         {% endif %}

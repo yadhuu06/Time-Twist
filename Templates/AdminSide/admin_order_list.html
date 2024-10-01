@@ -3,74 +3,348 @@
 
 {% block content %}
 <div class="content">
-<div class="row mb-3">
-    <div class="col">
-        <a href="{% url 'return_list' %}" class="btn btn-outline-primary custom-hover-button">
-            <i class="fas fa-undo-alt"></i> View Return Requests
-        </a>
+    <div class="row mb-3">
+        <div class="col">
+            <a href="{% url 'return_list' %}" class="btn btn-outline-primary custom-hover-button">
+                <i class="fas fa-undo-alt"></i> View Return Requests
+            </a>
+        </div>
+        <div class="col text-end">
+            <!-- Sort By Dropdown -->
+            <div class="dropdown d-inline">
+      
+            <!-- Status Filter Dropdown -->
+            <div class="dropdown d-inline ml-2">
+                <button class="btn btn-outline-info dropdown-toggle" type="button" id="statusFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Filter by Status
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="statusFilterDropdown">
+                    <li><a class="dropdown-item status-option" href="#" data-status="">All Orders</a></li>
+                    <li><a class="dropdown-item status-option" href="#" data-status="Pending">Pending</a></li>
+                    <li><a class="dropdown-item status-option" href="#" data-status="Shipped">Shipped</a></li>
+                    <li><a class="dropdown-item status-option" href="#" data-status="Delivered">Delivered</a></li>
+                    <li><a class="dropdown-item status-option" href="#" data-status="Cancelled">Cancelled</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-12 grid-margin">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title"><strong>Order Management</strong></h4>
-                <div class="table-responsive">
-                    <table class="table table-hover custom-table">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <div class="form-check form-check-muted m-0">
-                                        <label class="form-check-label">
-                                            <input type="checkbox" class="form-check-input">
-                                        </label>
-                                    </div>
-                                </th>
-                                <th> Order No </th>
-                                <th> Product Cost </th>
-                                <th> Payment Mode </th>
-                                <th> Payment Status </th>
-                                <th> Actions </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for order in orders %}
-                            <tr>
-                                <td>
-                                    <div class="form-check form-check-muted m-0">
-                                        <label class="form-check-label">
-                                            <input type="checkbox" class="form-check-input">
-                                        </label>
-                                    </div>
-                                </td>
-                                <td> {{ order.order_id }} </td>
-                                <td> Rs. {{ order.total_price }} </td>
-                                <td> {{ order.payment.get_method_display }} </td>
-                                <td>
-                                    <div class="badge badge-pill {% if order.status == 'Delivered' %}badge-success
-                                        {% elif order.status == 'Shipped' %}badge-primary
-                                        {% elif order.status == 'Returned' %}badge-danger
-                                        {% elif order.status == 'Rejected' %}badge-warning
-                                        {% elif order.status == 'Cancelled' %}badge-danger
-                                        {% elif order.status == 'Processing' %}badge-warning
-                                        {% else %}badge-info{% endif %}">
-                                        {{ order.status }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <a href="{% url 'order_management:order_details-admin' order.order_id %}" class="btn btn-outline-info btn-fw">Details</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    <div class="row">
+        <div class="col-12 grid-margin">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title"><strong>Order Management</strong></h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover custom-table" id="orderTable">
+                            <thead>
+                                <tr>
+                                    <th>Order No</th>
+                                    <th>Product Cost</th>
+                                    <th>Payment Mode</th>
+                                    <th>Order Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderTableBody">
+                                {% for order in orders %}
+                                <tr class="order-row" data-status="{{ order.status }}" data-created_at="{{ order.created_at }}" data-total_price="{{ order.total_price }}">
+                                    <td>{{ order.order_id }}</td>
+                                    <td>Rs. {{ order.total_price }}</td>
+                                    <td style=color:green;>{{ order.payment.get_method_display }}</td>
+                                    <td>
+                                        <div class="badge" style="border-radius: 12px; padding: 1px 5px; 
+                                        {% if order.status == 'Delivered' %}color: #28a745; 
+                                        {% elif order.status == 'Shipped' %}color: #007bff; 
+                                        {% elif order.status == 'Returned' or order.status == 'Cancelled' %}color: #dc3545;
+                                        {% elif order.status == 'Rejected' or order.status == 'Pending' %}color: #ffc107;
+                                        {% else %}color: #17a2b8;{% endif %}">
+                                            {{ order.status }}
+                                        </div>
+                                    </td>
+                                    
+                                    <td>
+                                        <a href="{% url 'order_management:order_details-admin' order.order_id %}" class="btn btn-outline-info btn-fw">Details</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Section -->
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center" id="paginationControls">
+                            <!-- Pagination will be generated by JavaScript -->
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Include Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Include SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const rowsPerPage = 8;
+            let currentPage = 1;
+            let currentStatusFilter = '';
+            let currentSortOption = '-created_at'; // Default sort
+
+            const orderRows = Array.from(document.querySelectorAll('.order-row'));
+            const paginationControls = document.getElementById('paginationControls');
+
+            // Function to apply filters and sorting
+            function applyFilters() {
+                let filteredRows = orderRows;
+
+                // Filter by status
+                if (currentStatusFilter !== '') {
+                    filteredRows = filteredRows.filter(row => row.getAttribute('data-status') === currentStatusFilter);
+                }
+
+                // Sort rows
+                filteredRows.sort((a, b) => {
+                    const aValue = a.getAttribute(`data-${currentSortOption.replace('-', '')}`);
+                    const bValue = b.getAttribute(`data-${currentSortOption.replace('-', '')}`);
+
+                    if (currentSortOption.startsWith('-')) {
+                        return aValue < bValue ? 1 : -1;
+                    } else {
+                        return aValue > bValue ? 1 : -1;
+                    }
+                });
+
+                // Pagination
+                const totalRows = filteredRows.length;
+                const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+                // Hide all rows
+                orderRows.forEach(row => row.style.display = 'none');
+
+                // Show rows for current page
+                const startIndex = (currentPage - 1) * rowsPerPage;
+                const endIndex = startIndex + rowsPerPage;
+                const rowsToShow = filteredRows.slice(startIndex, endIndex);
+                rowsToShow.forEach(row => row.style.display = '');
+
+                // Update pagination controls
+                updatePaginationControls(totalPages);
+            }
+
+            // Function to update pagination controls
+            function updatePaginationControls(totalPages) {
+                paginationControls.innerHTML = '';
+
+                if (totalPages <= 1) return;
+
+                if (currentPage > 1) {
+                    paginationControls.innerHTML += `
+                        <li class="page-item"><a class="page-link" href="#" data-page="1">First</a></li>
+                        <li class="page-item"><a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a></li>
+                    `;
+                }
+
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationControls.innerHTML += `
+                        <li class="page-item ${currentPage === i ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>
+                    `;
+                }
+
+                if (currentPage < totalPages) {
+                    paginationControls.innerHTML += `
+                        <li class="page-item"><a class="page-link" href="#" data-page="${currentPage + 1}">Next</a></li>
+                        <li class="page-item"><a class="page-link" href="#" data-page="${totalPages}">Last</a></li>
+                    `;
+                }
+
+                // Add event listeners to pagination links
+                document.querySelectorAll('#paginationControls .page-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        currentPage = parseInt(e.target.getAttribute('data-page'));
+                        applyFilters();
+                    });
+                });
+            }
+
+            // Event listeners for status filter
+            document.querySelectorAll('.status-option').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentStatusFilter = e.target.getAttribute('data-status');
+                    currentPage = 1;
+                    applyFilters();
+
+                    // Update button text
+                    document.getElementById('statusFilterDropdown').textContent = e.target.textContent;
+                });
+            });
+
+            // Event listeners for sort options
+            document.querySelectorAll('.sort-option').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentSortOption = e.target.getAttribute('data-sort');
+                    currentPage = 1;
+                    applyFilters();
+
+                    // Update button text
+                    document.getElementById('sortByDropdown').textContent = e.target.textContent;
+                });
+            });
+
+            // Initialize the table with default filters and sorting
+            applyFilters();
+
+            {% if messages %}
+                const messages = [
+                    {% for message in messages %}
+                        {
+                            level: "{{ message.tags }}",
+                            text: "{{ message }}"
+                        },
+                    {% endfor %}
+                ];
+                messages.forEach(message => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-right',
+                        icon: message.level === 'success' ? 'success' : 'error',
+                        title: message.text,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                });
+            {% endif %}
+        });
+    </script>
+
+    <style>
+        body {
+            font-family: 'Alegreya', sans-serif;
+            font-size: 22px;
+            background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+        }
+
+        .card-body {
+            background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
+            color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h4.card-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .table.custom-table {
+            width: 100%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #2c2c54;
+            color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table.custom-table thead th {
+            background-color: #1a1a40;
+            color: #d4af37;
+            font-weight: bold;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #d4af37;
+        }
+
+        .table.custom-table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        .table.custom-table tbody tr:hover {
+            background-color: #3a3a6f;
+        }
+
+        .table.custom-table td {
+            padding: 12px;
+            border-bottom: 1px solid #d4af37;
+            text-align: left;
+        }
+
+        .btn {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .btn-outline-warning, .btn-outline-info {
+            color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .btn-outline-warning:hover, .btn-outline-info:hover {
+            background-color: #ffca2b;
+            color: white;
+        }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #d4af37;
+            border-color: #d4af37;
+            color: white;
+        }
+
+        .pagination .page-link {
+            color: #d4af37;
+            background-color: #1a1a40;
+            border-color: #d4af37;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #d4af37;
+            color: white;
+        }
+
+        .dropdown-menu {
+            background-color: #1a1a40;
+        }
+
+        .dropdown-item {
+            color: #d4af37;
+        }
+
+        .dropdown-item:hover, .dropdown-item.active {
+            background-color: #d4af37;
+            color: #1a1a40;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                font-size: 16px;
+            }
+            h4.card-title {
+                font-size: 20px;
+            }
+            .table.custom-table th,
+            .table.custom-table td {
+                padding: 8px;  
+            }
+            .btn {
+                font-size: 14px;
+            }
+        }
+    </style>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
@@ -97,91 +371,4 @@
     });
 </script>
 
-<!-- Custom CSS -->
-<style>
-body {
-    font-family: 'Alegreya';font-size: 22px;
-    background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
-}
-
-.card-body {
-    background: linear-gradient(135deg, #0d0d25 0%, #1a1a40 50%, #2c2c54 100%);
-    color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-h4.card-title {
-    font-size: 24px;
-    font-weight: bold;
-    color: #d4af37;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.table.custom-table {
-    width: 100%;
-    margin: 0 auto;
-    border-collapse: collapse;
-    background-color: #2c2c54;
-    color: white;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.table.custom-table thead th {
-    background-color: #1a1a40;
-    color: #d4af37;
-    font-weight: bold;
-    padding: 12px;
-    text-align: left;
-    border-bottom: 2px solid #d4af37;
-}
-
-.table.custom-table tbody tr {
-    transition: background-color 0.3s ease;
-}
-
-.table.custom-table tbody tr:hover {
-    background-color: #3a3a6f;
-}
-
-.table.custom-table td {
-    padding: 12px;
-    border-bottom: 1px solid #d4af37;
-    text-align: left;
-}
-
-.btn {
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.btn-outline-info {
-    color: #4caf50;
-    border-color: #4caf50;
-}
-
-.btn-outline-info:hover {
-    background-color: #43a047;
-    color: white;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-    body {
-        font-size: 16px;
-    }
-    h4.card-title {
-        font-size: 20px;
-    }
-    .table.custom-table th,
-    .table.custom-table td {
-        padding: 8px;
-    }
-    .btn {
-        font-size: 14px;
-    }
-}
-</style>
-</div>
 {% endblock %}

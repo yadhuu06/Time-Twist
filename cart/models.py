@@ -55,3 +55,17 @@ class WalletTransaction(models.Model):
 
     def __str__(self):
         return f"Transaction of {self.amount} on {self.timestamp}"
+    
+ # Replace with your actual Product model
+
+class RecentlyViewed(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Products, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')  # Ensures a user can only have one entry per product
+        ordering = ['-timestamp']  # Orders by most recently viewed products
+
+    def __str__(self):
+        return f"{self.user.first_name} viewed {self.product.name}"

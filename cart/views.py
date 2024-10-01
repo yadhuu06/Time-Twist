@@ -39,15 +39,21 @@ def cart_view(request):
 
 
 @login_required
-def add_cart(request, id):
-    product = get_object_or_404(Products, id=id)
+def add_cart(request,product_id):
+
+    product = get_object_or_404(Products, id=product_id)
+  
     variant_id = request.GET.get('variant_id')
+    print(product)
+    
+   
     
     if not variant_id:
         messages.error(request, 'Select the variant first.')
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
     variant = get_object_or_404(ProductVariant, id=variant_id)
+   
     cart, created = Cart.objects.get_or_create(user=request.user)
 
     cart_item, created = CartItem.objects.get_or_create(

@@ -3,61 +3,201 @@
 
 {% block content %}
 <div class="col-12 grid-margin stretch-card">
-    <div class="card">
+    <div class="card" style="background-color: transparent;">
       <div class="card-body">
-        <h4 class="card-title">Create New Brand</h4>
-        <p class="card-description">Enter The Details</p>
-        <form class="forms-sample" method="post" action="{% url 'brand:add_brand' %}">{% csrf_token %}
-          <div class="form-group">
-            <label for="exampleInputName1">Brand Name</label>
-            <input type="text" class="form-control" id="exampleInputName1" placeholder="Brand Name" name="brand_name" style="color: #c89616;"required>
-          </div>
-          <div class="form-group">
-            <label for="exampleInputEmail3">Description</label>
-            <input type="text" class="form-control" id="exampleInputEmail3" placeholder="Description" name="description" style="color: #c89616;"required>
-          </div>
-                
-          <div class="form-group">
-            <label for="exampleBrandImage">Brand Image</label>
-            <input type="file" class="form-control-file" id="exampleBrandImage" name="brand_image">
-          </div>
+        <h4 class="card-title" style="color: yellow;">Create New Brand</h4>
+        <p class="card-description" style="color: yellow;">Enter The Details</p>
+        <form class="forms-sample" method="post" action="{% url 'brand:add_brand' %}" enctype="multipart/form-data">{% csrf_token %}
           
+          <!-- Brand Name -->
           <div class="form-group">
-            <label for="exampleSelectGender">Status</label>
-            <select class="form-control" id="exampleSelectGender" name="status" style="color: #c89616;">
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
+            <label for="brandName" style="color: yellow;">Brand Name</label>
+            <input type="text" class="form-control" id="brandName" placeholder="Brand Name" name="brand_name" required style="background-color: rgba(128, 0, 128, 0.2); color: white;">
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label for="brandDescription" style="color: yellow;">Description</label>
+            <input type="text" class="form-control" id="brandDescription" placeholder="Description" name="description" required style="background-color: rgba(128, 0, 128, 0.2); color: white;">
+          </div>
+
+          <!-- Brand Image -->
+          <div class="form-group">
+            <label for="brandImage" style="color: yellow;">Brand Image</label>
+            <div class="custom-file-upload" onclick="document.getElementById('brandImage').click();">
+                <i class="fa fa-upload"></i> 
+                <span>Choose File</span>
+                <input type="file" class="form-control-file" id="brandImage" name="brand_image" onchange="handleImageSelect(this);" accept="image/*" style="display:none;">
+            </div>
+            <div id="imagePreviewContainer" style="margin-top: 10px; display: none;">
+                <img id="imagePreview" src="" alt="Image Preview" style="max-width: 100%; max-height: 300px;" />
+            </div>
+            <div id="cropperContainer" style="margin-top: 10px; display: none;">
+                <button type="button" id="cropButton" class="btn btn-primary" style="background-color: yellow; color: violet;">Crop Image</button>
+            </div>
+            <input type="hidden" id="croppedImageData" name="cropped_image_data">
+          </div>
+
+          <!-- Status Dropdown -->
+          <div class="form-group">
+            <label for="status" style="color: yellow;">Status</label>
+            <select class="form-control" id="status" name="status" onchange="setDropdownColor(this)" style="background-color: rgba(128, 0, 128, 0.2); color: white;">
+              <option value="true" style="color: green;">Active</option>
+              <option value="false" style="color: red;">Inactive</option>
             </select>
           </div>
-          
-          <button type="submit" class="btn btn-primary mr-2">Submit</button>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary mr-2" style="background-color: yellow; color: violet;">Submit</button>
         </form>
       </div>
     </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.css">
+
 <script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        {% if messages %}
-            const messages = [
-                {% for message in messages %}
-                    {
-                        level: "{{ message.tags }}",
-                        text: "{{ message }}"
-                    },
-                {% endfor %}
-            ];
-            messages.forEach(message => {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-right',
-                    icon: message.level === 'success' ? 'success' : 'error',
-                    title: message.text,
-                    showConfirmButton: false,
-                    timer: 5000
+    let cropper;
+
+    // Handle image file selection
+    function handleImageSelect(input) {
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const previewImage = document.getElementById('imagePreview');
+        const cropperContainer = document.getElementById('cropperContainer');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+                cropperContainer.style.display = 'block';
+                
+                // Destroy existing cropper instance if it exists
+                if (cropper) {
+                    cropper.destroy();
+                }
+                
+                // Initialize Cropper.js
+                cropper = new Cropper(previewImage, {
+                    aspectRatio: 1,  // Square crop
+                    viewMode: 1,
                 });
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            previewContainer.style.display = 'none';
+            cropperContainer.style.display = 'none';
+        }
+    }
+
+    // Handle cropping and get cropped image data
+    document.getElementById('cropButton').addEventListener('click', function() {
+        if (cropper) {
+            const croppedCanvas = cropper.getCroppedCanvas();
+            if (croppedCanvas) {
+                // Convert canvas to base64 string
+                const croppedImageData = croppedCanvas.toDataURL('image/jpeg');
+                // Set the cropped image data to the hidden input
+                document.getElementById('croppedImageData').value = croppedImageData;
+                // Update preview with cropped image
+                document.getElementById('imagePreview').src = croppedImageData;
+            }
+        }
+    });
+
+    // Change dropdown color based on selection
+    function setDropdownColor(dropdown) {
+        if (dropdown.value === 'true') {
+            dropdown.style.color = 'green';
+        } else if (dropdown.value === 'false') {
+            dropdown.style.color = 'red';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize dropdown color
+        const statusDropdown = document.getElementById('status');
+        setDropdownColor(statusDropdown);
+
+        {% if messages %}
+        const messages = [
+            {% for message in messages %}
+                {
+                    level: "{{ message.tags }}",
+                    text: "{{ message }}"
+                },
+            {% endfor %}
+        ];
+        messages.forEach(message => {
+            Swal.fire({
+                toast: true,
+                position: 'top-right',
+                icon: message.level === 'success' ? 'success' : 'error',
+                title: message.text,
+                showConfirmButton: false,
+                timer: 5000
             });
+        });
         {% endif %}
     });
 </script>
+
+<style>
+    body {
+        background-color: rgb(25, 25, 63); /* Dark blue background */
+    }
+
+    .card {
+        width: 66.67%; /* 8/12 of the parent container */
+        margin: 0 auto; /* Centers the card horizontally */
+        padding: 20px;
+        background-color: white; /* Card background color */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for effect */
+        border-radius: 10px; /* Rounded corners for the card */
+    }
+
+    .form-control {
+        background-color: rgba(128, 0, 128, 0.2); /* Transparent violet input background */
+        color: white; /* White text */
+        border: 1px solid yellow; /* Yellow border for inputs */
+    }
+
+    .form-control:focus {
+        border-color: yellow; /* Yellow border on focus */
+        box-shadow: 0 0 5px rgba(255, 255, 0, 0.5); /* Yellow glow on focus */
+    }
+
+    .btn-primary {
+        background-color: yellow; /* Yellow button */
+        color: violet; /* Violet text */
+    }
+
+    .custom-file-upload {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        background-color: rgba(128, 0, 128, 0.2);
+        color: yellow;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid yellow;
+        width: 100%;
+        text-align: center;
+    }
+
+    .custom-file-upload input[type="file"] {
+        display: none;
+    }
+
+    .custom-file-upload i.fa-upload {
+        margin-right: 8px;
+        font-size: 16px;
+    }
+
+    .custom-file-upload:hover {
+        background-color: rgba(128, 0, 128, 0.4);
+    }
+</style>
 {% endblock %}

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TimeTwist Sidebar</title>
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
  
     <style>body {
@@ -42,7 +43,8 @@
     }
     
     .content {
-        margin-left: 250px; /* Match the sidebar width */
+        margin-left: 250px;
+        margin-top: -80px; /* Match the sidebar width */
         padding: 20px;
         transition: margin-left 0.5s;
         min-height: 100vh; /* Ensure content takes up full height */
@@ -121,7 +123,7 @@
             <span>Admin Panel</span>
         </div>
         <a href="{% url 'admin_page' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="{% url 'users_list' %}"><i class="fas fa-users"></i> User Profile</a>
+        <a href="{% url 'users_list' %}"><i class="fas fa-users"></i> Customers</a>
         <a href="{% url 'products:products_list' %}"><i class="fas fa-box"></i> Products</a>
         <a href="{% url 'coupon_list' %}"><i class="fas fa-ticket-alt"></i> Coupons</a>
         <a href="{% url 'brand:Brands' %}"><i class="fas fa-trademark"></i> Brands</a>

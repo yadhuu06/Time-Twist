@@ -2,43 +2,53 @@
 {% block title %}Edit Brand{% endblock %}
 
 {% block content %}
-
 <div class="content">
-<div class="col-12 grid-margin stretch-card">
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title">Edit the Brand</h4>
-            <form class="forms-sample" method="post" action="{% url 'brand:edit_brand' brand.id %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="hidden" name="brand_id" value="{{ brand.id }}">
-                <div class="form-group">
-                    <label for="brandName">Brand Name</label>
-                    <input type="text" class="form-control" id="brandName" name="brand_name" value="{{ brand.brand_name }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="brandDescription">Description</label>
-                    <input type="text" class="form-control" id="brandDescription" name="description" value="{{ brand.description }}">
-                </div>
-                <div class="form-group">
-                    <label for="brandImage">Brand Image</label>
-                    <input type="file" class="form-control-file" id="brandImage" name="brand_image">
-                    {% if brand.image %}
-                        <small class="form-text text-muted">Current Image: <img src="{{ brand.image.url }}" alt="{{ brand.brand_name }}" class="img-thumbnail" style="max-width: 150px;"></small>
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    <label for="brandStatus">Status</label>
-                    <select class="form-control" id="brandStatus" name="status">
-                        <option value="True" {% if brand.status %}selected{% endif %}>Active</option>
-                        <option value="False" {% if not brand.status %}selected{% endif %}>Inactive</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary mr-2">Save Changes</button>
-                {% comment %} <a href="{% url 'brand:Brands ' %}" class="btn btn-secondary">Cancel</a> {% endcomment %}
-            </form>
+    <h4 class="card-title" style="color: yellow;">Edit The Brand</h4>
+    <div class="col-12 grid-margin stretch-card">
+        <div class="card" style="background-color: transparent;">
+            <div class="card-body">
+               
+                <form class="forms-sample" method="post" action="{% url 'brand:edit_brand' brand.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="brand_id" value="{{ brand.id }}">
+                    
+                    <div class="form-group">
+                        <label for="brandName" style="color: yellow;">Brand Name</label>
+                        <input type="text" class="form-control" id="brandName" name="brand_name" value="{{ brand.brand_name }}" required style="background-color: rgba(128, 0, 128, 0.2); color: white;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="brandDescription" style="color: yellow;">Description</label>
+                        <input type="text" class="form-control" id="brandDescription" name="description" value="{{ brand.description }}" style="background-color: rgba(128, 0, 128, 0.2); color: white;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="brandImage" style="color: yellow;">Brand Image</label>
+                        <div class="custom-file-upload">
+                            <input type="file" id="brandImage" name="brand_image">
+                            <i class="fa fa-upload"></i>
+                            <span>Choose File</span>
+                        </div>
+                        {% if brand.image %}
+                            <small class="form-text" style="color: yellow;">Current Image: <img src="{{ brand.image.url }}" alt="{{ brand.brand_name }}" class="img-thumbnail" style="max-width: 150px;"></small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="brandStatus" style="color: yellow;">Status</label>
+                        <select class="form-control" id="brandStatus" name="status" style="background-color: rgba(128, 0, 128, 0.2); color: white;">
+                            <option value="True" {% if brand.status %}selected{% endif %}>Active</option>
+                            <option value="False" {% if not brand.status %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary mr-2" style="background-color: yellow; color: violet;">Save Changes</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
@@ -64,11 +74,70 @@
         {% endif %}
     });
 </script>
-<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
+
 <style>
-body {
-    font-family: 'Alegreya';font-size: 22px;
-}
+    body {
+        background-color: rgb(25, 25, 63); /* Dark blue background */
+    }
+    
+    .card {
+        width: 66.67%; /* 8/12 of the parent container */
+        margin: 0 auto; /* Centers the card horizontally */
+        padding: 20px;
+        background-color: white; /* Card background color */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for effect */
+        border-radius: 10px; /* Rounded corners for the card */
+    }
+    
+    .form-control {
+        background-color: rgba(128, 0, 128, 0.2); /* Transparent violet input background */
+        color: white; /* White text */
+        border: 1px solid yellow; /* Yellow border for inputs */
+    }
+
+    .form-control:focus {
+        border-color: yellow; /* Yellow border on focus */
+        box-shadow: 0 0 5px rgba(255, 255, 0, 0.5); /* Yellow glow on focus */
+    }
+
+    .form-check-label, .form-text {
+        color: yellow;
+    }
+
+    .btn-primary {
+        background-color: yellow; /* Yellow button */
+        color: violet; /* Violet text */
+    }
+
+    h4.card-title {
+        color: yellow;
+    }
+
+    /* Custom File Upload Styling */
+    .custom-file-upload {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        background-color: rgba(128, 0, 128, 0.2);
+        color: yellow;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid yellow;
+        width: 100%;
+        text-align: center;
+    }
+
+    .custom-file-upload input[type="file"] {
+        display: none;
+    }
+
+    .custom-file-upload i.fa-upload {
+        margin-right: 8px;
+        font-size: 16px;
+    }
+
+    .custom-file-upload:hover {
+        background-color: rgba(128, 0, 128, 0.4);
+    }
 </style>
-</div>
 {% endblock %}
