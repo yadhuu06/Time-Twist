@@ -84,7 +84,16 @@
                         </div>
                         <input type="hidden" name="applied_coupon" id="appliedCoupon" value="">
                         <button type="button" class="btn btn-sm btn-outline-primary mt-2 w-100" id="applyCouponBtn">Apply Coupon</button>
-                        
+                        <p>
+                            My Wallet Balance: 
+                            <span style="color: {% if wallet.balance < total_price %}red{% else %}green{% endif %};">
+                              {{ wallet.balance }}
+                            </span>
+                          </p>
+                          
+                          <h6>Total Price:<strong> {{ total_price }}</strong></h6>
+                          
+                          
                         <!-- Payment Method Dropdown -->
                         <div class="mt-3">
                             <label for="paymentMethod" class="form-label"><h4><strong>Payment Method</h4></strong></label>

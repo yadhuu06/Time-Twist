@@ -36,13 +36,7 @@
                         <p class="mb-1"><span class="font-medium">Payable/Paid:</span> Rs {{ order.Order_item.paid_price}}</p>
                         <p><span class="font-medium">Shipping:</span> Rs {{ order.shipping }}</p>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-lg shadow">
-                        <h3 class="text-lg font-semibold mb-2 text-gray-700">Shipping Address</h3>
-                        <p class="mb-1">{{ order.address.name }}</p>
-                        <p class="mb-1">{{ order.address.house_name }}, {{ order.address.street_name }}</p>
-                        <p class="mb-1">{{ order.address.district }}, {{ order.address.state }} {{ order.address.pin_number }}</p>
-                        <p><span class="font-medium">Phone:</span> {{ order.address.phone_number }}</p>
-                    </div>
+                 
                 </div>
 
                 <h3 class="text-xl font-semibold mb-4 text-gray-800">Order Items</h3>
@@ -70,11 +64,16 @@
 
                 <div class="mt-8 bg-gray-50 p-4 rounded-lg shadow">
                     <h3 class="text-lg font-semibold mb-2 text-gray-700">Payment Information</h3>
-                    <p class="mb-1"><span class="font-medium">Method:</span> {{ order.payment.method }}</p>
-                    <p class="mb-1"><span class="font-medium">Status:</span> {{ order.payment.status }}</p>
-                    <p><span class="font-medium">Amount:</span> Rs {{ order.payment.amount }}</p>
+                    
+                    {% if order.payment %}
+                        <p class="mb-1"><span class="font-medium">Method:</span> {{ order.payment.method }}</p>
+                        <p class="mb-1"><span class="font-medium">Status:</span> {{ order.payment.status }}</p>
+                        <p><span class="font-medium">Amount:</span> Rs {{ order.payment.amount }}</p>
+                    {% else %}
+                        <p>No payment information available.</p>
+                    {% endif %}
                 </div>
-            </div>
+                
         </div>
     </div>
 

@@ -23,6 +23,10 @@ from django.core.paginator import Paginator
 from django.shortcuts import render
 from .models import Products
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+
 
 
 
@@ -451,5 +455,30 @@ def list_productVarient(request, Products_id):
         'variants': variants,
     }
     return render(request, 'AdminSide/varient_list.html', context)
+
+
+
+@login_required
+@require_POST
+def submit_product_rating(request):
+    product_id = request.POST.get('product_id')
+    rating = request.POST.get('rating')
+    review = request.POST.get('review', '')
+
+    if not product_id or not rating:
+        return JsonResponse({'success': False, 'error': 'Missing required fields'}, status=400)
+
+    try:
+        product = Products.objects.get(id=product_id)
+        rating_obj, created = ProductRating.objects.update_or_create(
+            product=product,
+            user=request.user,
+            defaults={'rating': rating, 'review': review}
+        )
+        return JsonResponse({'success': True, 'message': 'Rating submitted successfully'})
+    except Products.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Product not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 

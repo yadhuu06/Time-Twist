@@ -16,6 +16,7 @@ from django.db import IntegrityError
 from products.models import Category, Brand, Products, ProductVariant, ProductVariantImages
 from django.views.decorators.cache import cache_control
 from UserAccounts.models import User
+from cart.models import RecentlyViewed
 from django.contrib.auth.decorators import login_required
 from user_pannel.models import UserAddress
 from .forms import PasswordResetRequestForm
@@ -28,7 +29,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.forms import PasswordResetForm,SetPasswordForm
 from django.contrib.auth import update_session_auth_hash
 from django.utils.translation import gettext as _
-from django.contrib.auth import login
+from django.contrib.auth import login ,authenticate
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import EmailAuthenticationForm
@@ -48,6 +49,8 @@ def Register(request):
         phone = request.POST.get('phone')
         pass1 = request.POST.get('password1')
         pass2 = request.POST.get('password2')
+        
+        print("pass1", pass1)
         if pass1 != pass2:
             messages.error(request, 'Passwords do not match.')
             return render(request, 'UserSide/user-login/register.html')
@@ -158,25 +161,23 @@ def verify_otp(request):
             messages.error(request, "Session expired. Please try again.")
             return render(request, 'UserSide/user-login/otp.html')
 
-        # Ensure the string has timezone info (e.g., with a UTC offset)
         try:
             otp_generation_time = datetime.fromisoformat(otp_generation_time_str)  # Handles timezone-aware datetime strings
         except ValueError:
-            # In case the saved string is naive (no timezone), make it timezone aware
+
             otp_generation_time = datetime.strptime(otp_generation_time_str, '%Y-%m-%d %H:%M:%S')
             otp_generation_time = timezone.make_aware(otp_generation_time, timezone.get_current_timezone())
 
-        # Get current time in the same timezone
         current_time = timezone.now()
 
-        # Debug prints
+        
         print(f"Current time: {current_time}")
         print(f"OTP generation time: {otp_generation_time}")
 
-        # Calculate time difference
+        
         time_difference = current_time - otp_generation_time
 
-        # Allow OTP validation within 10 minutes (600 seconds)
+       
         if time_difference <= timedelta(seconds=600):
             validation_on_time = True
         else:
@@ -188,12 +189,23 @@ def verify_otp(request):
             email = request.session.get('email')
             password = request.session.get('pass1')
             
+            
+            print("password", password)
+            
 
             User = get_user_model()
 
             try:
-                user = User.objects.create_user(email=email, first_name=fname, last_name=lname, password=password)
-                user.is_active = True
+               
+                user = User.objects.create_user(
+                    email=email,
+                    first_name=fname,
+                    last_name=lname,
+                    password =password
+                  
+                )
+                user.is_active = True  
+                user.is_blocked = False
                 user.save()
 
                 request.session.clear()
@@ -213,55 +225,96 @@ def verify_otp(request):
     else:
         return redirect('home_view')
 
+
+
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Existing user loggin   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-from django.contrib.auth import login
+
+
+
+from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from .forms import EmailAuthenticationForm
+from .forms import EmailAuthenticationForm  
+from django.contrib.auth import get_user_model
 
 def login_view(request):
     if request.method == 'POST':
-   
         form = EmailAuthenticationForm(request, data=request.POST) 
 
         if form.is_valid():
-            print("hai")
-            user = form.get_user()
+
+            email = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+
+            user =User.objects.get(email=email)
             
-            if user and user.is_active and not user.is_blocked:
-                login(request, user) 
-                messages.success(request, f"Welcome, {user.first_name} {user.last_name} You have successfully logged in.")
-                return redirect('home_view')
+            if user.check_password(password):
+                print("Password is correct!")
             else:
-                messages.error(request, "This account is inactive or blocked. Please contact support.")
+                print("Password is incorrect.")
+                
+                
+            user = authenticate(username=email, password=password)
+
+            if user is not None:
+                if user.is_active and not user.is_blocked:
+
+                    login(request, user)
+                    messages.success(request, f"Welcome, {user.first_name} {user.last_name}. You have successfully logged in.")
+                    return redirect('home_view')
+                else:
+                    messages.error(request, "This account is inactive or blocked. Please contact support.")
+            else:
+                messages.error(request, "Invalid email or password. Please try again.")
         else:
             messages.error(request, "Invalid email or password. Please try again.")
     else:
-        form = EmailAuthenticationForm()
+        form = EmailAuthenticationForm() 
 
     return render(request, 'UserSide/user-login/login.html', {'form': form})
 
 
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  user loggin success   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
 
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  user loggin success   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
 
 @login_required
 def home_view(request):
+    user=request.user
     if request.user.is_authenticated:
-          featured = Products.objects.filter(is_active=True,featured=True)[:4].prefetch_related('variants__images')
-          new_launch = Products.objects.filter(is_active=True).order_by('-id')[:5].prefetch_related('variants__images')
+        featured = Products.objects.filter(is_active=True, featured=True)[:4].prefetch_related('variants__images')
+        new_launch = Products.objects.filter(is_active=True).order_by('-id')[:5].prefetch_related('variants__images')
+        
+        # recently_viewed, created = RecentlyViewed.objects.get_or_create(user=user,product=product)
+        # if created:
+        #     viewed_products = RecentlyViewed.objects.filter(user=user).order_by('-timestamp')
 
-          user_details = {
-              'first_name': request.user.first_name,
-              'last_name': request.user.last_name,
-              'email': request.user.email,
+        # if viewed_products.count() > 10:
+        #     viewed_products.last().delete()
+
+        # else:
+        #     recently_viewed.timestamp = timezone.now()
+        #     recently_viewed.save()
+
+        # recently_viewed = RecentlyViewed.objects.filter(user=user).order_by('-timestamp')
+
+        user_details = {
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name,
+            'email': request.user.email,
             'phone_number': request.user.phone_number
-          }  
-          response = render(request, 'UserSide/home.html', {'featured': featured,'new_launch':new_launch,'user_details': user_details})
-          response['Cache-Control'] = 'no-store'
-          return response   
+        }
+
+        response = render(request, 'UserSide/home.html', {
+            # 'recently_viewed':recently_viewed,
+            'featured': featured,
+            'new_launch': new_launch,
+            'user_details': user_details
+        })
+        response['Cache-Control'] = 'no-store'
+        return response
+
     else:
-        return redirect('Register')  
+        return redirect('Register')
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. LOG OUT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

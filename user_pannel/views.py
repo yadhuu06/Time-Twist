@@ -227,24 +227,7 @@ def product_detail_user(request, id):
         cart_items = CartItem.objects.filter(cart__user=user, product=product)
         
         variant_data = []
-        recently_viewed, created = RecentlyViewed.objects.get_or_create(user=user, product=product)
-        if created:
 
-            viewed_products = RecentlyViewed.objects.filter(user=user).order_by('-timestamp')
-
-            if viewed_products.count() > 10:
-               viewed_products.last().delete()
-
-        else:
-            recently_viewed.timestamp = timezone.now()
-            recently_viewed.save()
-            
-        recently_viewed= RecentlyViewed.objects.filter(user=user).order_by('-timestamp')
-        
-        for product in recently_viewed:
-            p=product.product.product_name
-            print(p)
-        
         for variant in variants:
             variant_in_cart = any(cart_item.variant.id == variant.id for cart_item in cart_items)
             variant_data.append({
@@ -264,7 +247,7 @@ def product_detail_user(request, id):
     context = {
         'product': product,
         'variants': variant_data,
-        'recently_viewed':recently_viewed        
+            
     }
     return render(request, 'UserSide/product_detailss.html', context)
 

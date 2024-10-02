@@ -56,10 +56,7 @@
                                     {% if request.GET.featured == 'true' %}checked{% endif %}>
                                 <label for="featured">Featured<span></span></label>
                             </li>
-                            <li class="filter-list">
-                                <input class="pixel-radio" type="radio" id="clear_featured" name="featured" value="">
-                                <label for="clear_featured">Clear Featured<span></span></label>
-                            </li>
+                            
                         </ul>
                     </form>
                 </div>
@@ -75,10 +72,7 @@
                                 <label for="brand_{{ brand.id }}">{{ brand.brand_name }}<span></span></label>
                             </li>
                             {% endfor %}
-                            <li class="filter-list">
-                                <input class="pixel-radio" type="radio" id="clear_brand" name="brand" value="">
-                                <label for="clear_brand">Clear Brand<span></span></label>
-                            </li>
+                            
                         </ul>
                     </form>
                 </div>
@@ -96,10 +90,7 @@
                                 {% if request.GET.priceSort == "high-to-low" %}checked{% endif %}>
                             <label for="priceHighToLow">High to Low<span></span></label>
                         </li>
-                        <li class="filter-list no-margin">
-                            <input class="pixel-radio" type="radio" id="clear_price" name="priceSort" value="">
-                            <label for="clear_price">Clear Price Sort<span></span></label>
-                        </li>
+                        
                     </form>
                 </div>
 
@@ -116,10 +107,7 @@
                                 {% if request.GET.nameSort == "zZaA" %}checked{% endif %}>
                             <label for="nameDesc">Z-A<span></span></label>
                         </li>
-                        <li class="filter-list no-margin">
-                            <input class="pixel-radio" type="radio" id="clear_name" name="nameSort" value="">
-                            <label for="clear_name">Clear Name Sort<span></span></label>
-                        </li>
+                       
                     </form>
                 </div>
             </div>
@@ -132,7 +120,6 @@
                 <div class="sorting" style="background-color: white;"></div>
                 <div class="pagination" style="background-color: white; height: -10px;"></div>
             </div>
-            
             
             <div id="product-container">
                 {% include 'UserSide/product_list.html' %}
@@ -204,10 +191,19 @@
             handleFormSubmission();
         });
     });
+
+    // Clear all filters when "All Watches" is selected
+    document.getElementById('category_all').addEventListener('change', function() {
+        if (this.checked) {
+            // Reset all other forms
+            document.querySelectorAll('input[type="radio"]').forEach(input => {
+                input.checked = false;
+            });
+            this.checked = true;  // Re-check All Watches
+            handleFormSubmission();  // Submit form with cleared filters
+        }
+    });
 </script>
-
-
-
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -217,7 +213,7 @@
                 {% for message in messages %}
                     {
                         level: "{{ message.tags }}",
-                        text: "{{ message }}"
+                        text: "{{ message }}",
                     },
                 {% endfor %}
             ];
@@ -225,13 +221,15 @@
                 Swal.fire({
                     toast: true,
                     position: 'top-right',
-                    icon: message.level === 'success' ? 'success' : 'error',
+                    icon: message.level,
                     title: message.text,
                     showConfirmButton: false,
-                    timer: 3000
+                    timer: 3000,
+                    timerProgressBar: true,
                 });
             });
         {% endif %}
     });
 </script>
+
 {% endblock %}

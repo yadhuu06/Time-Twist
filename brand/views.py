@@ -79,3 +79,7 @@ def edit_brand(request, brand_id):
 
     context = {"brand": brand}
     return render(request, 'AdminSide/edit_brand.html', context)
+
+
+def about_us(request):
+    return render(request,'UserSide/about_us.html')

@@ -7,5 +7,7 @@ app_name= 'brand'
 urlpatterns = [
     path('', views.Brands_list, name='Brands'),
     path('add_brand/',views.add_brand,name='add_brand'),
-    path('edit_brand/<int:brand_id>/',views.edit_brand,name='edit_brand')
+    path('edit_brand/<int:brand_id>/',views.edit_brand,name='edit_brand'),
+    path('about/', views.about_us, name='about_us'),
+  
 ]

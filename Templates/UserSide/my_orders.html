@@ -1,16 +1,17 @@
 {% extends "UserSide/base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container my-5">
-    <h1 class="text-center mb-5">My Orders</h1>
+    <h1 class="text-center mb-5 theme-text">My Orders</h1>
 
     {% if orders %}
         {% for order in orders %}
             <div class="card shadow-sm order-card mb-4">
-                <div class="card-header bg-light">
+                <div class="card-header bg-theme-light">
                     <div class="row align-items-center">
                         <div class="col-md-6">
-                            <h5 class="mb-0">Order #{{ order.order_id }}</h5>
+                            <h5 class="mb-0 theme-text">Order #{{ order.order_id }}</h5>
                         </div>
                         <div class="col-md-6 text-md-end">
                             <p class="mb-0"><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
@@ -20,28 +21,28 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-8">
-                            <h6 class="mb-3">Items:</h6>
+                            <h6 class="mb-3 theme-text">Items:</h6>
                             <ul class="list-group">
                                 {% for item in order.items.all %}
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
                                             <img src="{{ item.product_variant.images.first.image.url }}" class="img-thumbnail me-3" alt="{{ item.product_variant.variant_name }}" style="max-width: 60px; max-height: 60px;">
                                             <div>
-                                                <h6 class="mb-0">{{ item.product_variant.product.product_name }}</h6>
+                                                <h6 class="mb-0 theme-text">{{ item.product_variant.product.product_name }}</h6>
                                                 <small class="text-muted">Variant: {{ item.product_variant.variant_name }}</small>
                                                 <br>
                                                 <small class="text-muted">Price: ₹{{ item.price|floatformat:2 }}</small>
                                             </div>
                                         </div>
-                                        <span class="badge  rounded-pill">Qty: {{ item.quantity }}</span>
+                                        <span class="badge bg-theme rounded-pill">Qty: {{ item.quantity }}</span>
                                     </li>
                                 {% endfor %}
                             </ul>
                         </div>
                         <div class="col-md-4">
-                            <div class="card bg-light">
+                            <div class="card bg-theme-light">
                                 <div class="card-body">
-                                    <h6 class="card-title">Order Summary</h6>
+                                    <h6 class="card-title theme-text">Order Summary</h6>
                                     <p class="card-text">
                                         <strong>Total Items:</strong> {{ order.items.count }}<br>
                                         <strong>Total Amount:</strong> ₹{{ order.final_price|floatformat:2 }}<br>
@@ -57,7 +58,7 @@
                 </div>
                 <div class="card-footer bg-white">
                     <div class="d-flex justify-content-end">
-                        <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-outline-primary me-2">View Details</a>
+                        <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-outline-theme me-2">View Details</a>
                         
                         {% if order.status == 'Delivered' %}
                             <button type="button" class="btn btn-outline-danger return-order-btn" data-bs-toggle="modal" data-bs-target="#returnModal{{ order.order_id }}">
@@ -80,12 +81,12 @@
                         <form action="{% url 'order_management:return_order' order_id=order.order_id %}" method="POST">
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title" id="returnModalLabel{{ order.order_id }}">Return Order</h5>
+                                <h5 class="modal-title theme-text" id="returnModalLabel{{ order.order_id }}">Return Order</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="mb-3">
-                                    <label for="returnReason{{ order.order_id }}" class="form-label">Return Reason</label>
+                                    <label for="returnReason{{ order.order_id }}" class="form-label theme-text">Return Reason</label>
                                     <select class="form-select" id="returnReason{{ order.order_id }}" name="return_reason" required>
                                         <option value="Low Quality">Low Quality</option>
                                         <option value="Wrong Item Received">Wrong Item Received</option>
@@ -95,61 +96,157 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="additionalComments{{ order.order_id }}" class="form-label">Additional Comments (Optional)</label>
+                                    <label for="additionalComments{{ order.order_id }}" class="form-label theme-text">Additional Comments (Optional)</label>
                                     <textarea class="form-control" id="additionalComments{{ order.order_id }}" name="additional_comments" rows="3"></textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Submit Return</button>
+                                <button type="submit" class="btn btn-theme">Submit Return</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         {% endfor %}
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if orders.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link custom-page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link custom-page-link" href="?page={{ orders.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in orders.paginator.page_range %}
+                    {% if orders.number == num %}
+                        <li class="page-item active"><a class="page-link custom-page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                        <li class="page-item"><a class="page-link custom-page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if orders.has_next %}
+                    <li class="page-item">
+                        <a class="page-link custom-page-link" href="?page={{ orders.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link custom-page-link" href="?page={{ orders.paginator.num_pages }}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
     {% else %}
         <div class="alert alert-info d-flex justify-content-center align-items-center text-center" role="alert" style="height:550px;">
-            You haven't placed any orders yet. <a href="{% url 'shop_view' %}" class="alert-link">Start shopping now!</a>
+            You haven't placed any orders yet. <a href="{% url 'shop_view' %}" class="alert-link theme-text">Start shopping now!</a>
         </div>
     {% endif %}
 </div>
 
 <style>
+    :root {
+        --theme-red: #8B0000;
+        --theme-orange: #FFA500;
+    }
+
+    .theme-text {
+        color: var(--theme-red);
+    }
+
+    .bg-theme-light {
+        background-color: #FFF5E6;
+    }
+
+    .bg-theme {
+        background-color: var(--theme-orange);
+    }
+
+    .btn-theme {
+        background-color: var(--theme-orange);
+        color: white;
+    }
+
+    .btn-theme:hover {
+        background-color: var(--theme-red);
+        color: white;
+    }
+
+    .btn-outline-theme {
+        color: var(--theme-orange);
+        border-color: var(--theme-orange);
+    }
+
+    .btn-outline-theme:hover {
+        background-color: var(--theme-orange);
+        color: white;
+    }
+
     .order-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-radius: 12px;
         overflow: hidden;
     }
+
     .order-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
+
     .card-header h5 {
         font-weight: 600;
-    
     }
-    .text-success { color: #28a745; }
-    .text-danger { color: #dc3545; }
-    .text-warning { color: #ffc107; }
-    .text-secondary { color: #6c757d; }
+
     .list-group-item {
         border: none;
         padding: 0.75rem 0;
     }
+
     .list-group-item:not(:last-child) {
         border-bottom: 1px solid #e9ecef;
     }
+
     .badge {
         font-size: 0.8rem;
     }
+
     .btn {
         font-size: 0.9rem;
         padding: 0.375rem 0.75rem;
     }
+
     .card-footer {
         background-color: #f8f9fa;
         border-top: 1px solid #e9ecef;
+    }
+
+    .custom-page-link {
+        color: var(--theme-orange);
+        background-color: #fff;
+        border: 1px solid var(--theme-orange);
+    }
+
+    .custom-page-link:hover {
+        color: #fff;
+        background-color: var(--theme-orange);
+        border-color: var(--theme-orange);
+    }
+
+    .page-item.active .custom-page-link {
+        color: #fff;
+        background-color: var(--theme-red);
+        border-color: var(--theme-red);
     }
 </style>
 
@@ -169,16 +266,16 @@
                     text: "Do you want to return this order?",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
+                    confirmButtonColor: '#FFA500',
+                    cancelButtonColor: '#8B0000',
                     confirmButtonText: 'Yes, return it!',
                     cancelButtonText: 'No, keep it'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const modalID = button.getAttribute('data-bs-target'); // Get the target modal ID
+                        const modalID = button.getAttribute('data-bs-target');
                         const returnModal = document.querySelector(modalID);
                         const returnModalInstance = new bootstrap.Modal(returnModal);
-                        returnModalInstance.show(); // Show the modal
+                        returnModalInstance.show();
                     }
                 });
             });
@@ -195,13 +292,12 @@
                     text: "Do you want to cancel this order? All the items will be cancelled.",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
+                    confirmButtonColor: '#FFA500',
+                    cancelButtonColor: '#8B0000',
                     confirmButtonText: 'Yes, cancel it!',
                     cancelButtonText: 'No, keep it'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Submit the form if confirmed
                         button.closest('form').submit();
                     }
                 });

@@ -39,12 +39,13 @@ def cart_view(request):
 
 
 @login_required
-def add_cart(request,product_id):
+def add_cart(request,id):
 
-    product = get_object_or_404(Products, id=product_id)
+
+    product = get_object_or_404(Products, id=id)
   
     variant_id = request.GET.get('variant_id')
-    print(product)
+ 
     
    
     

@@ -33,42 +33,53 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 48px;
-            display: inline-block;
-            margin-left: 70px;
-            background: transparent;
-            color: #000;
-            font-weight: bold;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-        .logo:hover {
-            color: #d61a3c; /* Tudor's signature red color */
-            transform: translateY(-3px);
-        }
-        .logo .time {
-            color: #000; /* Black for a classic look */
-        }
-        .logo .twist {
-            color: #d61a3c; /* Signature red for a bold contrast */
-            position: relative;
-        }
-        .logo .twist::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -4px;
-            width: 100%;
-            height: 3px;
-            background: #d61a3c;
-            transform: scaleX(0);
-            transition: transform 0.4s ease;
-        }
-        .logo:hover .twist::after {
-            transform: scaleX(1);
-        }
+		.logo {
+			font-family: 'Playfair Display', serif;
+			font-size: 28px;
+			display: inline-block;
+			margin-left: 70px;
+			background: transparent;
+			color: #000;
+			font-weight: bold;
+			letter-spacing: 1px;
+			transition: all 0.3s ease;
+		}
+		
+		.logo:hover {
+			color: #d61a3c; /* Tudor's signature red color */
+			transform: translateY(-3px);
+		}
+		
+		.logo .time {
+			color: #000; /* Black for a classic look */
+		}
+		
+		.logo .twist {
+			color: #d61a3c; /* Initial color */
+			position: relative;
+			animation: colorChange 8s infinite; /* 8s for 2 colors, 4s each */
+		}
+		
+		.logo .twist::after {
+			content: '';
+			position: absolute;
+			left: 0;
+			bottom: -4px;
+			width: 100%;
+			height: 3px;
+			background: #d61a3c;
+			transform: scaleX(0);
+			transition: transform 0.4s ease;
+		}
+		
+		.logo:hover .twist::after {
+			transform: scaleX(1);
+		}
+		
+		@keyframes colorChange {
+			0%, 100% { color: #d61a3c; } /* Existing red color */
+			50% { color: #ff8c00; }      /* New orange color */
+		}
     </style>
 <body>
 

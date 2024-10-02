@@ -14,8 +14,9 @@ from order_management.models import Order, Payment, OrderItem, OrderAddress, Ret
 from cart.models import Cart, CartItem, Wallet, WalletTransaction
 from coupon.models import Coupon, UserCoupon
 from user_pannel.models import UserAddress
-from products.models import ProductVariant
+from products.models import ProductVariant,ProductRating
 from user_pannel.decorators import active_user_required
+from django.core.paginator import Paginator
 from datetime import timedelta
 from decimal import Decimal
 import datetime
@@ -31,14 +32,12 @@ import hmac
 @active_user_required
 @never_cache
 def place_order(request):
+    print("place order")
     if request.method == 'POST':
         payment_method = request.POST.get('paymentMethod')
         address_id = request.POST.get('address')
         applied_coupon_id = request.POST.get('applied_coupon')
-        print(payment_method)
-        print(applied_coupon_id)
-        print()
-        print()
+      
         
 
         if not payment_method or not address_id:
@@ -95,18 +94,27 @@ def place_order(request):
                 })
 
                 request.session['razorpay_order_id'] = razorpay_order['id']
+             
 
+                
                 order = Order.objects.create(
                     user=request.user,
                     address=selected_address,
                     order_id=razorpay_order['id'],
-                    payment=None,
+                    
                     total_price=main_total,
                     offer_price=coupon_discount,
                     shipping=shipping_charge,
                     final_price=total_price,
                     
                 )
+                payment = Payment.objects.create(
+                method='razorpay',
+                user=order.user,
+                amount=order.final_price,
+                status='Failed')
+                order.payment=payment
+                payment.save()
 
                 OrderAddress.objects.create(
                     user=request.user,
@@ -286,13 +294,14 @@ def place_order(request):
 
     return redirect('checkout')
 
+
+@never_cache
 @require_POST
 def verify_payment(request):
     if request.method == 'POST':
         order_payment_id = request.POST.get('razorpay_order_id') or request.session.get('razorpay_order_id')
         payment_id = request.POST.get('razorpay_payment_id')
         signature = request.POST.get('razorpay_signature')
-
 
         if not all([order_payment_id, payment_id, signature]):
             messages.error(request, 'Missing payment details.')
@@ -305,37 +314,65 @@ def verify_payment(request):
             'razorpay_payment_id': payment_id,
             'razorpay_signature': signature
         }
+        print("call back ")
 
         try:
+            # Attempt to verify the Razorpay payment signature
             client.utility.verify_payment_signature(params_dict)
-
+            print(params_dict)
             try:
+                # Fetch the order by its order ID
                 order = Order.objects.get(order_id=order_payment_id)
             except Order.DoesNotExist:
-                print(f"Order with ID {order_payment_id} does not exist.")  
                 messages.error(request, 'Order not found.')
-                return redirect('checkout')
+                return render(request, 'UserSide/payment_failed.html')
 
-            payment = Payment.objects.create(
-                method='razorpay',
-                user=order.user,
-                amount=order.final_price,
-                status='Completed'
-            )
-            order.payment = payment
+            # If signature verification is successful, create a successful payment and update the order
+            payment = Payment.objects.get(order=order)
+            payment.status = 'Completed'
+            payment.save()
             
+            order.status = 'Shipped'  # Update the order status to 'Shipped'
             order.save()
+            
+
+            # Clear the cart after successful payment
             Cart.objects.filter(user=request.user).delete()
 
+            # Show success message
             messages.success(request, 'Payment successful and order confirmed!')
             return render(request, 'UserSide/order_placed.html', {'order': order})
 
         except razorpay.errors.SignatureVerificationError:
-            messages.error(request, 'Payment verification failed.')
-            return redirect('checkout')
+            # If the signature verification fails, handle the failure
+            try:
+                order = Order.objects.get(order_id=order_payment_id)
+                print(order)
+                # Create a failed payment record
+                payment = Payment.objects.create(
+                    method='razorpay',
+                    user=order.user,
+                    amount=order.final_price,
+                    status='Failed'  # Mark the payment as failed
+                )
 
+                # Update the order to reflect the payment failure, but keep it as pending
+                order.payment = payment
+                order.status = 'Pending'  # Keep the order as pending
+                order.save()
+
+            except Order.DoesNotExist:
+                messages.error(request, 'Order not found during payment failure handling.')
+                return render(request, 'UserSide/payment_failed.html')
+
+            # Show error message
+            messages.error(request, 'Payment verification failed or was canceled.')
+            return render(request, 'UserSide/payment_failed.html')
+
+    # If the request method is not POST or other errors occur
     messages.error(request, 'Invalid request.')
-    return redirect('checkout')
+    return render(request, 'UserSide/payment_failed.html')
+
 
 
 def calculate_cart_total(user):
@@ -346,7 +383,13 @@ def calculate_cart_total(user):
    
 @login_required
 def my_orders(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related('items__product_variant').order_by('-id')
+    orders = Order.objects.filter(user_id=request.user.id).select_related('payment')
+    orders_list = orders.exclude(payment__isnull=True).exclude(payment__status__in=[ 'Failed', 'Incomplete'])
+
+    paginator = Paginator(orders_list, 10) 
+    page_number = request.GET.get('page')
+    orders = paginator.get_page(page_number)
+    
     return render(request, 'UserSide/my_orders.html', {'orders': orders})
 
 
@@ -361,6 +404,8 @@ def order_details_user(request,order_id):
    
     return render(request, 'UserSide/order_details.html', {'order': order})
 
+
+
 @active_user_required
 def cancel_order(request, order_id):
     
@@ -372,6 +417,10 @@ def cancel_order(request, order_id):
         return redirect('order_management:my_orders')
 
     wallet = None 
+    if order.payment.method == 'razorpay':
+        if order.payment.status=='Failed':
+            messages.error(request, "Complete the payment.")
+            return redirect('order_management:my_orders')
     
     if order.payment.method != 'cashOnDelivery':
         wallet, created = Wallet.objects.get_or_create(user=order.user)
@@ -448,7 +497,11 @@ def change_status(request, order_id):
             new_status = data.get('status')
             order = get_object_or_404(Order, id=order_id)
 
-            # Prevent status change if the order is already cancelled by the customer
+            if order.payment.method =='razorpay':
+                if order.payment.status=='Failed':
+                     messages.error(request, "Customer Failed to Pay.")
+                     return JsonResponse({'success': False, 'error': 'Order already cancelled'}, status=400)
+                    
             if order.status == 'Cancelled':
                 messages.error(request, "Customer already cancelled the item.")
                 return JsonResponse({'success': False, 'error': 'Order already cancelled'}, status=400)

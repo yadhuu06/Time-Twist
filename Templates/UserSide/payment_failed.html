@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retry Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+    <div class="order-details">
+        <h2>Order #{{ order.order_id }}</h2>
+        <p>Total Price: ₹{{ order.final_price }}</p>
+        
+        {% if order.payment.method == 'razorpay' and order.payment.status == 'Failed' %}
+        <p style="color: red;">Payment Failed. Please try again.</p>
+
+        <button id="pay-now-btn" class="btn btn-primary">Pay Now</button>
+        
+        <form id="payment-form" action="{% url 'retry_payment' order.id %}" method="POST" style="display:none;">
+            {% csrf_token %}
+            <input type="hidden" id="razorpay_order_id" name="razorpay_order_id" value="{{ razorpay_order_id }}">
+            <input type="hidden" id="razorpay_payment_id" name="razorpay_payment_id">
+            <input type="hidden" id="razorpay_signature" name="razorpay_signature">
+        </form>
+        {% endif %}
+
+        <a href="{% url 'my_orders' %}" class="btn btn-secondary">Back to Orders</a>
+    </div>
+
+    <script>
+        document.getElementById('pay-now-btn').onclick = function(e) {
+            var options = {
+                "key": "{{ razorpay_key_id }}", // Razorpay API key
+                "amount": "{{ order.final_price|floatformat:2 }}00", // Amount in paise
+                "currency": "INR",
+                "name": "Your Company Name",
+                "description": "Order Payment",
+                "order_id": "{{ razorpay_order_id }}", // Razorpay order ID passed from the backend
+                "handler": function (response){
+                    document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                    document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                    document.getElementById('payment-form').submit(); // Submit form for server-side verification
+                },
+                "prefill": {
+                    "name": "{{ request.user.get_full_name }}",
+                    "email": "{{ request.user.email }}",
+                    "contact": "{{ request.user.profile.phone }}"
+                },
+                "theme": {
+                    "color": "#528FF0"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+            e.preventDefault();
+        }
+    </script>
+</body>
+</html>

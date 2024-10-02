@@ -290,8 +290,8 @@
         doc.text("Sales Report", 14, 20);
         doc.setFontSize(12);
         doc.text(`Number of Orders: {{ page_obj.paginator.count }}`, 14, 30);
-        doc.text(`Total Order Amount: ₹{{ total_order_amount|floatformat:0 }}`, 14, 36);
-        doc.text(`Total Discount: ₹{{ total_discount|floatformat:0 }}`, 14, 42);
+        doc.text(`Total Order Amount: Rs {{ total_order_amount|floatformat:0 }}`, 14, 36);
+        doc.text(`Total Discount: Rs {{ total_discount|floatformat:0 }}`, 14, 42);
 
         // Add table
         doc.autoTable({
@@ -310,8 +310,8 @@
         XLSX.utils.sheet_add_aoa(ws, [
             ["Sales Report"],
             ["Number of Orders", "{{ page_obj.paginator.count }}"],
-            ["Total Order Amount", "₹{{ total_order_amount|floatformat:0 }}"],
-            ["Total Discount", "₹{{ total_discount|floatformat:0 }}"]
+            ["Total Order Amount", "Rs {{ total_order_amount|floatformat:0 }}"],
+            ["Total Discount", "Rs {{ total_discount|floatformat:0 }}"]
         ], { origin: 'A1' });
 
         // Create workbook and save Excel

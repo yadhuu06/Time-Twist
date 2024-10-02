@@ -1,80 +1,115 @@
-<!-- start footer Area -->
-{%load static%}
-<footer class="footer-area section_gap">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-3  col-md-6 col-sm-6">
-                <div class="single-footer-widget">
-                    <h6>About Us</h6>
-                    <p>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore dolore
-                        magna aliqua.
-                    </p>
-                </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Twist Footer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .footer {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            padding: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .footer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 30%;
+            background-image: url('/static/UserSide/img/bbbk.jpg');
+
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            z-index: 1;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+        .footer-section {
+            flex: 1;
+            margin: 0 20px;
+            min-width: 200px;
+        }
+        .footer-section h3 {
+            color: #ff4040;
+            margin-bottom: 20px;
+        }
+        .footer-section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+        .footer-section ul li a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .footer-section ul li a:hover {
+            text-decoration: underline;
+        }
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        .social-icons a {
+            color: #ffffff;
+            font-size: 24px;
+        }
+        .bottom-bar {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Shop</h3>
+                <ul>
+                    <li><a href="{% url 'shop_view' %}">Men's Watches</a></li>
+                    <li><a href="{% url 'shop_view' %}">Kids's Watches</a></li>
+                    <li><a href="{% url 'shop_view' %}">Women's Watches</a></li>
+                    <li><a href="{% url 'shop_view' %}">Luxury Watches</a></li>
+                    
+                </ul>
             </div>
-            <div class="col-lg-4  col-md-6 col-sm-6">
-                <div class="single-footer-widget">
-                    <h6>Newsletter</h6>
-                    <p>Stay update with our latest</p>
-                    <div class="" id="mc_embed_signup">
-
-                        <form target="_blank" novalidate="true" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
-                         method="get" class="form-inline">
-
-                            <div class="d-flex flex-row">
-
-                                <input class="form-control" name="EMAIL" placeholder="Enter Email" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Email '"
-                                 required="" type="email">
-
-
-                                <button class="click-btn btn btn-default"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></button>
-                                <div style="position: absolute; left: -5000px;">
-                                    <input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value="" type="text">
-                                </div>
-
-                                <!-- <div class="col-lg-4 col-md-4">
-                                                <button class="bb-btn btn"><span class="lnr lnr-arrow-right"></span></button>
-                                            </div>  -->
-                            </div>
-                            <div class="info"></div>
-                        </form>
-                    </div>
-                </div>
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <ul>
+                    <li><a href="{% url 'brand:about_us' %}">Contact Us</a></li>
+                    <li><a href="{% url 'brand:about_us' %}">Shipping & Returns</a></li>
+                    <li><a href="{% url 'brand:about_us' %}">FAQ</a></li>
+                    <li><a href="{% url 'brand:about_us' %}">Watch Care</a></li>
+                </ul>
             </div>
-            <div class="col-lg-3  col-md-6 col-sm-6">
-                <div class="single-footer-widget mail-chimp">
-                    <h6 class="mb-20">Instragram Feed</h6>
-                    <ul class="instafeed d-flex flex-wrap">
-                        <li><img src="{% static 'img/i1.jpg' %}" alt=""></li>
-                        <li><img src="{% static 'img/i2.jpg' %}" alt=""></li>
-                        <li><img src="{% static 'img/i3.jpg' %}" alt=""></li>
-                        <li><img src="{% static 'img/i4.jpg' %}" alt=""></li>
-                        <li><img src="{% static 'img/i5.jpg' %}" alt=""></li>
-                        <li><img src="{% static 'img/i6.jpg' %}" alt=""></li>
-                        <li><img src="{% static 'img/i7.jpg' %}" alt=""></li>
-                        <li><img src="{% static 'img/i8.jpg' %}" alt=""></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-6 col-sm-6">
-                <div class="single-footer-widget">
-                    <h6>Follow Us</h6>
-                    <p>Let us be social</p>
-                    <div class="footer-social d-flex align-items-center">
-                        <a href="#"><i class="fa fa-facebook"></i></a>
-                        <a href="#"><i class="fa fa-twitter"></i></a>
-                        <a href="#"><i class="fa fa-dribbble"></i></a>
-                        <a href="#"><i class="fa fa-behance"></i></a>
-                    </div>
-                </div>
-            </div>
+         
+          
         </div>
-        <div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
-            <p class="footer-text m-0"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-</p>
-        </div>
+    </footer>
+    <div class="bottom-bar">
+        &copy; 2024 Time Twist. All rights reserved.
     </div>
-</footer>
-<!-- End footer Area -->
+</body>
+</html>

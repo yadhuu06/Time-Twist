@@ -38,6 +38,9 @@ def is_admin(user):
     return  user.is_admin
 
 
+
+
+
 @user_passes_test(is_admin)
 @never_cache
 def admin_page(request):
@@ -160,11 +163,15 @@ def Block_user(request):
 
 @user_passes_test(is_admin)
 def admin_order_list(request):
+    
+ 
+   
     # Get filter option from GET request
     status_filter = request.GET.get('status', 'all')  # Default to 'all'
     
     # Base queryset with sorting
-    orders = Order.objects.all().order_by('-created_at')
+    orders_list = Order.objects.all().order_by('-created_at')
+    orders = orders_list.exclude(payment__isnull=True).exclude(payment__status__in=[ 'Failed', 'Incomplete'])
     
     # Filter by status if selected
     if status_filter != 'all':
