@@ -89,11 +89,20 @@
                 </div>
                 
                 <input type="hidden" id="selected-variant-id" name="variant_id" value="{{ variants.0.id }}">
-                <a href="{% url 'cart:add_cart' product.id %}" id="add-to-cart-btn" class="genric-btn info-border circle arrow btn-primary mb-4">
-                    Add to Cart<span class="lnr lnr-arrow-right"></span>
+
+                <a href="{% url 'cart:add_cart' product.id %}" id="add-to-cart-btn" class="genric">
+                    <span class="icon-cart">&#128722;</span> <!-- Cart Icon -->
+                    Add to Cart
+                    <span class="lnr lnr-arrow-right"></span> <!-- Arrow Icon -->
                 </a>
+                
                 <p id="out-of-stock-message" style="display: none; color: red;">Item out of stock</p>
-            
+                <a href="{% url 'cart:add_to_wishlist' product.id %}" class="custom wishlist-btn mb-4">
+                    <span class="icon-heart">&#9829;</span> <!-- Heart Icon -->
+                    Add to wishlist
+                    <span class="lnr lnr-arrow-right"></span> <!-- Right Arrow Icon -->
+                </a>
+                
                 <div>
                     <h5>Product Details:</h5>
                     <ul class="list-unstyled">
@@ -113,7 +122,77 @@
     </div>
 </div>
 <!-- End Product Information -->
-
+<style>/* Shared button styles */
+    button, a {
+        display: inline-block;
+        padding: 12px 25px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        position: relative;
+        margin-right: 15px; /* Space between inline buttons */
+    }
+    
+    /* Add to Cart button specific style */
+    #add-to-cart-btn {
+        background-color: #28a745; /* Custom green background */
+    }
+    
+    /* Hover effect for Add to Cart */
+    #add-to-cart-btn:hover {
+        background-color: #218838; /* Darker green on hover */
+        transform: translateY(-2px); /* Slight lift on hover */
+    }
+    
+    /* Cart icon style */
+    .icon-cart {
+        margin-right: 10px;
+        font-size: 20px;
+        color: #fff; /* Icon color */
+    }
+    
+    /* Wishlist button specific style */
+    .wishlist-btn {
+        background-color: #ff6f61; 
+        margin-top: 30px;
+    }
+    
+    /* Hover effect for Wishlist */
+    .wishlist-btn:hover {
+        background-color: #e85b50; /* Darker red on hover */
+        transform: translateY(-2px); /* Slight lift on hover */
+    }
+    
+    /* Heart icon style */
+    .icon-heart {
+        margin-right: 8px;
+        font-size: 20px;
+        color: #fff; /* Icon color */
+    }
+    
+    /* Arrow icon style (shared for both buttons) */
+    .lnr-arrow-right {
+        margin-left: 8px;
+        font-size: 16px;
+        transition: margin-left 0.3s ease;
+    }
+    
+    /* Arrow moves slightly on hover (shared for both buttons) */
+    button:hover .lnr-arrow-right, a:hover .lnr-arrow-right {
+        margin-left: 12px;
+    }
+    
+    /* Inline layout */
+    button, a {
+        vertical-align: middle; /* Ensures buttons align properly inline */
+    }
+    
+</style>
 <style>
 .pricing .offer-price {
     color: green;
@@ -284,7 +363,6 @@
         document.querySelectorAll('.zoom-image').forEach(img => enableZoom(img));
     });
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
@@ -293,14 +371,14 @@
                 {% for message in messages %}
                     {
                         level: "{{ message.tags }}",
-                        content: "{{ message }}"
+                        content: "{{ message|escapejs }}"  // Escape for JavaScript safety
                     },
                 {% endfor %}
             ];
 
             messages.forEach(message => {
                 Swal.fire({
-                    icon: message.level === 'success' ? 'success' : 'error',
+                    icon: message.level.includes('success') ? 'success' : 'error',
                     title: message.content,
                     showConfirmButton: false,
                     timer: 1500

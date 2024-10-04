@@ -162,16 +162,12 @@ def place_order(request):
                     messages.error(request, 'Cash on Delivery is not available for orders over Rs 10,000.')
                     return redirect('checkout')
 
-                payment = Payment.objects.create(
-                    method=payment_method,
-                    user=request.user,
-                    amount=total_price
-                )
+                
                 
                 order = Order.objects.create(
                     user=request.user,
                     address=selected_address,
-                    payment=payment,
+                    payment=None,
                     order_id=str(uuid.uuid4()),
                     total_price=main_total,
                     offer_price=coupon_discount,
@@ -295,13 +291,13 @@ def place_order(request):
     return redirect('checkout')
 
 
-@never_cache
 @require_POST
 def verify_payment(request):
     if request.method == 'POST':
         order_payment_id = request.POST.get('razorpay_order_id') or request.session.get('razorpay_order_id')
         payment_id = request.POST.get('razorpay_payment_id')
         signature = request.POST.get('razorpay_signature')
+
 
         if not all([order_payment_id, payment_id, signature]):
             messages.error(request, 'Missing payment details.')
@@ -314,64 +310,37 @@ def verify_payment(request):
             'razorpay_payment_id': payment_id,
             'razorpay_signature': signature
         }
-        print("call back ")
 
         try:
-            # Attempt to verify the Razorpay payment signature
             client.utility.verify_payment_signature(params_dict)
-            print(params_dict)
+
             try:
-                # Fetch the order by its order ID
                 order = Order.objects.get(order_id=order_payment_id)
             except Order.DoesNotExist:
+                print(f"Order with ID {order_payment_id} does not exist.")  
                 messages.error(request, 'Order not found.')
-                return render(request, 'UserSide/payment_failed.html')
+                return redirect('checkout')
 
-            # If signature verification is successful, create a successful payment and update the order
-            payment = Payment.objects.get(order=order)
-            payment.status = 'Completed'
-            payment.save()
+            payment = Payment.objects.create(
+                method='razorpay',
+                user=order.user,
+                amount=order.final_price,
+                status='Completed'
+            )
+            order.payment = payment
             
-            order.status = 'Shipped'  # Update the order status to 'Shipped'
             order.save()
-            
-
-            # Clear the cart after successful payment
             Cart.objects.filter(user=request.user).delete()
 
-            # Show success message
             messages.success(request, 'Payment successful and order confirmed!')
             return render(request, 'UserSide/order_placed.html', {'order': order})
 
         except razorpay.errors.SignatureVerificationError:
-            # If the signature verification fails, handle the failure
-            try:
-                order = Order.objects.get(order_id=order_payment_id)
-                print(order)
-                # Create a failed payment record
-                payment = Payment.objects.create(
-                    method='razorpay',
-                    user=order.user,
-                    amount=order.final_price,
-                    status='Failed'  # Mark the payment as failed
-                )
+            messages.error(request, 'Payment verification failed.')
+            return redirect('checkout')
 
-                # Update the order to reflect the payment failure, but keep it as pending
-                order.payment = payment
-                order.status = 'Pending'  # Keep the order as pending
-                order.save()
-
-            except Order.DoesNotExist:
-                messages.error(request, 'Order not found during payment failure handling.')
-                return render(request, 'UserSide/payment_failed.html')
-
-            # Show error message
-            messages.error(request, 'Payment verification failed or was canceled.')
-            return render(request, 'UserSide/payment_failed.html')
-
-    # If the request method is not POST or other errors occur
     messages.error(request, 'Invalid request.')
-    return render(request, 'UserSide/payment_failed.html')
+    return redirect('checkout')
 
 
 
@@ -383,8 +352,8 @@ def calculate_cart_total(user):
    
 @login_required
 def my_orders(request):
-    orders = Order.objects.filter(user_id=request.user.id).select_related('payment')
-    orders_list = orders.exclude(payment__isnull=True).exclude(payment__status__in=[ 'Failed', 'Incomplete'])
+    orders_list = Order.objects.filter(user_id=request.user.id).select_related('payment').order_by('-id')
+    orders= orders_list.exclude(payment__isnull=True).exclude(payment__status__in=[ 'Failed', 'Incomplete'])
 
     paginator = Paginator(orders_list, 10) 
     page_number = request.GET.get('page')
@@ -452,6 +421,8 @@ def cancel_order(request, order_id):
 
     return redirect('order_management:my_orders')
 
+
+
 @active_user_required
 def return_order(request, order_id):
     order = get_object_or_404(Order, order_id=order_id, user=request.user)
@@ -509,7 +480,7 @@ def change_status(request, order_id):
             if new_status:
                 order.status = new_status
 
-                # Update delivered date and payment status if the order is delivered
+      
                 if order.status == "Delivered":
                     order.delivered_date = timezone.now()
                     if order.payment.method == "cashOnDelivery":
@@ -525,3 +496,42 @@ def change_status(request, order_id):
             return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+
+
+
+
+@login_required
+def submit_rating(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    user = request.user
+    existing_rating = ProductRating.objects.filter(product=product, user=user).first()
+
+    if request.method == 'POST':
+        rating_value = request.POST.get('rating')
+        review_text = request.POST.get('review')
+
+        if rating_value:
+   
+            if existing_rating:
+                existing_rating.rating = rating_value
+                existing_rating.review = review_text
+                existing_rating.save()
+                messages.success(request, 'Your rating and review have been updated.')
+            else:
+
+                ProductRating.objects.create(
+                    product=product,
+                    user=user,
+                    rating=rating_value,
+                    review=review_text
+                )
+                messages.success(request, 'Thank you for submitting your rating and review.')
+
+            return redirect('order_details', order_id=request.POST.get('order_id'))  # Adjust based on your order details view
+
+        else:
+            messages.error(request, 'Please provide a valid rating.')
+
+    return redirect('order_details', order_id=request.POST.get('order_id'))  # Adjust based on your order details view
+

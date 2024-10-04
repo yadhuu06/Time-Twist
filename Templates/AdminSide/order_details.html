@@ -211,12 +211,15 @@
     </div>
 
     <!-- Bootstrap and JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function changeOrderStatus(orderId) {
             const status = document.getElementById('statusSelect').value;
             const url = `{% url 'order_management:change_status' order_id=order.id %}`;
-
+    
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -228,39 +231,26 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Order status updated successfully.');
-                    location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Order status updated successfully!',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload(); // Refresh the page after confirmation
+                    });
                 } else {
-                    alert('Failed to update order status.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update order status. Please try again.',
+                        confirmButtonText: 'OK'
+                    });
                 }
             });
         }
     </script>
+    
 </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        {% if messages %}
-            const messages = [
-                {% for message in messages %}
-                    {
-                        level: "{{ message.tags }}",
-                        text: "{{ message }}"
-                    },
-                {% endfor %}
-            ];
-            messages.forEach(message => {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-right',
-                    icon: message.level === 'success' ? 'success' : 'error',
-                    title: message.text,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            });
-        {% endif %}
-    });
-</script>
 
 {% endblock %}

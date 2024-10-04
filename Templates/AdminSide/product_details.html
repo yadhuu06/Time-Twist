@@ -1,111 +1,232 @@
+
 {% extends "AdminSide/base.html" %}
-{% load static %}
+
+{% block title %}Edit Product{% endblock %}
 
 {% block content %}
 <div class="content">
-<div class="container mt-5">
-    <div class="row">
-        <!-- Product Images -->
-        <div class="col-md-6">
-            <div id="productImagesCarousel" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #3949ab;
+            --background-color: #000033;
+            --text-color: #ffffff;
+            --card-bg-color: #0a0a2a;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .product-details {
+            display: flex;
+            gap: 2rem;
+            background-color: var(--card-bg-color);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-images {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .product-carousel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .product-carousel img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: none;
+        }
+
+        .product-carousel img.active {
+            display: block;
+        }
+
+        .carousel-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 50%;
+        }
+
+        .carousel-control.prev {
+            left: 10px;
+        }
+
+        .carousel-control.next {
+            right: 10px;
+        }
+
+        .product-info {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .product-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .product-meta {
+            margin-bottom: 1rem;
+        }
+
+        .product-meta p {
+            margin: 0.5rem 0;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-price .offer-price {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .product-price .original-price {
+            text-decoration: line-through;
+            color: #9e9e9e;
+            margin-left: 0.5rem;
+        }
+
+        .product-variants {
+            margin-top: 2rem;
+        }
+
+        .variant-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .variant-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .variant-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        .variant-status.active {
+            background-color: #4caf50;
+        }
+
+        .variant-status.inactive {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="product-details">
+            <div class="product-images">
+                <div class="product-carousel">
                     {% for image in images %}
-                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                        <img src="{{ image.image.url }}" class="d-block w-100 product-image" alt="{{ products.product_name }}">
-                    </div>
+                    <img src="{{ image.image.url }}" alt="{{ products.product_name }}" class="{% if forloop.first %}active{% endif %}">
                     {% endfor %}
+                    <a href="#" class="carousel-control prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></a>
+                    <a href="#" class="carousel-control next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></a>
                 </div>
-                <a class="carousel-control-prev" href="#productImagesCarousel" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Previous</span>
-                </a>
-                <a class="carousel-control-next" href="#productImagesCarousel" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Next</span>
-                </a>
+            </div>
+            <div class="product-info">
+                <h1 class="product-title">{{ products.product_name }}</h1>
+                <div class="product-meta">
+                    <p><strong>Brand:</strong> {{ products.product_brand.brand_name }}</p>
+                    <p><strong>Category:</strong> {{ products.product_category.category_name }}</p>
+                    <p><strong>Description:</strong> {{ products.product_description }}</p>
+                </div>
+                <div class="product-price">
+                    {% if products.offer_price %}
+                        <span class="offer-price">₹{{ products.offer_price }}</span>
+                        <span class="original-price">₹{{ products.price }}</span>
+                        <p class="discount">{{ products.offer_percentage }}% OFF</p>
+                    {% else %}
+                        <span class="offer-price">₹{{ products.price }}</span>
+                    {% endif %}
+                </div>
+                <div class="product-variants">
+                    <h3>Available Variants</h3>
+                    <ul class="variant-list">
+                        {% for variant in products.variants.all %}
+                        <li class="variant-item">
+                            <span><strong>{{ variant.variant_name }}</strong> - ₹{{ variant.price }}</span>
+                            <span class="variant-status {% if variant.is_active %}active{% else %}inactive{% endif %}">
+                                {% if variant.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
-
-        <!-- Product Details -->
-        <div class="col-md-6">
-            <h2>{{ products.product_name }}</h2>
-            <p><strong>Brand:</strong> {{ products.product_brand.brand_name }}</p>
-            <p><strong>Category:</strong> {{ products.product_category.category_name }}</p>
-            <p><strong>Description:</strong> {{ products.product_description }}</p>
-
-            <h4>
-                {% if products.offer_price %}
-                    <span class="text-success">Price Rs {{ products.offer_price }}</span>
-                    <del class="text-muted">Rs{{ products.price }}</del>
-                {% else %}
-                    <span class="text-primary">Rs{{ products.price }}</span><br>
-                {% endif %}
-            </h4>
-            
-            {% if products.offer_price %}
-            <p class="text-success">
-                <strong>Discount:</strong> {{ products.offer_percentage}}% OFF
-            </p>
-            {% endif %}
-
-            <!-- Variants -->
-            <h5>Available Variants</h5>
-            <ul class="list-group">
-                {% for variant in products.variants.all %}
-                <li class="list-group-item">
-                    <strong>{{ variant.variant_name }}</strong> - Rs{{ variant.price }} 
-                <strong>Status:</strong> 
-                    {% if variant.is_active %}
-                        <span style="color: green;">Active</span>
-                    {% else %}
-                        <span style="color: red;">Inactive</span>
-                    {% endif %}
-                    
-                </li>
-                {% endfor %}
-            </ul>
-
-        </div>
     </div>
-</div>
 
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.product-carousel img');
 
-<style>
-    .product-image {
-        max-height: 500px; /* Limit the height */
-        object-fit: cover; /* Cover the entire container */
-        object-position: center; /* Center the image */
-    }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        {% if messages %}
-            const messages = [
-                {% for message in messages %}
-                    {
-                        level: "{{ message.tags }}",
-                        text: "{{ message }}"
-                    },
-                {% endfor %}
-            ];
-            messages.forEach(message => {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-right',
-                    icon: message.level === 'success' ? 'success' : 'error',
-                    title: message.text,
-                    showConfirmButton: false,
-                    timer: 3000
+        function changeSlide(direction) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + direction + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            {% if messages %}
+                const messages = [
+                    {% for message in messages %}
+                        {
+                            level: "{{ message.tags }}",
+                            text: "{{ message }}"
+                        },
+                    {% endfor %}
+                ];
+                messages.forEach(message => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-right',
+                        icon: message.level === 'success' ? 'success' : 'error',
+                        title: message.text,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 });
-            });
-        {% endif %}
-    });
-</script>
-<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
-<style>
-body {
-    font-family: 'Alegreya';font-size: 22px;
-}
-</style>
+            {% endif %}
+        });
+    </script>
+</div>
 {% endblock %}

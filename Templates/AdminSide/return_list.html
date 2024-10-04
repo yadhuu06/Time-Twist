@@ -34,7 +34,7 @@
                                     <td>{{ return.user.first_name }} {{ return.user.last_name }}</td>
                                     <td>{{ return.get_reason_display }}</td>
                                     <td>
-                                        <span class="badge {% if return.status == 'pending' %}bg-warning{% elif return.status == 'complete' %}bg-success{% else %}bg-danger{% endif %}">
+                                        <span class="badge {% if return.status == 'Pending' %}bg-warning{% elif return.status == 'complete' %}bg-success{% else %}bg-danger{% endif %}">
                                             {{ return.get_status_display }}
                                         </span>
                                     </td>
@@ -192,6 +192,6 @@
         });
     }
 </script>
-
+    
 {% endblock %}
 {% endblock %}

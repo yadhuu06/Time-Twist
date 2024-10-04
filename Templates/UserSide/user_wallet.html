@@ -127,9 +127,10 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge {% if transaction.transaction_type == 'Credit' %}bg-success{% else %}bg-danger{% endif %}">
+                                        <span class="{% if transaction.transaction_type == 'Credit' %}text-success{% else %}text-danger{% endif %}">
                                             {{ transaction.transaction_type }}
                                         </span>
+                                        
                                     </td>
                                     <td>{{ transaction.description }}</td>
                                 </tr>

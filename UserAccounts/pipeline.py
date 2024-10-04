@@ -1,4 +1,3 @@
-from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from .models import User
 from django.contrib import messages
@@ -10,7 +9,7 @@ def save_user_details(backend, user, response, request, *args, **kwargs):
         email = response.get('email')
         first_name = response.get('given_name')
         last_name = response.get('family_name')
-        
+
         if not user:
             try:
                 # Try to get the user by email
@@ -21,20 +20,18 @@ def save_user_details(backend, user, response, request, *args, **kwargs):
                 user.is_active = True  # You can set default active status here if needed
                 user.save()
 
-        # Update the user's details if needed
+        # Update user's first and last name if they are missing
         if not user.first_name or not user.last_name:
             user.first_name = first_name
             user.last_name = last_name
             user.save()
 
-        # Check if the user is active
+        # If the user is inactive, redirect them
         if not user.is_active:
             messages.error(request, "This account is inactive.")
-            return redirect(reverse(''))  # Replace 'login' with the appropriate view name
+            return redirect(reverse('login'))  # Replace 'login' with the appropriate view name
 
-        # Authenticate the user
-        user = authenticate(email=email)
-        
+        # Return the user as part of the social authentication pipeline
         return {
             'is_new': False,
             'user': user,

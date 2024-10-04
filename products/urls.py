@@ -12,6 +12,7 @@ urlpatterns = [
     path('New/Varient/<int:Products_id>/', views.add_productVarient, name='add_productVarient'),
     path('edit/<int:product_id>/', views.edit_product, name='edit_product'), 
     path('edit_variant/<int:variant_id>/', views.edit_productVariant, name='edit_productVariant'),
-     path('submit-product-rating/', views.submit_product_rating, name='submit_product_rating'),
+    
+   
     
     ] 

@@ -208,6 +208,9 @@ def change_order_status(request, order_id):
             order.save()
         return redirect('admin_order_list')
 
+
+
+
 @user_passes_test(is_admin)
 def return_list(request):
     return_item = Return.objects.exclude(status='complete').order_by('-return_date')
@@ -227,37 +230,50 @@ def update_return_status(request):
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
 
     if not return_id or not new_status:
+        print("not")
         return JsonResponse({'status': 'error', 'message': 'Missing return_id or status'}, status=400)
 
     with transaction.atomic():
+        print("atomic")
+        print(return_id)
         try:
             return_item = Return.objects.select_for_update().get(id=return_id)
+            if return_item==None:
+                print("item none")
 
             if return_item.status != 'Pending':
                 return JsonResponse({'status': 'error', 'message': 'This return has already been processed'}, status=400)
 
-            return_item.status = 'returned' if new_status == 'complete' else new_status
+            return_item.status = 'Returned' if new_status == 'complete' else new_status
             return_item.save()
+            print("new status-:",new_status)
 
             if new_status == 'complete':
+                order = return_item.order
                 order_items = OrderItem.objects.filter(order=return_item.order, product_variant__in=return_item.order.items.values_list('product_variant', flat=True))
 
                 if not order_items.exists():
+                    print("no-order")
                     return JsonResponse({'status': 'error', 'message': 'Associated order items not found'}, status=404)
 
                 total_refund_amount = 0
                 
                 for order_item in order_items:
-                    refund_amount = order_item.paid_price-order_item.shipping
+                    refund_amount = order_item.paid_price-order.shipping
                     total_refund_amount += refund_amount
                     
                     product_variant = order_item.product_variant
                     product_variant.variant_stock += order_item.quantity
+                    
                     product_variant.save()
 
                 wallet, _ = Wallet.objects.get_or_create(user=return_item.user)
-                wallet.balance += order.final_price-shipping
+                if wallet==None:print("none")
+                print('wallet bfr',wallet.balance)
+                wallet.balance += total_refund_amount
+                print("amount transfere")
                 wallet.save()
+                print("aftr",wallet.balance)
 
                 WalletTransaction.objects.create(
                     wallet=wallet,
@@ -266,7 +282,8 @@ def update_return_status(request):
                     transaction_type='Credit'
                 )
 
-                Payment.objects.filter(order=return_item.order).update(status='refund')
+                Payment.objects.filter(order=return_item.order).update(status='Refund')
+                
                 Order.objects.filter(id=return_item.order.id).update(status='Returned')
 
                 messages.success(request, 'Return approved, refund processed, and stock updated')
@@ -286,8 +303,6 @@ def update_return_status(request):
             return JsonResponse({'status': 'error', 'message': 'Associated order item not found'}, status=404)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': f'An unexpected error occurred: {str(e)}'}, status=500)
-
-
 
 
 @user_passes_test(is_admin)
