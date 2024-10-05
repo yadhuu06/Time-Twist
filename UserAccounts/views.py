@@ -1,17 +1,12 @@
-from django.shortcuts import render, HttpResponse, redirect,get_object_or_404
-from django.contrib.auth import get_user_model, authenticate, login ,logout
+from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.utils import timezone
 from django.core.mail import EmailMultiAlternatives
 from django.contrib import messages
 from django.templatetags.static import static
 from datetime import datetime, timedelta
 import random
-from .forms import EmailAuthenticationForm 
-from datetime import datetime, timedelta
-from django.utils import timezone
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib.auth import get_user_model
+from .forms import EmailAuthenticationForm, PasswordResetRequestForm
 from django.db import IntegrityError
 from products.models import Category, Brand, Products, ProductVariant, ProductVariantImages
 from django.views.decorators.cache import cache_control
@@ -19,23 +14,15 @@ from UserAccounts.models import User
 from cart.models import RecentlyViewed
 from django.contrib.auth.decorators import login_required
 from user_pannel.models import UserAddress
-from .forms import PasswordResetRequestForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
-from django.contrib.auth.forms import PasswordResetForm,SetPasswordForm
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth import update_session_auth_hash
 from django.utils.translation import gettext as _
-from django.contrib.auth import login ,authenticate
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from .forms import EmailAuthenticationForm
-from django.utils import timezone
-from datetime import datetime, timedelta
-
 
 
 
@@ -231,11 +218,6 @@ def verify_otp(request):
 
 
 
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from .forms import EmailAuthenticationForm  
-from django.contrib.auth import get_user_model
 
 def login_view(request):
     if request.method == 'POST':
@@ -284,19 +266,7 @@ def home_view(request):
         featured = Products.objects.filter(is_active=True, featured=True)[:4].prefetch_related('variants__images')
         new_launch = Products.objects.filter(is_active=True).order_by('-id')[:5].prefetch_related('variants__images')
         
-        # recently_viewed, created = RecentlyViewed.objects.get_or_create(user=user,product=product)
-        # if created:
-        #     viewed_products = RecentlyViewed.objects.filter(user=user).order_by('-timestamp')
-
-        # if viewed_products.count() > 10:
-        #     viewed_products.last().delete()
-
-        # else:
-        #     recently_viewed.timestamp = timezone.now()
-        #     recently_viewed.save()
-
-        # recently_viewed = RecentlyViewed.objects.filter(user=user).order_by('-timestamp')
-
+   
         user_details = {
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
@@ -305,7 +275,7 @@ def home_view(request):
         }
 
         response = render(request, 'UserSide/home.html', {
-            # 'recently_viewed':recently_viewed,
+
             'featured': featured,
             'new_launch': new_launch,
             'user_details': user_details

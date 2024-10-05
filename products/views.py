@@ -1,56 +1,42 @@
-from django.shortcuts import render, redirect,get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Category, Brand,Products
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.utils import timezone
 from .models import Category, Brand, Products, ProductVariant, ProductVariantImages
 from catogory.models import Category
 from brand.models import Brand
 from utils.decorators import admin_required
-from django.http import HttpResponse
+from django.contrib import messages
+from django.utils import timezone
+from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import ValidationError
 from django.db import transaction
 import re
 from decimal import Decimal
 from django.views.decorators.cache import never_cache
-from django.core.paginator import Paginator
-from django.shortcuts import render
-from django.db.models import Q
 from django.db.models import Q
 from django.core.paginator import Paginator
-from django.shortcuts import render
-from .models import Products
-
-from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-
 
 
 
 
 @admin_required
 def products_list(request):
-    query = request.GET.get('q'," ")  # Get the search query from the request
+    query = request.GET.get('q'," ") 
     products_list = Products.objects.all().order_by('id')
-    print(query)
+   
 
-    # Search functionality
     if query:
-        # Use Q objects to filter products where the name or brand starts with, ends with, or contains the query.
+        
         products_list = products_list.filter(
-            Q(product_name__icontains=query) |  # Contains anywhere
-            Q(product_name__startswith=query) |  # Starts with
-            Q(product_name__endswith=query) |  # Ends with
-            Q(product_brand__brand_name__icontains=query) |  # Brand contains
-            Q(product_brand__brand_name__startswith=query) |  # Brand starts with
-            Q(product_brand__brand_name__endswith=query)  # Brand ends with
+            Q(product_name__icontains=query) |  
+            Q(product_name__startswith=query) |  
+            Q(product_name__endswith=query) | 
+            Q(product_brand__brand_name__icontains=query) |  
+            Q(product_brand__brand_name__endswith=query)  
         )
 
     # Pagination
-    paginator = Paginator(products_list, 6)  # Show 6 products per page
+    paginator = Paginator(products_list, 6)
     page_number = request.GET.get('page')
     products = paginator.get_page(page_number)
 

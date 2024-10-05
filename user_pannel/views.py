@@ -114,6 +114,8 @@ def edit_address(request, address_id):
 
     return render(request, 'edit_address.html', {'address': address})
 
+
+
 @login_required
 def delete_address(request, address_id):
     address = get_object_or_404(UserAddress, id=address_id, user=request.user)
@@ -124,6 +126,8 @@ def delete_address(request, address_id):
         return redirect('user_profile')
 
     return render(request, 'UserSide/user-login/confirm_delete.html', {'address': address})
+
+
 
 @login_required
 @never_cache
@@ -137,6 +141,7 @@ def user_profile(request):
     }
 
     return render(request, 'UserSide/user-login/user_profile.html', context)
+
 
 @never_cache
 @login_required
@@ -180,7 +185,6 @@ def shop_view(request):
             )
         products = products.prefetch_related('variants__images')
 
-        #  paginator setted
         paginator = Paginator(products, 12)  
         page_number = request.GET.get('page')
         try:
@@ -227,6 +231,7 @@ def product_detail_user(request, id):
         cart_items = CartItem.objects.filter(cart__user=user, product=product)
         
         variant_data = []
+
 
         for variant in variants:
             variant_in_cart = any(cart_item.variant.id == variant.id for cart_item in cart_items)
