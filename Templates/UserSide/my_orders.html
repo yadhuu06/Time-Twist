@@ -149,13 +149,36 @@
             </ul>
         </nav>
     {% else %}
-        <div class="alert alert-info d-flex justify-content-center align-items-center text-center" role="alert" style="height:550px;">
-            You haven't placed any orders yet. <a href="{% url 'shop_view' %}" class="alert-link theme-text">Start shopping now!</a>
-        </div>
+    <div class="alert alert-info d-flex justify-content-center align-items-center text-center" 
+    role="alert" 
+    style="height:550px; 
+           background-image: url('{% static 'UserSide/img/noy.jpeg' %}'); 
+           background-size: cover; 
+           background-position: center;
+           color: white; 
+           position: relative;">
+   <div style=" ">
+      
+    <a href="{% url 'shop_view' %}" 
+    class="btn btn-custom" 
+    style="background-color: #ffcc00; 
+           color: white; 
+           font-weight: bold; 
+           padding: 10px 20px; 
+           border-radius: 5px; 
+           text-decoration: none; 
+           display: inline-block; 
+           transition: background-color 0.3s ease, color 0.3s ease;">
+    Start shopping now!
+ </a>
+   </div>
+</div>
+
     {% endif %}
 </div>
 
 <style>
+    .
     :root {
         --theme-red: #8B0000;
         --theme-orange: #FFA500;

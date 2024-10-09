@@ -11,8 +11,6 @@
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
     <style>
         body {
@@ -77,6 +75,17 @@
         .stock-status {
             font-weight: bold;
         }
+        .empty-wishlist-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            text-align: center;
+        }
+        .empty-wishlist-container img {
+            max-width: 100%;
+            max-height: 80vh;
+        }
     </style>
 </head>
 <body>
@@ -85,44 +94,51 @@
     <h1 class="text-center wishlist-title">WISHLIST</h1>
     
     <h2 class="mb-4">MY WISHLIST</h2>
-    
-    <div class="table-responsive">
-        <table class="table wishlist-table">
-            <thead>
-                <tr>
-                    <th scope="col">PRODUCT</th>
-                    <th scope="col">PRICE</th>
-                    <th scope="col">STOCK DETAIL</th>
-                    <th scope="col">ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in wishlist_data %}
-                <tr data-href="{% url 'product_detail_user' item.product.id %}" class="clickable-row">
-                    <td class="d-flex align-items-center">
-                        <img src="{{ item.image.url }}" alt="{{ item.product.product_name }}" class="product-image mr-3">
-                        <div>
-                            <p class="product-name">{{ item.product.product_name }}</p>
-                            <p class="product-variant mb-0">{{ item.variant.variant_name }}</p>
-                            <p class="product-brand mb-0">{{ item.product.product_brand.brand_name }}</p>
-                        </div>
-                    </td>
-                    <td>${{ item.variant.price }}</td>
-                    <td>
-                        <span class="stock-status {% if item.stock_class == 'in-stock' %}text-success{% elif item.stock_class == 'limited-stock' %}text-warning{% else %}text-danger{% endif %}">
-                            {{ item.stock_status|upper }}
-                        </span>
-                    </td>
-                    <td>
-                        <a id="wishlist-button" class="wishlist-btn" href="{% url 'cart:remove_from_wishlist' item.product.id %}">
-                            <i class="fas fa-heart"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+
+    <!-- Check if wishlist_data is empty -->
+    {% if not wishlist_data %}
+        <div class="empty-wishlist-container" style=margin-top: -150px;>
+            <img src="{% static 'UserSide/img/emp.png' %}" alt="Your wishlist is empty">
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table wishlist-table">
+                <thead>
+                    <tr>
+                        <th scope="col">PRODUCT</th>
+                        <th scope="col">PRICE</th>
+                        <th scope="col">STOCK DETAIL</th>
+                        <th scope="col">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in wishlist_data %}
+                    <tr data-href="{% url 'product_detail_user' item.product.id %}" class="clickable-row">
+                        <td class="d-flex align-items-center">
+                            <img src="{{ item.image.url }}" alt="{{ item.product.product_name }}" class="product-image mr-3">
+                            <div>
+                                <p class="product-name">{{ item.product.product_name }}</p>
+                                <p class="product-variant mb-0">{{ item.variant.variant_name }}</p>
+                                <p class="product-brand mb-0">{{ item.product.product_brand.brand_name }}</p>
+                            </div>
+                        </td>
+                        <td>${{ item.variant.price }}</td>
+                        <td>
+                            <span class="stock-status {% if item.stock_class == 'in-stock' %}text-success{% elif item.stock_class == 'limited-stock' %}text-warning{% else %}text-danger{% endif %}">
+                                {{ item.stock_status|upper }}
+                            </span>
+                        </td>
+                        <td>
+                            <a id="wishlist-button" class="wishlist-btn" href="{% url 'cart:remove_from_wishlist' item.product.id %}">
+                                <i class="fas fa-heart"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
     
     <script>
         // JavaScript to make rows clickable
@@ -135,9 +151,6 @@
             });
         });
     </script>
-    
-
-    </div>
 </div>
 
 <!-- Bootstrap JS, Popper.js, and jQuery -->
@@ -152,7 +165,7 @@
                 {% for message in messages %}
                     {
                         level: "{{ message.tags }}",
-                        text: "{{ message }}"
+                        text: "{{ message }}",
                     },
                 {% endfor %}
             ];
@@ -169,5 +182,6 @@
         {% endif %}
     });
 </script>
+
 </body>
 {% endblock %}

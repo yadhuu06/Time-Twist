@@ -21,38 +21,58 @@
 
 
     <!-- Hero section with changing images -->
-	<section id="home" class="hero-section">
-		<div class="hero-overlay"></div>
-		<div class="container hero-content">
-			<h3 class="display-3 fw-bold mb-4">Discover Timeless Elegance</h3>
-			<p class="lead mb-5">Explore our curated collection of luxury timepieces</p>
-			<a href="{% url 'shop_view' %}" style="
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #ffffff;
-    background: linear-gradient(135deg, #8b0000, #ff0000);
-    border: none;
-    border-radius: 8px;
-    padding: 12px 30px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    display: inline-block;
-    text-decoration: none;" 
-    onmouseover="this.style.background='linear-gradient(135deg, #ff0000, #8b0000)'; 
-                 this.style.transform='translateY(-3px)';
-                 this.style.boxShadow='0 8px 20px rgba(0, 0, 0, 0.3)';"
-    onmouseout="this.style.background='linear-gradient(135deg, #8b0000, #ff0000)';
-                this.style.transform='translateY(0)';
-                this.style.boxShadow='0 4px 10px rgba(0, 0, 0, 0.2)';">
-    Explore Collection
-</a>
-
-
-
-		</div>
-	</section>
+    <body>
+        <section id="home" class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <h3 id="changing-heading" class="display-3 fw-bold mb-4">Discover Timeless Elegance</h3>
+                <p class="lead mb-5">Explore our curated collection of luxury timepieces</p>
+                <a href="{% url 'shop_view' %}" style="
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #ffffff;
+                background: linear-gradient(135deg, #8b0000, #ff0000);
+                border: none;
+                border-radius: 8px;
+                padding: 12px 30px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                display: inline-block;
+                text-decoration: none;" 
+                onmouseover="this.style.background='linear-gradient(135deg, #ff0000, #8b0000)'; 
+                             this.style.transform='translateY(-3px)';
+                             this.style.boxShadow='0 8px 20px rgba(0, 0, 0, 0.3)';"
+                onmouseout="this.style.background='linear-gradient(135deg, #8b0000, #ff0000)';
+                            this.style.transform='translateY(0)';
+                            this.style.boxShadow='0 4px 10px rgba(0, 0, 0, 0.2)';">
+                Explore Collection
+                </a>
+            </div>
+        </section>
+    
+        <script>
+            const headings = [
+                "Discover Timeless Elegance",
+                "Stop The Time",
+                "Wear the Watch"
+            ];
+            let currentIndex = 0;
+            const headingElement = document.getElementById('changing-heading');
+    
+            function changeHeading() {
+                headingElement.classList.add('fade');
+                
+                setTimeout(() => {
+                    currentIndex = (currentIndex + 1) % headings.length;
+                    headingElement.textContent = headings[currentIndex];
+                    headingElement.classList.remove('fade');
+                }, 500);
+            }
+    
+            setInterval(changeHeading, 2500);
+        </script>
 	<!-- Swiper CSS -->
 <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 <!-- Swiper JS -->
@@ -973,6 +993,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		
 		.hero-section {
+            
 			height: 100vh;
 			background-size: cover;
 			background-position: left;
