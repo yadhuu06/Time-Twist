@@ -2,65 +2,70 @@
 {% block title %}Edit Category{% endblock %}
 
 {% block content %}
-
-<div class="content">
-<div class="col-12 grid-margin stretch-card">
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title">Edit the Category</h4>
-            <form class="forms-sample" method="post" action="{% url 'catogory:edit_category' category.id %}">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="categoryName">Category Name</label>
-                    <input type="text" class="form-control" id="categoryName" name="category_name" value="{{ category.category_name }}" required>
+<div class="content" style="background-color: #000; padding: 20px;">
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="col-6 grid-margin stretch-card">
+            <div class="card" style="border-radius: 15px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); background-color: #2A2A80;">
+                <div class="card-body">
+                    <h4 class="card-title text-center" style="color: #FFD700;">Edit the Category</h4>
+                    <form class="forms-sample" method="post" action="{% url 'catogory:edit_category' category.id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="categoryName" style="color: #FFD700;">Category Name</label>
+                            <input type="text" class="form-control" id="categoryName" name="category_name" value="{{ category.category_name }}" required style="border: 2px solid #FFD700;">
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryDescription" style="color: #FFD700;">Description</label>
+                            <input type="text" class="form-control" id="categoryDescription" name="category_description" value="{{ category.category_description }}" style="border: 2px solid #FFD700;">
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryStatus" style="color: #FFD700;">Status</label>
+                            <select class="form-control" id="categoryStatus" name="is_available" style="border: 2px solid #FFD700;">
+                                <option value="true" {% if category.is_available %}selected{% endif %}>Active</option>
+                                <option value="false" {% if not category.is_available %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary mr-2" style="background-color: #FFD700; color: #1E1E78; border: none; margin-top: 70px;margin-right: 50px;">Save Changes</button>
+                            <a href="{% url 'catogory:catogory_list' %}" class="btn btn-secondary" style="background-color: #1E1E78; color: white; border: none;margin-top: 70px;margin-left: 50px;">Cancel</a>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label for="categoryDescription">Description</label>
-                    <input type="text" class="form-control" id="categoryDescription" name="category_description" value="{{ category.category_description }}">
-                </div>
-                <div class="form-group">
-                    <label for="categoryStatus">Status</label>
-                    <select class="form-control" id="categoryStatus" name="is_available">
-                        <option value="true" {% if category.is_available %}selected{% endif %}>Active</option>
-                        <option value="false" {% if not category.is_available %}selected{% endif %}>Inactive</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary mr-2">Save Changes</button>
-                <a href="{% url 'catogory:catogory_list' %}" class="btn btn-secondary">Cancel</a>
-            </form>
+            </div>
         </div>
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        {% if messages %}
-            const messages = [
-                {% for message in messages %}
-                    {
-                        level: "{{ message.tags }}",
-                        text: "{{ message }}"
-                    },
-                {% endfor %}
-            ];
-            messages.forEach(message => {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-right',
-                    icon: message.level === 'success' ? 'success' : 'error',
-                    title: message.text,
-                    showConfirmButton: false,
-                    timer: 3000
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            {% if messages %}
+                const messages = [
+                    {% for message in messages %}
+                        {
+                            level: "{{ message.tags }}",
+                            text: "{{ message }}"
+                        },
+                    {% endfor %}
+                ];
+                messages.forEach(message => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-right',
+                        icon: message.level === 'success' ? 'success' : 'error',
+                        title: message.text,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 });
-            });
-        {% endif %}
-    });
-</script>
-<link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
-<style>
-body {
-    font-family: 'Alegreya';font-size: 22px;
-}
-</style>
+            {% endif %}
+        });
+    </script>
+    <link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
+    <style>
+        body {
+            font-family: 'Alegreya', serif;
+            font-size: 22px;
+            color: white;
+        }
+    </style>
 </div>
 {% endblock %}

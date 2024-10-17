@@ -44,31 +44,41 @@
         }
         .btn {
             width: 100%;
-            padding: 12px;
-            border-radius: 25px;
+            padding: 7px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
             text-align: center;
             margin-top: 15px;
             transition: all 0.3s ease;
         }
-        .btn-check-orders, .btn-view-summary {
-            background-color: #007bff;
-            border: none;
-            color: #ffffff;
+        .btn-check-orders{
+            background-color: transparent;
+            color: black;
+            border: 2px solid orange;
+
         }
-        .btn-check-orders:hover, .btn-view-summary:hover {
-            background-color: #0056b3;
+         .btn-view-summary {
+            background-color: transparent;
+            border: 3px solid green;
+            color: black;
+        }
+        .btn-view-summary:hover{ 
+            background-color: green;
+            transform: translateY(-3px);}
+        .btn-check-orders:hover {
+            background-color: orange;
             transform: translateY(-3px);
         }
         .btn-continue-shopping {
-            background-color: #28a745;
-            color: white;
-            border: none;
+            background-color: transparent;
+            color: black;
+            border: 1px solid black;
         }
         .btn-continue-shopping:hover {
-            background-color: #218838;
+            background-color: black;
             transform: translateY(-3px);
+            color:white;
         }
         .celebration {
             position: fixed;
@@ -93,8 +103,8 @@
         <p class="animate__animated animate__fadeIn animate__delay-2s">Order ID: <span class="order-id">{{order.order_id}}</span></p>
         <p class="animate__animated animate__fadeIn animate__delay-2s">Estimated delivery: <b>Within 7 days</b></p>
         <a href="{% url 'order_management:order_details_user' order_id=order.order_id %}" class="btn btn-view-summary animate__animated animate__fadeInUp animate__delay-3s">View Order Summary</a>
-        <a href="{% url 'order_management:my_orders' %}" class="btn btn-check-orders animate__animated animate__fadeInUp animate__delay-3s">Check All Orders</a>
-        <a href="{% url 'shop_view' %}" class="btn btn-continue-shopping animate__animated animate__fadeInUp animate__delay-3s">Continue Shopping</a>
+        <a href="{% url 'order_management:my_orders' %}" class="btn btn-check-orders animate__animated animate__fadeInUp animate__delay-4s">Check All Orders</a>
+        <a href="{% url 'shop_view' %}" class="btn btn-continue-shopping animate__animated animate__fadeInUp animate__delay-5s">Continue Shopping</a>
     </div>
 </div>
 

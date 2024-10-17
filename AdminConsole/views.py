@@ -18,21 +18,21 @@ from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import datetime, timedelta, date
 import json
-from django.db import models  # Import models
+from django.db import models 
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncDate 
 from django.shortcuts import render
 from django.utils import timezone
 from datetime import timedelta
 from django.views.decorators.cache import never_cache
-from order_management.models import Order, OrderItem  # Adjust the imports based on your app structure
+from order_management.models import Order, OrderItem  
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum, F
 from django.db.models.functions import TruncDay, TruncMonth, TruncYear
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-
+from django.db.models import Q
 
 def is_admin(user):
     return  user.is_admin
@@ -55,11 +55,14 @@ def admin_page(request):
     else:
         start_date = timezone.now() - timedelta(days=7)  
 
-    orders = Order.objects.filter(created_at__gte=start_date)
+    orders = Order.objects.filter(created_at__gte=start_date).exclude(
+       payment__method=None)
 
     total_orders = orders.count()
-    total_revenue = Order.objects.filter(created_at__gte=start_date).aggregate(Sum('final_price'))['final_price__sum'] or 0
-    pending_orders = orders.filter(status='Pending').count()
+    total_revenue = Order.objects.filter(created_at__gte=start_date).exclude(
+       payment__method=None).aggregate(Sum('final_price'))['final_price__sum'] or 0
+    pending_orders = orders.filter(status='Pending').exclude(
+       payment__method=None).count()
     completed_orders = orders.filter(status='Delivered').count()
 
     order_trends = orders.annotate(date=TruncDate('created_at')) \
@@ -162,23 +165,19 @@ def Block_user(request):
 
 
 @user_passes_test(is_admin)
-def admin_order_list(request):
-    
+def admin_order_list(request): 
  
-   
-    # Get filter option from GET request
-    status_filter = request.GET.get('status', 'all')  # Default to 'all'
-    
-    # Base queryset with sorting
+    status_filter = request.GET.get('status', 'all')  
+
     orders_list = Order.objects.all().order_by('-created_at')
-    orders = orders_list.exclude(payment__isnull=True).exclude(payment__status__in=[ 'Failed', 'Incomplete'])
-    
-    # Filter by status if selected
+    orders = orders_list.exclude(
+       payment__method=None)
+
     if status_filter != 'all':
         orders = orders.filter(status=status_filter)
     
-    # Pagination setup
-    paginator = Paginator(orders, 8)  # Show 8 orders per page
+
+    paginator = Paginator(orders, 8) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -259,18 +258,20 @@ def update_return_status(request):
                 total_refund_amount = 0
                 
                 for order_item in order_items:
-                    refund_amount = order_item.paid_price-order.shipping
+                    refund_amount = order_item.paid_price
                     total_refund_amount += refund_amount
                     
                     product_variant = order_item.product_variant
                     product_variant.variant_stock += order_item.quantity
                     
                     product_variant.save()
+                
+                final_refund_amount=total_refund_amount-order.shipping
 
                 wallet, _ = Wallet.objects.get_or_create(user=return_item.user)
                 if wallet==None:print("none")
                 print('wallet bfr',wallet.balance)
-                wallet.balance += total_refund_amount
+                wallet.balance += final_refund_amount
                 print("amount transfere")
                 wallet.save()
                 print("aftr",wallet.balance)

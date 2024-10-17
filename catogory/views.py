@@ -44,7 +44,7 @@ def edit_category(request, category_id):
             return render(request, 'AdminSide/edit_catogory.html', {'category': category})
         
  
-        if Category.objects.filter(catogory_name=category_name).exclude(id=category_id).exists():
+        if Category.objects.filter(category_name=category_name).exclude(id=category_id).exists():
             messages.error(request, "A category with this name already exists.")
             return render(request, 'AdminSide/edit_catogory.html')
         
@@ -53,7 +53,7 @@ def edit_category(request, category_id):
         category.is_available = status
         category.save()
         messages.success(request, 'Category updated successfully!')
-        return redirect('category:category_list')
+        return redirect('catogory:catogory_list')
 
     return render(request, 'AdminSide/edit_catogory.html', {'category': category})
 

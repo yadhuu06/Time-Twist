@@ -29,8 +29,7 @@ import hmac
 
 
 
-@active_user_required
-@never_cache
+
 def place_order(request):
     print("place order")
     if request.method == 'POST':
@@ -54,9 +53,10 @@ def place_order(request):
             coupon = get_object_or_404(Coupon, coupon_code=applied_coupon_id, status=True)
             if coupon.minimum_amount <= total_price <= coupon.maximum_amount:
                 coupon_discount = (total_price * coupon.discount) / 100
+                print("cpn dnt:",coupon_discount)
                 total_price -= coupon_discount
         
-        
+
         shipping_charge = 0        
         if total_price < 10000:
             shipping_charge = 40
@@ -129,6 +129,7 @@ def place_order(request):
 
                 for item in cart_items:
                     item_discount = (item.sub_total() / (total_price + coupon_discount)) * coupon_discount
+                    print("sub total :",item.sub_total())
                     OrderItem.objects.create(
                         order=order,
                         product_variant=item.variant,
@@ -162,12 +163,17 @@ def place_order(request):
                     messages.error(request, 'Cash on Delivery is not available for orders over Rs 10,000.')
                     return redirect('checkout')
 
-                
+                payment = Payment.objects.create(
+                        method="cod",
+                        user=request.user,
+                        amount=total_price,
+                        status='Pending'
+                    )
                 
                 order = Order.objects.create(
                     user=request.user,
                     address=selected_address,
-                    payment=None,
+                    payment=payment,
                     order_id=str(uuid.uuid4()),
                     total_price=main_total,
                     offer_price=coupon_discount,
@@ -291,6 +297,7 @@ def place_order(request):
     return redirect('checkout')
 
 
+
 @require_POST
 def verify_payment(request):
     if request.method == 'POST':
@@ -344,6 +351,7 @@ def verify_payment(request):
 
 
 
+
 def calculate_cart_total(user):
     cart_items = CartItem.objects.filter(cart__user=user, is_active=True)
     return sum(item.variant.price * item.quantity for item in cart_items)
@@ -370,8 +378,13 @@ def order_details_admin(request, order_id):
 @active_user_required
 def order_details_user(request,order_id):
     order = get_object_or_404(Order, order_id=order_id)
+    total_payable=0
+    for item in order.items.all():
+       
+        total_payable+=item.price
+    print(total_payable) 
    
-    return render(request, 'UserSide/order_details.html', {'order': order})
+    return render(request, 'UserSide/order_details.html', {'order': order,"total_payable":total_payable})
 
 
 
@@ -391,25 +404,25 @@ def cancel_order(request, order_id):
             messages.error(request, "Complete the payment.")
             return redirect('order_management:my_orders')
     
-    if order.payment.method != 'cashOnDelivery':
+    if order.payment.method != 'cod':
         wallet, created = Wallet.objects.get_or_create(user=order.user)
 
     try:
         with transaction.atomic():
+            if wallet:
+                wallet.balance += order.final_price-order.shipping
+                wallet.save()
             for item in order.items.all():
                 product_variant = item.product_variant
                 product_variant.variant_stock += item.quantity
                 product_variant.save()
-                if wallet:
-                    wallet.balance += order.final_price-order.shipping
-                    wallet.save()
-
+            if wallet:
                     WalletTransaction.objects.create(
                         wallet=wallet,
-                        amount=item.paid_price,
-                        description=f"Refund for item {item.product_variant} in Order {order.order_id} cancellation",
+                        amount= order.final_price-order.shipping,
+                        description=f"Refund for  Order {order.order_id} cancellation",
                         transaction_type="Credit"
-                    )
+                    )     
 
             order.status = 'Cancelled'
             order.save()
