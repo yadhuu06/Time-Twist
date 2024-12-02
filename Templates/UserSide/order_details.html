@@ -3,146 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details</title>
+    <title>Time Twist - Order Invoice</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/2.3.0/alpine.js" defer></script>
-</head>
-<body class="bg-gray-100" x-data="orderDetails()">
-    <div class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Order Details</h1>
-            <button @click="downloadPdf" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
-                Download PDF
-            </button>
-        </div>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .invoice-header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            padding: 2rem;
+        }
+        .status-badge {
+            transition: all 0.3s ease;
+        }
+        .status-badge:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+        .time-twist-logo {
+            font-family: 'Cinzel', serif; /* Elegant and classical font */
+            font-size: 28px; /* Adjust font size */
+            font-weight: bold;
+            display: inline-block;
+            position: relative;
+        }
         
-        <div id="orderDetails" class="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800">Order #{{ order.order_id }}</h2>
-                    <span class="px-3 py-1 rounded-full text-sm font-semibold" :class="getStatusColor()">
-                        {{ order.status }}
-                    </span>
+        .time-text {
+            color: white; /* Same color as Twist for consistency */
+        }
+        
+        .twist-text {
+            color: orange; /* Adjust this to make it consistent with Twist */
+            position: relative;
+        }
+        
+        .twist-text::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; /* Space below the text */
+            left: 0;
+            width: 100%;
+            height: 3px; /* Thickness of the underline */
+            
+            transform-origin: left;
+        }
+        
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div id="invoice-wrapper" class="invoice-container rounded-lg overflow-hidden" x-data="invoiceManager()">
+        <!-- Invoice Header -->
+        <div class="invoice-header">
+            <div class="flex justify-between items-center">
+                <div class="time-twist-logo">
+                    <span class="time-text">Time</span> <span class="twist-text">Twist</span>
+                  </div>
+                  
+                <div id="status-badge" class="status-badge px-4 py-2 rounded-full font-semibold text-white">
+                    {{ order.status }}
                 </div>
+            </div>
+            <h1 class="text-3xl font-bold" style="text-align: center;">Order Invoice</h1>
+
+            <div class="mt-4">
                 
-                <div class="bg-gray-50 p-6 rounded-lg shadow-inner mb-8">
-                    <h3 class="text-xl font-semibold mb-4 text-gray-700">Order Summary</h3>
-                    
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <p class="font-medium text-gray-600">Order Date:</p>
-                            <p>{{ order.created_at|date:"F d, Y" }}</p>
-                        </div>
-                        <div>
-                            <p class="font-medium text-gray-600">Total MRP:</p>
-                            <p>Rs {{ order.total_price }}</p>
-                        </div>
-                    </div>
+                <p class="text-gray-200">Order #{{ order.order_id }}</p>
+                <p class="text-sm text-gray-100">Ordered on {{ order.created_at|date:"F d, Y" }}</p>
+            </div>
+        </div>
 
-                    <div class="bg-white p-4 rounded-lg shadow mb-6">
-                        <h4 class="font-semibold text-lg mb-2 text-gray-700">Price Breakdown</h4>
-                        <div class="space-y-2">
-                            <div class="flex justify-between">
-                                <span>Price after Product Offer:</span>
-                                <span class="font-medium">Rs {{ total_payable }}</span>
-                            </div>
-                            <div class="flex justify-between text-green-600">
-                                <span>Coupon Discount:</span>
-                                <span class="font-medium">- Rs {{ order.offer_price }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Shipping:</span>
-                                <span class="font-medium">+ Rs {{ order.shipping }}</span>
-                            </div>
-                            <div class="border-t pt-2 mt-2">
-                                <div class="flex justify-between font-semibold text-lg">
-                                    <span>Final Price:</span>
-                                    <span>Rs {{ order.final_price }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-               
+        <!-- Customer and Shipping Details -->
+        <div class="grid md:grid-cols-2 gap-4 p-6 bg-gray-50">
+            <div>
+                <h3 class="text-lg font-semibold mb-3 text-gray-700">Shipping Details</h3>
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                    <p class="font-medium">{{ shipping_address.name }}</p>
+                    <p>{{ shipping_address.house_name }}, {{ shipping_address.street_name }}</p>
+                    <p>{{ shipping_address.district }}, {{ shipping_address.state }} {{ shipping_address.pin_number }}</p>
+                    <p class="mt-2">
+                        <svg class="w-4 h-4 inline-block mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                        </svg>
+                        {{ shipping_address.phone_number }}
+                    </p>
                 </div>
-
-                <h3 class="text-xl font-semibold mb-4 text-gray-800">Order Items</h3>
-                <div class="space-y-4">
-                    {% for item in order.items.all %}
-                    <div class="flex items-center bg-gray-50 p-4 rounded-lg shadow transition duration-300 hover:bg-gray-100" x-data="{ showDetails: false }">
-                        <img src="{{ item.product_variant.images.first.image.url }}" alt="{{ item.product_variant.product.product_name }}" class="w-20 h-20 object-cover rounded-md mr-4">
-                        <div class="flex-grow">
-                            <h4 class="font-semibold text-lg mb-1">{{ item.product_variant.product.product_name }}</h4>
-                            <p class="text-gray-600">{{ item.product_variant.variant_name }}</p>
-                            <p class="mt-1"><span class="font-medium">Quantity:</span> {{ item.quantity }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-semibold text-lg">Offer Price :Rs {{ item.price }}</p>
-                            
-                            
-                        </div>
-                    </div>
-                    <div x-show="showDetails" class="bg-white p-4 rounded-lg shadow mt-2 border border-gray-200" x-cloak>
-                        <p class="mb-2"><span class="font-medium">Product Description:</span> {{ item.product_variant.product.product_description }}</p>
-                        <p class="mb-2"><span class="font-medium">Brand:</span> {{ item.product_variant.product.product_brand.brand_name }}</p>
-                        <p><span class="font-medium">Category:</span> {{ item.product_variant.product.product_category.name }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <div class="mt-8 bg-gray-50 p-4 rounded-lg shadow">
-                    <h3 class="text-lg font-semibold mb-2 text-gray-700">Payment Information</h3>
-                    
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-3 text-gray-700">Payment Information</h3>
+                <div class="bg-white p-4 rounded-lg shadow-sm">
                     {% if order.payment %}
-                        <p class="mb-1"><span class="font-medium">Method:</span> {{ order.payment.method }}</p>
-                        <p class="mb-1"><span class="font-medium">Status:</span> {{ order.payment.status }}</p>
-                        <p><span class="font-medium">Amount:</span> Rs {{ order.payment.amount }}</p>
+                        <div class="space-y-2">
+                            <p class="font-medium flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                {{ order.payment.method }}
+                            </p>
+                            <p>Status: <span class="font-semibold text-green-600">{{ order.payment.status }}</span></p>
+                            <p class="text-xl font-bold text-gray-800">Rs {{ order.payment.amount }}</p>
+                        </div>
                     {% else %}
-                        <p>No payment information available.</p>
+                        <p class="text-gray-500">No payment information available</p>
                     {% endif %}
                 </div>
             </div>
         </div>
+
+        <!-- Order Items -->
+        <div class="p-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">Order Items</h3>
+            {% for item in order.items.all %}
+            <div class="flex items-center bg-white p-4 rounded-lg mb-3 shadow-sm hover:shadow-md transition-all">
+                <img src="{{ item.product_variant.images.first.image.url }}" 
+                     alt="{{ item.product_variant.product.product_name }}" 
+                     class="w-20 h-20 object-cover rounded-md mr-4">
+                <div class="flex-grow">
+                    <h4 class="font-semibold text-base mb-1">{{ item.product_variant.product.product_name }}</h4>
+                    <p class="text-gray-500 text-sm">{{ item.product_variant.variant_name }}</p>
+                    <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-semibold text-base">Rs {{ item.price }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Price Breakdown -->
+        <div class="bg-gray-50 p-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">Price Details</h3>
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="space-y-3">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Total MRP</span>
+                        <span>Rs {{ order.total_price }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Product Discount</span>
+                        <span class="text-green-600">- Rs {{ order.product_offer }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Coupon Discount</span>
+                        <span class="text-green-600">- Rs {{ order.offer_price }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Shipping Charge</span>
+                        <span>+ Rs {{ order.shipping }}</span>
+                    </div>
+                    <div class="border-t border-gray-200 pt-3 mt-3">
+                        <div class="flex justify-between font-bold text-xl text-gray-900">
+                            <span>Total Amount</span>
+                            <span>Rs {{ order.final_price }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Button -->
+        <div class="p-6 text-center">
+            <button onclick="invoiceManager().downloadInvoice()" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold py-3 px-8 rounded-full hover:opacity-90 transition duration-300 transform hover:scale-105 shadow-lg">
+                Download Invoice
+            </button>
+        </div>
     </div>
 
     <script>
-        function orderDetails() {
+        function invoiceManager() {
             return {
-                downloadPdf() {
+                downloadInvoice() {
                     const { jsPDF } = window.jspdf;
-                    const element = document.getElementById('orderDetails');
-                    html2canvas(element).then(canvas => {
+                    const element = document.getElementById('invoice-wrapper');
+                    
+                    html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
+                        const pdf = new jsPDF('p', 'mm', 'a4');
                         const imgData = canvas.toDataURL('image/png');
-                        const pdf = new jsPDF({
-                            orientation: 'portrait',
-                            unit: 'px',
-                            format: [canvas.width, canvas.height]
-                        });
-                        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                        pdf.save('order-summary.pdf');
+                        const imgProps = pdf.getImageProperties(imgData);
+                        const pdfWidth = pdf.internal.pageSize.getWidth();
+                        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                        pdf.save(`Invoice_Order_{{ order.order_id }}.pdf`);
                     });
                 },
-                getStatusColor() {
-                    const status = '{{ order.status }}';
-                    switch(status.toLowerCase()) {
+                getStatusBadgeClass() {
+                    const statusBadge = document.getElementById('status-badge');
+                    const status = "{{ order.status }}".toLowerCase();
+                    
+                    // Remove existing classes
+                    statusBadge.classList.remove('bg-yellow-500', 'bg-green-500', 'bg-red-500', 'bg-gray-500', 'bg-blue-500', 'bg-purple-500');
+                    
+                    // Add appropriate class based on status
+                    switch (status) {
                         case 'pending':
-                            return 'bg-yellow-200 text-yellow-800';
+                            statusBadge.classList.add('bg-yellow-500');
+                            break;
                         case 'processing':
-                            return 'bg-blue-200 text-blue-800';
+                            statusBadge.classList.add('bg-blue-500');
+                            break;
                         case 'shipped':
-                            return 'bg-purple-200 text-purple-800';
-                        case 'delivered':
-                            return 'bg-green-200 text-green-800';
+                            statusBadge.classList.add('bg-purple-500');
+                            break;
+                        case 'completed':
+                            statusBadge.classList.add('bg-green-500');
+                            break;
                         case 'cancelled':
-                            return 'bg-red-200 text-red-800';
+                            statusBadge.classList.add('bg-red-500');
+                            break;
                         default:
-                            return 'bg-gray-200 text-gray-800';
+                            statusBadge.classList.add('bg-gray-500');
                     }
                 }
-            }
+            };
         }
+
+        // Call the function to set initial status badge color
+        window.onload = function() {
+            invoiceManager().getStatusBadgeClass();
+        };
     </script>
 </body>
 </html>

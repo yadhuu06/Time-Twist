@@ -1,53 +1,92 @@
 {% extends "AdminSide/base.html" %}
-
 {% block title %}Add Category{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Add New Category</h2>
-    <form action="{% url 'catogory:add_catogory' %}" method="POST">
-        {% csrf_token %}
-        <div class="form-group mb-3">
-            <label for="categoryName">Category Name</label>
-            <input type="text" class="form-control stylish-input" id="categoryName" name="category_name" required>
-        </div>
-        <div class="form-group mb-3">
-            <label for="categoryDescription">Description</label>
-            <textarea class="form-control stylish-input" id="categoryDescription" name="category_description" rows="4" ></textarea>
-        </div>
-        <div class="form-group form-check mb-3">
-            <input type="hidden" name="category_status" value="False">
-            <input type="checkbox" class="form-check-input" id="categoryStatus" name="category_status" value="True" checked>
-            <label class="form-check-label" for="categoryStatus">Active</label>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+<div class="content">
+    <div class="container mt-5">
+        <h2 class="mb-4 text-warning">Add New Category</h2>
+        <form action="{% url 'catogory:add_catogory' %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group mb-3">
+                <label for="categoryName" class="text-warning">Category Name</label>
+                <input type="text" class="form-control custom-input" id="categoryName" name="category_name" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="categoryDescription" class="text-warning">Description</label>
+                <textarea class="form-control custom-input" id="categoryDescription" name="category_description" rows="4"></textarea>
+            </div>
+            <div class="form-group form-check mb-3">
+                <input type="hidden" name="category_status" value="False">
+                <input type="checkbox" class="form-check-input" id="categoryStatus" name="category_status" value="True" checked>
+                <label class="form-check-label text-warning" for="categoryStatus">Active</label>
+            </div>
+            <button type="submit" class="btn custom-button">Submit</button>
+        </form>
+    </div>
+
+    <style>
+        .content {
+            background-color: #1a1a2e;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .custom-input {
+            background-color: #2d2d44;
+            border: 1px solid #ffd700;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .custom-input:focus {
+            background-color: #363654;
+            border-color: #ffe44d;
+            box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
+            color: #fff;
+        }
+
+        .custom-input::placeholder {
+            color: #b3b3b3;
+        }
+
+        .text-warning {
+            color: #ffd700 !important;
+        }
+
+        .custom-button {
+            background-color: #ffd700;
+            border: none;
+            color: #1a1a2e;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .custom-button:hover {
+            background-color: #ffe44d;
+            color: #1a1a2e;
+            transform: translateY(-2px);
+        }
+
+        .form-check-input:checked {
+            background-color: #ffd700;
+            border-color: #ffd700;
+        }
+
+        .form-check-input:focus {
+            border-color: #ffe44d;
+            box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </div>
 
-<style>
-    .stylish-input {
-        color: yellow;
-        background-color: #333;
-        border: 1px solid #444;
-    }
-
-    .stylish-input::placeholder {
-        color: yellow;
-    }
-
-    .form-group label {
-        color: yellow;
-    }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
         {% if messages %}
             const messages = [
                 {% for message in messages %}
                     {
-                        level: "{{ message.tags }}",
                         text: "{{ message }}"
                     },
                 {% endfor %}

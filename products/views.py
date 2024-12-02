@@ -56,8 +56,10 @@ def is_valid_product_name(name):
 @never_cache
 @admin_required
 def add_products(request):
+    print("hello")
     if request.method == 'POST':
         product_name = request.POST.get('product_name').strip()
+        print("product name=",product_name  )
         product_description = request.POST.get('product_description').strip()
         product_category_id = request.POST.get('product_category')
         product_brand_id = request.POST.get('product_brand')
@@ -69,7 +71,7 @@ def add_products(request):
         product_brand = Brand.objects.get(id=product_brand_id) if product_brand_id else None
 
         if not is_valid_product_name(product_name):
-            messages.error(request, 'Product name cannot be empty, contain only spaces, or contain special characters.')
+            messages.error(request, 'Product name cannot be empty, contain only spaces, or contain special charactersand hiphens also are not allowed.')
             return render_form(request, product_name, product_description, price, offer_percentage, is_active)
 
         try:

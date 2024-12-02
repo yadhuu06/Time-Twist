@@ -45,8 +45,9 @@ def place_order(request):
 
         cart = get_object_or_404(Cart, user=request.user)
         cart_items = cart.items.filter(is_active=True)
-        total_price = sum(item.sub_total() for item in cart_items)
+        total_price = sum(item.sub_total() for item in cart_items)   
         main_total = sum(item.main_total() for item in cart_items)
+        product_offer=main_total-total_price
 
         coupon_discount = 0
         if applied_coupon_id:
@@ -83,7 +84,16 @@ def place_order(request):
         if not request.user.is_active:
             messages.error(request, 'Your account is not active.')
             return redirect('checkout')
-
+        order_address = OrderAddress.objects.create(
+            user=request.user,
+            name=selected_address.name,
+            house_name=selected_address.house_name,
+            street_name=selected_address.street_name,
+            pin_number=selected_address.pin_number,
+            district=selected_address.district,
+            state=selected_address.state,
+            phone_number=selected_address.phone_number
+        )
         with transaction.atomic():
             if payment_method == 'razorpay':
                 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
@@ -99,9 +109,9 @@ def place_order(request):
                 
                 order = Order.objects.create(
                     user=request.user,
-                    address=selected_address,
+                    address=order_address,
                     order_id=razorpay_order['id'],
-                    
+                    product_offer=product_offer,
                     total_price=main_total,
                     offer_price=coupon_discount,
                     shipping=shipping_charge,
@@ -174,6 +184,7 @@ def place_order(request):
                     user=request.user,
                     address=selected_address,
                     payment=payment,
+                    product_offer=product_offer,
                     order_id=str(uuid.uuid4()),
                     total_price=main_total,
                     offer_price=coupon_discount,
@@ -249,12 +260,13 @@ def place_order(request):
                         order_id=str(uuid.uuid4()),
                         total_price=main_total,
                         offer_price=coupon_discount,
+                        product_offer=product_offer,
                         final_price=total_price,
                         shipping=shipping_charge,
                         status='Pending'
                     )
-
-                    OrderAddress.objects.create(
+                    
+                    OrderAddress.objects.create(                        
                         user=request.user,
                         name=selected_address.name,
                         house_name=selected_address.house_name,
@@ -378,13 +390,14 @@ def order_details_admin(request, order_id):
 @active_user_required
 def order_details_user(request,order_id):
     order = get_object_or_404(Order, order_id=order_id)
+    shipping_address = order.address
     total_payable=0
     for item in order.items.all():
        
         total_payable+=item.price
     print(total_payable) 
    
-    return render(request, 'UserSide/order_details.html', {'order': order,"total_payable":total_payable})
+    return render(request, 'UserSide/order_details.html', {'order': order,"total_payable":total_payable,'shipping_address': shipping_address})
 
 
 
