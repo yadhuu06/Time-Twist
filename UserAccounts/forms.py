@@ -57,7 +57,7 @@ class EmailAuthenticationForm(AuthenticationForm):
         password = self.cleaned_data.get('password')
 
         if username and password:
-            # Attempt to authenticate the user
+           
             self.user_cache = authenticate(self.request, username=username, password=password)
 
             if self.user_cache is None:
@@ -95,7 +95,7 @@ class SetPasswordForm(forms.Form):
         password1 = self.cleaned_data.get("password1")
         if len(password1) < 8:
             raise ValidationError("Password must be at least 8 characters long.")
-        # Add more validation logic if necessary
+       
         return password1
 
     def clean_password2(self):

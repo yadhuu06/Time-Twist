@@ -18,8 +18,8 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, first_name, last_name, phone_number, password=None):
-        user = self.create_user(email, first_name, last_name, phone_number, password)
+    def create_superuser(self, email, first_name, last_name,  password=None):
+        user = self.create_user(email, first_name, last_name,  password)
         user.is_admin = True
         user.is_active = True  
         user.date_joined = timezone.now()  

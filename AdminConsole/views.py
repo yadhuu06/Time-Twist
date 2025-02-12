@@ -120,7 +120,10 @@ def admin_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        user = authenticate(request, email=email, password=password)       
+        print(password)
+        print(email)
+        user = authenticate(request, email=email, password=password) 
+        print("user",user)
         if user is not None:    
             if user.is_admin:
              

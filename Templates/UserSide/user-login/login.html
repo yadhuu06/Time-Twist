@@ -54,6 +54,13 @@
 	a {
 		text-decoration: none;
 	}
+	.gradient-text {
+		font-size: 2rem;
+		font-weight: bold;
+		background: linear-gradient(90deg, #fdb933, #ff8c00); /* Exact orange-yellow shades */
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;}
+
 </style>
 
 <body>
@@ -68,8 +75,8 @@
 						<img class="img-fluid" src="{% static 'UserSide/img/w1.jpg' %}" alt="">
 						<div class="mt">
 						<div class="hover">
-							<h4 class="mt">New to TimeTwist ?</h4>
-							<p>To Enter the World of Watches Please</p>
+							<h4 class="gradient-text">New to TimeTwist ?</h4>
+							
 							<a class="primary-btn" href="{% url 'Register' %}">Create New Account</a>
 						</div>
 					</div>
