@@ -67,7 +67,7 @@ Time Twist is a feature-rich e-commerce website built using **Django, HTML, CSS,
 ```
 
 The project will be available at **http://127.0.0.1:8000/**
-hosted in AWS :  **http://timetwist.shop/**
+hosted in AWS :  **https://timetwist.shop/**
 
 ## Future Enhancements
 - AI-powered recommendations based on user preferences.
