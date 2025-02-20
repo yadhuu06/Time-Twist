@@ -33,7 +33,7 @@ Time Twist is a feature-rich e-commerce website built using **Django, HTML, CSS,
 - **Frontend:** HTML, CSS, Bootstrap
 - **Authentication:** Google OAuth, OTP-based verification, JWT
 - **Payments:** Razorpay Integration
-- **Deployment:** Can be hosted on platforms like Heroku, AWS, or DigitalOcean
+- **Deployment:** hosted in AWS
 
 ## Installation & Setup
 
